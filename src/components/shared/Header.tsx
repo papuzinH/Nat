@@ -21,15 +21,15 @@ const Header: React.FC = () => {
 
   return (
     <header className="bg-white/80 backdrop-blur-md fixed top-0 left-0 right-0 z-50 shadow-sm">
-      <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="container mx-auto px-4 sm:px-6 lg:px-8 fle">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
-          <Link 
-            to="/" 
-            className="text-2xl text-gray-800 hover:text-orange-600 transition-colors"
+          <Link
+            to="/"
+            className="text-2xl text-gray-800 hover:text-green-600 transition-colors"
             style={{ fontFamily: "'Aboreto', serif" }}
           >
-            Natalia Heller
+            N
           </Link>
 
           {/* Desktop Navigation */}
@@ -38,11 +38,10 @@ const Header: React.FC = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`text-sm tracking-wide transition-colors duration-200 ${
-                  isActivePath(item.path)
-                    ? 'text-orange-600 border-b-2 border-orange-600'
-                    : 'text-gray-700 hover:text-orange-600'
-                }`}
+                className={`text-sm transition-colors duration-200 flex justify-center items-center ${isActivePath(item.path)
+                    ? 'text-green-600 rounded-sm border-orange-600'
+                    : 'text-gray-700 hover:text-green-600'
+                  }`}
                 style={{ fontFamily: "'Gayathri', sans-serif" }}
               >
                 {item.label}
@@ -58,19 +57,16 @@ const Header: React.FC = () => {
           >
             <div className="w-6 h-6 flex flex-col justify-center items-center">
               <span
-                className={`block w-5 h-0.5 bg-current transition-all duration-300 ${
-                  isMenuOpen ? 'rotate-45 translate-y-1' : '-translate-y-1'
-                }`}
+                className={`block w-5 h-0.5 bg-current transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-1' : '-translate-y-1'
+                  }`}
               />
               <span
-                className={`block w-5 h-0.5 bg-current transition-all duration-300 ${
-                  isMenuOpen ? 'opacity-0' : 'opacity-100'
-                }`}
+                className={`block w-5 h-0.5 bg-current transition-all duration-300 ${isMenuOpen ? 'opacity-0' : 'opacity-100'
+                  }`}
               />
               <span
-                className={`block w-5 h-0.5 bg-current transition-all duration-300 ${
-                  isMenuOpen ? '-rotate-45 -translate-y-1' : 'translate-y-1'
-                }`}
+                className={`block w-5 h-0.5 bg-current transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-1' : 'translate-y-1'
+                  }`}
               />
             </div>
           </button>
@@ -84,11 +80,10 @@ const Header: React.FC = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`text-sm tracking-wide transition-colors duration-200 ${
-                    isActivePath(item.path)
+                  className={`text-sm tracking-wide transition-colors duration-200 ${isActivePath(item.path)
                       ? 'text-orange-600'
                       : 'text-gray-700 hover:text-orange-600'
-                  }`}
+                    }`}
                   style={{ fontFamily: "'Gayathri', sans-serif" }}
                   onClick={() => setIsMenuOpen(false)}
                 >

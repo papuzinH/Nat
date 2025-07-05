@@ -5,3 +5,6 @@ export { default as SobreMi } from './SobreMi';
 export { default as Blog } from './Blog';
 export { default as FAQs } from './FAQs';
 export { default as Contacto } from './Contacto';
+
+// Subpáginas de Obras
+export * from './obras-tipos';

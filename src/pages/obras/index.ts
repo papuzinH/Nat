@@ -1,0 +1,9 @@
+export { default as Acrilicos } from './Acrilicos';
+export { default as Acuarelas } from './Acuarelas';
+export { default as FloresPrensadas } from './FloresPrensadas';
+export { default as Gouache } from './Gouache';
+export { default as Ilustraciones } from './Ilustraciones';
+export { default as TecnicasMixtas } from './TecnicasMixtas';
+export { default as Marcadores } from './Marcadores';
+export { default as Ceramicas } from './Ceramicas';
+export { default as Stickers } from './Stickers';
