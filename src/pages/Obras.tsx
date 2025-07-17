@@ -1,5 +1,6 @@
 import React from 'react';
 import { Title, Subtitle, Button } from '../components/shared';
+import HeroSection from '@/components/shared/HeroSection';
 
 const Obras: React.FC = () => {
   // Datos de los tipos de obras
@@ -60,18 +61,26 @@ const Obras: React.FC = () => {
     }
   ];
 
+  const contentHero = () => (
+    <>
+      <Title variant="titlePage" as="h1" className="mb-6 text-white">
+        Mis Obras
+      </Title>
+      <Subtitle variant="large" className="max-w-3xl mx-auto text-white">
+        Cada obra es una expresión única de creatividad y técnica.
+        Explora mi colección de trabajos artísticos organizados por categorías.
+      </Subtitle>
+    </>
+
+  )
+
+
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div className="mx-auto">
       {/* Hero Section */}
-      <div className="text-center mb-16">
-        <Title variant="titlePage" as="h1" className="mb-6">
-          Mis Obras
-        </Title>
-        <Subtitle variant="large" className="max-w-3xl mx-auto">
-          Cada obra es una expresión única de creatividad y técnica. 
-          Explora mi colección de trabajos artísticos organizados por categorías.
-        </Subtitle>
-      </div>
+      <HeroSection video="src/assets/obras_hero.MOV" content={contentHero()} />
+
+      {/* Title Section */}
 
       {/* Cards Grid */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -95,7 +104,7 @@ const Obras: React.FC = () => {
                 </Button>
               </div>
             </div>
-            
+
             {/* Content */}
             <div className="p-6">
               <Title variant="titleCard" as="h3" className="mb-3 group-hover:text-cream-700 transition-colors">

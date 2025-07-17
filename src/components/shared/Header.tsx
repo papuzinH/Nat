@@ -20,7 +20,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white/80 backdrop-blur-md fixed top-0 left-0 right-0 z-50 shadow-sm">
+    <header className="bg-white/20 backdrop-blur-md fixed top-0 left-0 right-0 z-50 shadow-sm">
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8 fle">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
@@ -38,7 +38,7 @@ const Header: React.FC = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`text-sm transition-colors duration-200 flex justify-center items-center ${isActivePath(item.path)
+                className={`text-,md transition-colors duration-200 flex justify-center items-center ${isActivePath(item.path)
                     ? 'text-green-600 rounded-sm border-orange-600'
                     : 'text-gray-700 hover:text-green-600'
                   }`}
