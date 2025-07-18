@@ -5,6 +5,7 @@ interface ObraData {
   id: number;
   title: string;
   description: string;
+  image: string;
 }
 
 interface GridObrasProps {
@@ -18,10 +19,12 @@ const GridObras: React.FC<GridObrasProps> = ({ obras }) => {
         <div key={obra.id} className="group cursor-pointer">
           <div className="relative overflow-hidden bg-cream-100 aspect-square hover:shadow-2xl transition-all duration-500 transform">
             {/* Imagen placeholder */}
-            <div className="absolute inset-0 bg-gradient-to-br from-cream-200 to-cream-300 flex items-center justify-center">
-              <span className="text-cream-600 font-body text-sm opacity-30">Imagen {obra.id}</span>
-            </div>
-            
+            <img
+              src={obra.image}
+              alt={obra.title}
+              className="w-full h-full object-cover transition-transform duration-300"
+            />
+
             {/* Overlay con título - aparece solo en hover */}
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-center justify-center">
               <div className="text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0">

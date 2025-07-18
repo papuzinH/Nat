@@ -1,6 +1,7 @@
 import React from 'react';
-import { Title, Subtitle, Button } from '../components/shared';
+import { Title, Subtitle } from '../components/shared';
 import HeroSection from '@/components/shared/HeroSection';
+import ObrasGrid from '@/components/obras/ObrasGrid';
 
 const Obras: React.FC = () => {
   // Datos de los tipos de obras
@@ -8,55 +9,64 @@ const Obras: React.FC = () => {
     {
       id: 'acrilicos',
       title: 'Acrílicos',
-      description: 'Obras realizadas con pintura acrílica, explorando texturas y colores vibrantes.',
+      image: 'src/assets/obras/acrilico.jpg',
+      description: 'Pinturas hechas con acrílico sobre papel o sobre bastidores de tela.',
       route: '/obras/acrilicos'
     },
     {
       id: 'acuarelas',
       title: 'Acuarelas',
-      description: 'La delicadeza y transparencia de la acuarela en composiciones únicas.',
+      image: 'src/assets/obras/acuarela.jpg',
+      description: 'Sobre papel 100% algodón de alto gramaje, con grano fino o grueso.',
       route: '/obras/acuarelas'
     },
     {
       id: 'flores-prensadas',
       title: 'Flores Prensadas',
-      description: 'Técnica ancestral que conserva la belleza natural en composiciones artísticas.',
+      image: 'src/assets/obras_acrilicos.webp',
+      description: 'Plantas recolectadas, prensadas y enmarcadas.',
       route: '/obras/flores-prensadas'
     },
     {
       id: 'gouache',
       title: 'Gouache',
-      description: 'Opacidad y versatilidad en obras con colores intensos y acabados únicos.',
+      image: 'src/assets/obras_acrilicos.webp',
+      description: 'Pinturas hechas con HIMI GOUACHE sobre papel de alto gramaje.',
       route: '/obras/gouache'
     },
     {
       id: 'ilustraciones',
       title: 'Ilustraciones',
-      description: 'Creaciones que narran historias y desarrollan mundos imaginarios.',
+      image: 'src/assets/obras_acrilicos.webp',
+      description: 'Dibujos hechos con estilógrafos en distintos tamaños de punta fina.',
       route: '/obras/ilustraciones'
     },
     {
       id: 'tecnicas-mixtas',
       title: 'Técnicas Mixtas',
-      description: 'Combinación de materiales y técnicas para crear obras innovadoras.',
+      image: 'src/assets/obras_acrilicos.webp',
+      description: 'Obras que combinan distintos medios en una misma superficie.',
       route: '/obras/tecnicas-mixtas'
     },
     {
       id: 'marcadores',
       title: 'Marcadores',
-      description: 'Inmediatez y precisión en trazos seguros y colores vibrantes.',
+      image: 'src/assets/obras_acrilicos.webp',
+      description: 'Pinturas hechas con marcadores de colores en formato pequeño.',
       route: '/obras/marcadores'
     },
     {
       id: 'ceramicas',
       title: 'Cerámicas',
-      description: 'Tradición artesanal fusionada con expresión contemporánea.',
+      image: 'src/assets/obras_acrilicos.webp',
+      description: 'Piezas únicas hechas con arcilla y técnicas varias de esmaltado.',
       route: '/obras/ceramicas'
     },
     {
       id: 'stickers',
       title: 'Stickers',
-      description: 'Diseños únicos y divertidos para la expresión personal cotidiana.',
+      image: 'src/assets/obras_acrilicos.webp',
+      description: 'Para que puedas tener un pedacito de NAT en cualquier objeto.',
       route: '/obras/stickers'
     }
   ];
@@ -83,40 +93,7 @@ const Obras: React.FC = () => {
       {/* Title Section */}
 
       {/* Cards Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {tiposObras.map((tipo) => (
-          <div key={tipo.id} className="group relative overflow-hidden rounded-lg bg-white shadow-sm hover:shadow-lg transition-all duration-300">
-            {/* Image Container */}
-            <div className="relative h-64 bg-gradient-to-br from-cream-200 to-cream-300 flex items-center justify-center">
-              <span className="text-cream-600 font-body text-sm">Imagen {tipo.title}</span>
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
-              {/* Button - aparece solo en hover */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <Button
-                  variant="outline"
-                  size="medium"
-                  as="link"
-                  to={tipo.route}
-                  className="bg-white/90 border-white text-cream-800 hover:bg-white hover:text-cream-900 shadow-lg"
-                >
-                  Ver Obras
-                </Button>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="p-6">
-              <Title variant="titleCard" as="h3" className="mb-3 group-hover:text-cream-700 transition-colors">
-                {tipo.title}
-              </Title>
-              <Subtitle variant="small" as="p" className="text-cream-600 leading-relaxed">
-                {tipo.description}
-              </Subtitle>
-            </div>
-          </div>
-        ))}
-      </section>
+      <ObrasGrid tiposObras={tiposObras} />
     </div>
   );
 };
