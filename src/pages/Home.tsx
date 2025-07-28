@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Title } from '../components/shared';
+import { Title, Footer } from '../components/shared';
 
 const NavigationCard: React.FC<{ 
   to: string; 
@@ -86,29 +86,34 @@ const Home: React.FC = () => {
   const videoHero = "src/assets/sobremi_hero.mp4";
 
   return (
-    <div className="relative">
-      {/* Full Screen Hero Video Section */}
-      <section className="relative h-[100dvh] flex items-center justify-center overflow-hidden">
-        {/* Background Video */}
-        <video
-          className="absolute top-0 left-0 w-full h-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-        >
-          <source src={videoHero} type="video/mp4" />
-          Tu navegador no soporta el elemento de video.
-        </video>
+    <div className="relative min-h-screen flex flex-col">
+      {/* Background Video - Full Page */}
+      <video
+        className="fixed top-0 left-0 w-full h-full object-cover z-0"
+        autoPlay
+        muted
+        loop
+        playsInline
+      >
+        <source src={videoHero} type="video/mp4" />
+        Tu navegador no soporta el elemento de video.
+      </video>
 
-        {/* Background Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60"></div>
+      {/* Background Overlay - Full Page */}
+      <div className="fixed inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60 z-0"></div>
 
+      {/* Hero Content Section */}
+      <section className="relative h-[100dvh] flex items-center justify-center overflow-hidden z-10">
         {/* Content over video */}
-        <div className="relative z-10 w-full h-full">
+        <div className="relative w-full h-full">
           <ContentHero />
         </div>
       </section>
+
+      {/* Footer */}
+      <div className="relative z-10">
+        <Footer />
+      </div>
 
       {/* Custom styles for animations */}
       <style>{`

@@ -30,7 +30,6 @@ function App() {
         <Route path="/*" element={
           <Layout>
             <Routes>
-              <Route path="/" element={<Home />} />
               <Route path="/obras" element={<Obras />} />
               <Route path="/obras/acrilicos" element={<Acrilicos />} />
               <Route path="/obras/acuarelas" element={<Acuarelas />} />
