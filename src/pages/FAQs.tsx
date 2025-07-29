@@ -53,7 +53,7 @@ const FAQs: React.FC = () => {
   } = useFAQLogic(faqData);
 
   return (
-    <>
+    <div className="min-h-screen">
       <FAQHero
         searchTerm={searchTerm}
         searchResults={searchResults}
@@ -75,7 +75,7 @@ const FAQs: React.FC = () => {
           
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

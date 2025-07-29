@@ -53,7 +53,7 @@ const Tattoo: React.FC = () => {
   )
 
   return (
-    <div className=" mx-auto">
+    <div className="min-h-screen">
       <HeroSection video="src/assets/hero_video.mov" content={contentHero()} />
 
       <ContenidoText content={content_first} />

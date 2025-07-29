@@ -86,7 +86,7 @@ const Obras: React.FC = () => {
 
 
   return (
-    <div className="mx-auto">
+    <div className="min-h-screen">
       {/* Hero Section */}
       <HeroSection video="src/assets/obras_hero.MOV" content={contentHero()} />
 
