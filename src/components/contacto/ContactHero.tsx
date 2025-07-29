@@ -1,33 +1,9 @@
 import React from 'react';
-import { Title, Subtitle } from '../shared';
+import { Title, Subtitle, Footer } from '../shared';
 import ContactForm from './ContactForm';
-import SuccessModal from './SuccessModal';
 import heroVideo from '../../assets/hero_video.mov';
 
-interface FormData {
-    name: string;
-    email: string;
-    subject: string;
-    message: string;
-}
-
-interface ContactHeroProps {
-    formData: FormData;
-    isSubmitting: boolean;
-    showSuccessModal: boolean;
-    onFieldChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-    onSubmit: (e: React.FormEvent) => void;
-    onCloseSuccessModal: () => void;
-}
-
-const ContactHero: React.FC<ContactHeroProps> = ({
-    formData,
-    isSubmitting,
-    showSuccessModal,
-    onFieldChange,
-    onSubmit,
-    onCloseSuccessModal
-}) => {
+const ContactHero: React.FC = () => {
     return (
         <>
             <div className="relative min-h-screen flex flex-col">
@@ -59,23 +35,16 @@ const ContactHero: React.FC<ContactHeroProps> = ({
                                 </Subtitle>
                             </div>
 
-                            <ContactForm
-                                formData={formData}
-                                isSubmitting={isSubmitting}
-                                onFieldChange={onFieldChange}
-                                onSubmit={onSubmit}
-                            />
+                            <ContactForm />
                         </div>
                     </div>
                 </section>
 
-                
+                {/* Footer with transparent background */}
+                <div className="relative z-10 mt-auto">
+                    <Footer />
+                </div>
             </div>
-
-            <SuccessModal
-                isOpen={showSuccessModal}
-                onClose={onCloseSuccessModal}
-            />
         </>
     );
 };
