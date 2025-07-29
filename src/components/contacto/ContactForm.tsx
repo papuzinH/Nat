@@ -11,7 +11,6 @@ interface FormData {
 interface ContactFormProps {
     formData: FormData;
     isSubmitting: boolean;
-    isSubmitted: boolean;
     onFieldChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
     onSubmit: (e: React.FormEvent) => void;
 }
@@ -19,30 +18,9 @@ interface ContactFormProps {
 const ContactForm: React.FC<ContactFormProps> = ({
     formData,
     isSubmitting,
-    isSubmitted,
     onFieldChange,
     onSubmit
 }) => {
-    if (isSubmitted) {
-        return (
-            <div className="text-center w-full">
-                <div className="bg-white/95 backdrop-blur-sm border border-cream-200 rounded-xl p-8 shadow-lg">
-                    <div className="mb-6">
-                        <div className="w-16 h-16 bg-green-100 rounded-full mx-auto flex items-center justify-center mb-4">
-                            <span className="text-green-600 text-2xl">✓</span>
-                        </div>
-                        <h3 className="text-2xl font-title text-gray-800 mb-2">
-                            ¡Mensaje Enviado!
-                        </h3>
-                        <p className="text-gray-600 font-body">
-                            Gracias por contactarme. Te responderé dentro de 24-48 horas.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="w-full max-w-lg hover:scale-[1.02] transition-transform duration-300">
             <div className="bg-white/25 backdrop-blur-sm rounded-xl p-8 shadow-lg">

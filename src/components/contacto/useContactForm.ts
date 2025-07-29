@@ -16,7 +16,7 @@ export const useContactForm = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -36,24 +36,26 @@ export const useContactForm = () => {
       // Simular envío
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      setIsSubmitted(true);
+      // Mostrar modal de éxito
+      setShowSuccessModal(true);
       
-      // Reset form after 3 seconds
-      setTimeout(() => {
-        setFormData({
-          name: '',
-          email: '',
-          subject: '',
-          message: ''
-        });
-        setIsSubmitted(false);
-      }, 3000);
+      // Reset form después de mostrar el modal
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
       
     } catch (error) {
       console.error('Error enviando formulario:', error);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const closeSuccessModal = () => {
+    setShowSuccessModal(false);
   };
 
   const resetForm = () => {
@@ -63,15 +65,16 @@ export const useContactForm = () => {
       subject: '',
       message: ''
     });
-    setIsSubmitted(false);
+    setShowSuccessModal(false);
   };
 
   return {
     formData,
     isSubmitting,
-    isSubmitted,
+    showSuccessModal,
     handleChange,
     handleSubmit,
+    closeSuccessModal,
     resetForm
   };
 };

@@ -6,9 +6,10 @@ const Contacto: React.FC = () => {
   const {
     formData,
     isSubmitting,
-    isSubmitted,
+    showSuccessModal,
     handleChange,
-    handleSubmit
+    handleSubmit,
+    closeSuccessModal
   } = useContactForm();
 
   return (
@@ -16,9 +17,10 @@ const Contacto: React.FC = () => {
       <ContactHero
         formData={formData}
         isSubmitting={isSubmitting}
-        isSubmitted={isSubmitted}
+        showSuccessModal={showSuccessModal}
         onFieldChange={handleChange}
         onSubmit={handleSubmit}
+        onCloseSuccessModal={closeSuccessModal}
       />
       
       <Footer />

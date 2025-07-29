@@ -18,7 +18,7 @@ const HeroSection = ({video, content}: {video: string, content: React.ReactNode}
             <div className="absolute inset-0 bg-black/40"></div>
 
             {/* Content over video */}
-            <div className="relative z-10 text-center text-white max-w-7xl w-full">
+            <div className="relative z-10 text-center text-white max-w-6xl w-full">
                 {content}
             </div>
         </section>
