@@ -1,6 +1,5 @@
 import React from 'react';
 import { ContactHero, useContactForm } from '../components/contacto';
-import Footer from '../components/shared/Footer';
 
 const Contacto: React.FC = () => {
   const {
@@ -13,18 +12,14 @@ const Contacto: React.FC = () => {
   } = useContactForm();
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <ContactHero
-        formData={formData}
-        isSubmitting={isSubmitting}
-        showSuccessModal={showSuccessModal}
-        onFieldChange={handleChange}
-        onSubmit={handleSubmit}
-        onCloseSuccessModal={closeSuccessModal}
-      />
-      
-      <Footer />
-    </div>
+    <ContactHero
+      formData={formData}
+      isSubmitting={isSubmitting}
+      showSuccessModal={showSuccessModal}
+      onFieldChange={handleChange}
+      onSubmit={handleSubmit}
+      onCloseSuccessModal={closeSuccessModal}
+    />
   );
 };
 

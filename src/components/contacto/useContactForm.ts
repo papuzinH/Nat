@@ -3,7 +3,8 @@ import { useState } from 'react';
 interface FormData {
   name: string;
   email: string;
-  subject: string;
+  phone: string;
+  service: string;
   message: string;
 }
 
@@ -11,7 +12,8 @@ export const useContactForm = () => {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
-    subject: '',
+    phone: '',
+    service: '',
     message: ''
   });
 
@@ -43,7 +45,8 @@ export const useContactForm = () => {
       setFormData({
         name: '',
         email: '',
-        subject: '',
+        phone: '',
+        service: '',
         message: ''
       });
       
@@ -62,7 +65,8 @@ export const useContactForm = () => {
     setFormData({
       name: '',
       email: '',
-      subject: '',
+      phone: '',
+      service: '',
       message: ''
     });
     setShowSuccessModal(false);
