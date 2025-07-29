@@ -1,13 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
-import HeroSection from '../components/shared/HeroSection';
-import heroVideo from '../assets/hero_video.mov';
+import React from 'react';
+import {
+  FAQHero,
+  FAQAccordion,
+  FAQContactCTA,
+  useFAQLogic
+} from '../components/faqs';
 
 const FAQs: React.FC = () => {
-  const [openQuestion, setOpenQuestion] = useState<number | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [searchResults, setSearchResults] = useState<number[]>([]);
-  const faqRefs = useRef<(HTMLDivElement | null)[]>([]);
-
   const faqData = [
     {
       question: '¿Cuánto tiempo toma hacer un tatuaje?',
@@ -43,161 +42,39 @@ const FAQs: React.FC = () => {
     }
   ];
 
-  // Función para normalizar texto (remover tildes y mayúsculas)
-  const normalizeText = (text: string): string => {
-    return text
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, ''); // Remueve diacríticos/tildes
-  };
-
-  // Función para buscar en faqData
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
-    if (term.trim() === '') {
-      setSearchResults([]);
-      return;
-    }
-
-    const normalizedTerm = normalizeText(term);
-
-    const results = faqData
-      .map((faq, index) => {
-        const searchText = normalizeText(`${faq.question} ${faq.answer}`);
-        return searchText.includes(normalizedTerm) ? index : -1;
-      })
-      .filter(index => index !== -1);
-
-    setSearchResults(results);
-  };
-
-  // Función para hacer scroll a una pregunta específica
-  const scrollToQuestion = (index: number) => {
-    const element = faqRefs.current[index];
-    if (element) {
-      element.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center' 
-      });
-      setOpenQuestion(index);
-      setSearchTerm('');
-      setSearchResults([]);
-    }
-  };
-
-  // Inicializar refs array
-  useEffect(() => {
-    faqRefs.current = faqRefs.current.slice(0, faqData.length);
-  }, [faqData.length]);
-
-  const toggleQuestion = (index: number) => {
-    setOpenQuestion(openQuestion === index ? null : index);
-  };
+  const {
+    openQuestion,
+    searchTerm,
+    searchResults,
+    faqRefs,
+    handleSearch,
+    scrollToQuestion,
+    toggleQuestion
+  } = useFAQLogic(faqData);
 
   return (
     <>
-      {/* Hero Section */}
-      <HeroSection 
-        video={heroVideo}
-        content={
-          <div className="max-w-4xl mx-auto px-4">
-            <h1 className="text-4xl md:text-6xl font-title text-white mb-6">
-              Preguntas Frecuentes
-            </h1>
-            <p className="text-xl md:text-2xl text-white/90 font-body mb-8 leading-relaxed">
-              Encuentra respuestas rápidas a tus dudas sobre tatuajes
-            </p>
-            
-            {/* Buscador */}
-            <div className="relative max-w-md mx-auto">
-              <input
-                type="text"
-                placeholder="Buscar preguntas..."
-                value={searchTerm}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="w-full px-6 py-4 lead rounded-full text-gray-800 font-body placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cream-400 shadow-lg"
-              />
-              
-              
-              {/* Resultados de búsqueda */}
-              {searchResults.length > 0 && searchTerm && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-cream-200 max-h-60 overflow-y-auto z-50">
-                  {searchResults.map((resultIndex) => (
-                    <button
-                      key={resultIndex}
-                      onClick={() => scrollToQuestion(resultIndex)}
-                      className="w-full text-left px-4 py-3 hover:bg-cream-50 transition-colors border-b border-cream-100 last:border-b-0"
-                    >
-                      <div className="font-title text-gray-800 text-sm">
-                        {faqData[resultIndex].question}
-                      </div>
-                      <div className="font-body text-gray-600 text-xs mt-1 line-clamp-2">
-                        {faqData[resultIndex].answer.substring(0, 100)}...
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        }
+      <FAQHero
+        searchTerm={searchTerm}
+        searchResults={searchResults}
+        faqData={faqData}
+        onSearch={handleSearch}
+        onSelectResult={scrollToQuestion}
       />
 
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="max-w-4xl mx-auto">
-        {/* FAQ Accordion */}
-        <section className="space-y-4">
-          {faqData.map((faq, index) => (
-            <div
-              key={index}
-              ref={(el) => { faqRefs.current[index] = el; }}
-              className="bg-white border border-cream-200 rounded-lg overflow-hidden"
-            >
-              <button
-                className="w-full px-6 py-6 text-left flex justify-between items-center hover:bg-cream-50 transition-colors focus:outline-none focus:bg-cream-50"
-                onClick={() => toggleQuestion(index)}
-              >
-                <h3 className="text-lg font-title text-gray-800 pr-4">
-                  {faq.question}
-                </h3>
-                <div className="flex-shrink-0">
-                  <span
-                    className={`transform transition-transform duration-200 text-cream-600 text-xl ${
-                      openQuestion === index ? 'rotate-45' : 'rotate-0'
-                    }`}
-                  >
-                    +
-                  </span>
-                </div>
-              </button>
-              {openQuestion === index && (
-                <div className="px-6 pb-6">
-                  <p className="text-gray-600 font-body leading-relaxed">
-                    {faq.answer}
-                  </p>
-                </div>
-              )}
-            </div>
-          ))}
-        </section>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-4xl mx-auto">
+          <FAQAccordion
+            faqData={faqData}
+            openQuestion={openQuestion}
+            faqRefs={faqRefs}
+            onToggleQuestion={toggleQuestion}
+          />
 
-        {/* Contact CTA */}
-        <section className="text-center mt-16 py-16 bg-cream-100 rounded-lg">
-          <h2 className="text-3xl font-title text-gray-800 mb-6">
-            ¿No encontraste tu respuesta?
-          </h2>
-          <p className="text-gray-600 font-body mb-8 max-w-2xl mx-auto">
-            Si tienes alguna pregunta específica que no está aquí, 
-            no dudes en contactarme directamente.
-          </p>
-          <button className="bg-cream-600 text-white px-8 py-3 rounded-md font-body hover:bg-cream-700 transition-colors">
-            Contactarme
-          </button>
-        </section>
-
-      
+          <FAQContactCTA />
+          
+        </div>
       </div>
-    </div>
     </>
   );
 };
