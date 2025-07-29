@@ -1,5 +1,5 @@
 import React from 'react';
-import { Title, Subtitle, Footer } from '../shared';
+import { Title, Subtitle } from '../shared';
 import ContactForm from './ContactForm';
 import heroVideo from '../../assets/hero_video.mov';
 
@@ -40,10 +40,7 @@ const ContactHero: React.FC = () => {
                     </div>
                 </section>
 
-                {/* Footer with transparent background */}
-                <div className="relative z-10 mt-auto">
-                    <Footer />
-                </div>
+
             </div>
         </>
     );
