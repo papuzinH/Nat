@@ -4,31 +4,38 @@ import HeroSection from '@/components/shared/HeroSection';
 import ContenidoText from '@/components/tattoo/ContenidoText';
 import CTATattooSection from '@/components/tattoo/CTATattooSection';
 import GallerySection from '@/components/tattoo/GallerySection';
+// Import tattoo images
+import tat1 from '../assets/tattoo/tat1.jpg';
+import tat2 from '../assets/tattoo/tat2.jpg';
+import tat3 from '../assets/tattoo/tat3.jpg';
+import tat4 from '../assets/tattoo/tat4.jpg';
+import heroRoomImage from '../assets/hero_room_image.webp';
+import heroVideo from '../assets/hero_video.mov';
 
 const Tattoo: React.FC = () => {
   const tattoos = [
     {
       id: 'tattoo1',
       title: 'Tatuaje Floral',
-      image: 'src/assets/tattoo/tat1.jpg',
+      image: tat1,
       description: 'Un hermoso tatuaje floral con detalles intrincados.',
     },
     {
       id: 'tattoo2',
       title: 'Tatuaje Geométrico',
-      image: 'src/assets/tattoo/tat2.jpg',
+      image: tat2,
       description: 'Un tatuaje geométrico moderno y minimalista.',
     },
     {
       id: 'tattoo3',
       title: 'Tatuaje de Animales',
-      image: 'src/assets/tattoo/tat3.jpg',
+      image: tat3,
       description: 'Un tatuaje realista de un animal salvaje.',
     },
     {
       id: 'tattoo4',
       title: 'Tatuaje de Mandala',
-      image: 'src/assets/tattoo/tat4.jpg',
+      image: tat4,
       description: 'Un tatuaje mandala con patrones detallados.',
     }
   ];
@@ -54,11 +61,14 @@ const Tattoo: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      <HeroSection video="src/assets/hero_video.mov" content={contentHero()} />
+      <HeroSection video={heroVideo} content={contentHero()} />
 
       <ContenidoText content={content_first} />
 
-      <div className='relative bg-[url("src/assets/hero_room_image.webp")] bg-cover bg-center bg-no-repeat my-16'>
+      <div 
+        className='relative bg-cover bg-center bg-no-repeat my-16'
+        style={{ backgroundImage: `url(${heroRoomImage})` }}
+      >
         <Section className='relative z-20 py-32 flex flex-col items-center justify-center text-center gap-8'>
           <Title as="h2" variant="titleSection" className="font-normal text-white text-center">
             Conocé el estudio

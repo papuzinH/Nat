@@ -1,6 +1,10 @@
 import React from 'react';
 import { Section, Title } from '../shared';
 import ContentImage from './ContentImage';
+// Import images
+import sobremi1 from '../../assets/sobremi_1.webp';
+import sobremi2 from '../../assets/sobremi_2.webp';
+import sobremi3 from '../../assets/sobremi_3.webp';
 
 const AboutSobreMi: React.FC = () => {
   return (
@@ -24,7 +28,7 @@ const AboutSobreMi: React.FC = () => {
             </p>
           </>
         }
-        image={"src/assets/sobremi_1.webp"}
+        image={sobremi1}
         alt="Natalia en su estudio"
       />
 
@@ -43,7 +47,7 @@ const AboutSobreMi: React.FC = () => {
             </p>
           </>
         }
-        image={"src/assets/sobremi_2.webp"}
+        image={sobremi2}
         alt="Natalia en su estudio"
       />
 
@@ -61,7 +65,7 @@ const AboutSobreMi: React.FC = () => {
             </p>
           </>
         }
-        image={"/src/assets/sobremi_3.webp"}
+        image={sobremi3}
         alt="Natalia trabajando en su estudio"
       />
     </Section>

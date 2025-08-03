@@ -1,5 +1,6 @@
 import React from 'react';
 import { Title, Subtitle, Section } from '../shared';
+import natProfileImage from '../../assets/nat_profile.webp';
 
 const BlogIntroduction: React.FC = () => {
   return (
@@ -33,7 +34,7 @@ const BlogIntroduction: React.FC = () => {
           <div className="relative">
             <div className="aspect-[4/5] bg-cream-200 rounded-lg overflow-hidden shadow-lg">
               <img
-                src="/src/assets/nat_profile.webp"
+                src={natProfileImage}
                 alt="Natalia trabajando en su estudio"
                 className="w-full h-full object-cover"
                 loading="lazy"

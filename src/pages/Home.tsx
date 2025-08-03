@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Title, Footer } from '../components/shared';
+import sobremiHeroVideo from '../assets/sobremi_hero.mp4';
 
 const NavigationCard: React.FC<{ 
   to: string; 
@@ -83,8 +84,6 @@ const ContentHero = () => (
 );
 
 const Home: React.FC = () => {
-  const videoHero = "src/assets/sobremi_hero.mp4";
-
   return (
     <div className="relative min-h-screen flex flex-col">
       {/* Background Video - Full Page */}
@@ -95,7 +94,7 @@ const Home: React.FC = () => {
         loop
         playsInline
       >
-        <source src={videoHero} type="video/mp4" />
+        <source src={sobremiHeroVideo} type="video/mp4" />
         Tu navegador no soporta el elemento de video.
       </video>
 

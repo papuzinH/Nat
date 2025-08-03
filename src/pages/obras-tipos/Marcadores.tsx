@@ -1,15 +1,17 @@
 import React from 'react';
 import { HeaderObras, GridObras } from '../../components/shared';
+// Import placeholder image
+import heroAcrilico from '../../assets/obras/hero-acrilico.webp';
 
 const Marcadores: React.FC = () => {
   // Datos de ejemplo para las obras con marcadores
   const marcadoresData = [
-    { id: 1, title: 'Dibujo Lineal', description: 'Marcadores sobre papel 20x30cm' },
-    { id: 2, title: 'Estudio de Forma', description: 'Marcadores sobre papel 25x35cm' },
-    { id: 3, title: 'Boceto Expresivo', description: 'Marcadores sobre papel 30x40cm' },
-    { id: 4, title: 'Trazo Gestual', description: 'Marcadores sobre papel 15x20cm' },
-    { id: 5, title: 'Composición Rápida', description: 'Marcadores sobre papel 35x45cm' },
-    { id: 6, title: 'Sketch Urbano', description: 'Marcadores sobre papel 20x30cm' },
+    { id: 1, title: 'Dibujo Lineal', description: 'Marcadores sobre papel 20x30cm', image: heroAcrilico },
+    { id: 2, title: 'Estudio de Forma', description: 'Marcadores sobre papel 25x35cm', image: heroAcrilico },
+    { id: 3, title: 'Boceto Expresivo', description: 'Marcadores sobre papel 30x40cm', image: heroAcrilico },
+    { id: 4, title: 'Trazo Gestual', description: 'Marcadores sobre papel 15x20cm', image: heroAcrilico },
+    { id: 5, title: 'Composición Rápida', description: 'Marcadores sobre papel 35x45cm', image: heroAcrilico },
+    { id: 6, title: 'Sketch Urbano', description: 'Marcadores sobre papel 20x30cm', image: heroAcrilico },
   ];
 
   return (
