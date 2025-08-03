@@ -5,7 +5,7 @@ interface ObraData {
   id: number;
   title: string;
   description: string;
-  image: string;
+  image?: string;
 }
 
 interface GridObrasProps {

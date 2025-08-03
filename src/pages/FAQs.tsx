@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
+import {
+  FAQHero,
+  FAQAccordion,
+  FAQContactCTA,
+  useFAQLogic
+} from '../components/faqs';
 
 const FAQs: React.FC = () => {
-  const [openQuestion, setOpenQuestion] = useState<number | null>(null);
-
   const faqData = [
     {
       question: '¿Cuánto tiempo toma hacer un tatuaje?',
@@ -38,106 +42,38 @@ const FAQs: React.FC = () => {
     }
   ];
 
-  const toggleQuestion = (index: number) => {
-    setOpenQuestion(openQuestion === index ? null : index);
-  };
+  const {
+    openQuestion,
+    searchTerm,
+    searchResults,
+    faqRefs,
+    handleSearch,
+    scrollToQuestion,
+    toggleQuestion
+  } = useFAQLogic(faqData);
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-title text-gray-800 mb-6">
-            Preguntas Frecuentes
-          </h1>
-          <p className="text-xl text-gray-600 font-body leading-relaxed">
-            Encuentra respuestas a las preguntas más comunes sobre tatuajes y mi proceso de trabajo.
-          </p>
+    <div className="min-h-screen">
+      <FAQHero
+        searchTerm={searchTerm}
+        searchResults={searchResults}
+        faqData={faqData}
+        onSearch={handleSearch}
+        onSelectResult={scrollToQuestion}
+      />
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-4xl mx-auto">
+          <FAQAccordion
+            faqData={faqData}
+            openQuestion={openQuestion}
+            faqRefs={faqRefs}
+            onToggleQuestion={toggleQuestion}
+          />
+
+          <FAQContactCTA />
+          
         </div>
-
-        {/* FAQ Accordion */}
-        <section className="space-y-4">
-          {faqData.map((faq, index) => (
-            <div
-              key={index}
-              className="bg-white border border-cream-200 rounded-lg overflow-hidden"
-            >
-              <button
-                className="w-full px-6 py-6 text-left flex justify-between items-center hover:bg-cream-50 transition-colors focus:outline-none focus:bg-cream-50"
-                onClick={() => toggleQuestion(index)}
-              >
-                <h3 className="text-lg font-title text-gray-800 pr-4">
-                  {faq.question}
-                </h3>
-                <div className="flex-shrink-0">
-                  <span
-                    className={`transform transition-transform duration-200 text-cream-600 text-xl ${
-                      openQuestion === index ? 'rotate-45' : 'rotate-0'
-                    }`}
-                  >
-                    +
-                  </span>
-                </div>
-              </button>
-              {openQuestion === index && (
-                <div className="px-6 pb-6">
-                  <p className="text-gray-600 font-body leading-relaxed">
-                    {faq.answer}
-                  </p>
-                </div>
-              )}
-            </div>
-          ))}
-        </section>
-
-        {/* Contact CTA */}
-        <section className="text-center mt-16 py-16 bg-cream-100 rounded-lg">
-          <h2 className="text-3xl font-title text-gray-800 mb-6">
-            ¿No encontraste tu respuesta?
-          </h2>
-          <p className="text-gray-600 font-body mb-8 max-w-2xl mx-auto">
-            Si tienes alguna pregunta específica que no está aquí, 
-            no dudes en contactarme directamente.
-          </p>
-          <button className="bg-cream-600 text-white px-8 py-3 rounded-md font-body hover:bg-cream-700 transition-colors">
-            Contactarme
-          </button>
-        </section>
-
-        {/* Quick Tips */}
-        <section className="mt-16">
-          <h2 className="text-3xl font-title text-gray-800 text-center mb-12">
-            Consejos Rápidos
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center space-y-4">
-              <div className="bg-cream-200 w-16 h-16 rounded-full mx-auto flex items-center justify-center">
-                <span className="text-cream-600 text-xl">💡</span>
-              </div>
-              <h3 className="text-lg font-title text-gray-800">Planifica con tiempo</h3>
-              <p className="text-gray-600 font-body text-sm">
-                Los buenos diseños necesitan tiempo. Programa tu consulta con anticipación.
-              </p>
-            </div>
-            <div className="text-center space-y-4">
-              <div className="bg-cream-200 w-16 h-16 rounded-full mx-auto flex items-center justify-center">
-                <span className="text-cream-600 text-xl">🎨</span>
-              </div>
-              <h3 className="text-lg font-title text-gray-800">Trae referencias</h3>
-              <p className="text-gray-600 font-body text-sm">
-                Comparte imágenes e ideas que te inspiren para tu tatuaje.
-              </p>
-            </div>
-            <div className="text-center space-y-4">
-              <div className="bg-cream-200 w-16 h-16 rounded-full mx-auto flex items-center justify-center">
-                <span className="text-cream-600 text-xl">✨</span>
-              </div>
-              <h3 className="text-lg font-title text-gray-800">Sigue las instrucciones</h3>
-              <p className="text-gray-600 font-body text-sm">
-                El cuidado posterior es crucial para el resultado final.
-              </p>
-            </div>
-          </div>
-        </section>
       </div>
     </div>
   );

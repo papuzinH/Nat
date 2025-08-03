@@ -1,9 +1,14 @@
 import React from 'react';
 import { Title } from './';
+import heroSobremiImage from '../../assets/hero_sobremi.webp';
+import natProfileImage from '../../assets/nat_profile.webp';
 
 const HeroSobreMi: React.FC = () => {
   return (
-    <section className="relative bg-[url('src/assets/hero_sobremi.webp')] h-[80vh] flex items-center justify-center bg-cover bg-center">
+    <section 
+      className="relative h-[80vh] flex items-center justify-center bg-cover bg-center"
+      style={{ backgroundImage: `url(${heroSobremiImage})` }}
+    >
       {/* Background Blur Overlay */}
       <div className="absolute inset-0 backdrop-blur-xs bg-black/20"></div>
 
@@ -13,7 +18,7 @@ const HeroSobreMi: React.FC = () => {
           Hola!
         </Title>
         <div className="relative w-80 h-96 md:w-96 md:h-[28rem] rounded-2xl shadow-2xl overflow-hidden">
-          <img src="src/assets/nat_profile.webp" alt="Foto de Natalia" className="object-cover w-full h-full" />
+          <img src={natProfileImage} alt="Foto de Natalia" className="object-cover w-full h-full" />
         </div>
         <Title as='h2' variant='titlePage' className='absolute z-20 -right-0 transform translate-x-1/2 bottom-5 -translate-y-[100%] text-white'>
           Soy <span className='font-bold'>Nat.</span>
