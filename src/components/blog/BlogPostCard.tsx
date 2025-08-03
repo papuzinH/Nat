@@ -9,6 +9,9 @@ export interface BlogPost {
   readTime: string;
   image?: string;
   featured?: boolean;
+  author?: string;
+  tags?: string[];
+  content?: string;
 }
 
 interface BlogPostCardProps {

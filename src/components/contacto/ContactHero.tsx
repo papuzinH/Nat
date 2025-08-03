@@ -6,7 +6,7 @@ import heroVideo from '../../assets/hero_video.mov';
 const ContactHero: React.FC = () => {
     return (
         <>
-            <div className="relative min-h-screen flex flex-col">
+            <div className="relative flex flex-col">
                 {/* Background Video - Full Page */}
                 <video
                     className="fixed top-0 left-0 w-full h-full object-cover z-0"
@@ -23,7 +23,7 @@ const ContactHero: React.FC = () => {
                 <div className="fixed inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60 z-0"></div>
 
                 {/* Hero Content Section */}
-                <section className="relative h-[100dvh] flex items-center justify-center overflow-hidden z-10">
+                <section className="relative flex items-center justify-center overflow-hidden z-10">
                     <div className="relative w-full h-full flex items-center justify-center">
                         <div className="mx-auto px-4 flex items-center justify-between gap-8 max-w-6xl w-full">
                             <div className="text-left mb-12 max-w-md ml-0 mr-auto">

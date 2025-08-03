@@ -41,17 +41,27 @@ const BlogPostsSection: React.FC<BlogPostsSectionProps> = ({ posts, onPostClick 
   }, [filteredPosts, featuredPosts]);
 
   return (
-    <Section className="bg-gray-50">
+    <Section>
       <div className="text-center mb-12">
         <Title variant="titleSection" as="h2" className="mb-6">
           Artículos y Reflexiones
         </Title>
         <p className="text-gray-600 font-body max-w-2xl mx-auto">
-          Explora mi colección de artículos sobre técnicas, cuidados, 
+          Explora mi colección de artículos sobre técnicas, cuidados,
           inspiración y todo lo relacionado con el arte del tatuaje.
         </p>
       </div>
 
+      {/* Carrusel de posts destacados */}
+      {featuredPosts.length > 0 && (
+        <div className="mb-16">
+          <FeaturedCarousel
+            posts={featuredPosts}
+            onPostClick={onPostClick}
+          />
+        </div>
+      )}
+      
       {/* Filtros de categoría */}
       <div className="flex justify-center mb-12">
         <CategoryFilter
@@ -61,15 +71,7 @@ const BlogPostsSection: React.FC<BlogPostsSectionProps> = ({ posts, onPostClick 
         />
       </div>
 
-      {/* Carrusel de posts destacados */}
-      {featuredPosts.length > 0 && (
-        <div className="mb-16">
-          <FeaturedCarousel 
-            posts={featuredPosts} 
-            onPostClick={onPostClick}
-          />
-        </div>
-      )}
+
 
       {/* Grilla de posts */}
       {gridPosts.length > 0 && (
@@ -77,8 +79,8 @@ const BlogPostsSection: React.FC<BlogPostsSectionProps> = ({ posts, onPostClick 
           <h3 className="text-xl font-title text-gray-800 mb-8">
             Más Artículos
           </h3>
-          <BlogGrid 
-            posts={gridPosts} 
+          <BlogGrid
+            posts={gridPosts}
             onPostClick={onPostClick}
           />
         </div>

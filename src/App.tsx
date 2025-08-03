@@ -1,11 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Layout } from './components/shared';
+import { Layout, ScrollToTop } from './components/shared';
 import { 
   Home, 
   Obras, 
   Tattoo, 
   SobreMi, 
-  Blog, 
+  Blog,
+  BlogPost, 
   FAQs, 
   Contacto,
   Acrilicos,
@@ -22,6 +23,7 @@ import {
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         {/* Ruta Home sin Layout (sin navbar) */}
         <Route path="/" element={<Home />} />
@@ -43,6 +45,7 @@ function App() {
               <Route path="/tattoo" element={<Tattoo />} />
               <Route path="/sobre-mi" element={<SobreMi />} />
               <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:id" element={<BlogPost />} />
               <Route path="/faqs" element={<FAQs />} />
               <Route path="/contacto" element={<Contacto />} />
             </Routes>

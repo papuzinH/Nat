@@ -31,8 +31,7 @@ const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({ posts, onPostClick 
   return (
     <div className="relative">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <h3 className="text-2xl font-title text-gray-800">Artículo Destacado</h3>
+      <div className="flex items-center justify-end mb-8">
         <div className="flex gap-2">
           <motion.button
             onClick={prevSlide}
