@@ -43,17 +43,17 @@ const BlogPostCard: React.FC<BlogPostCardProps> = ({
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-cream-600 font-body">Imagen del artículo</span>
+              <span className="text-cream-600">Imagen del artículo</span>
             </div>
           )}
         </div>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-3">
-            <span className="text-cream-600 font-body text-xs uppercase tracking-wide bg-cream-100 px-2 py-1 rounded">
+            <span className="text-cream-600 text-xs uppercase tracking-wide bg-cream-100 px-2 py-1 rounded">
               {post.category}
             </span>
             <span className="text-gray-400 text-xs">•</span>
-            <span className="text-gray-500 font-body text-xs">{post.readTime}</span>
+            <span className="text-gray-500 text-xs">{post.readTime}</span>
           </div>
           <h3 className="text-xl font-title text-gray-800 mb-3 group-hover:text-cream-700 transition-colors">
             {post.title}
@@ -62,8 +62,8 @@ const BlogPostCard: React.FC<BlogPostCardProps> = ({
             {post.excerpt}
           </p>
           <div className="flex items-center justify-between">
-            <span className="text-gray-500 font-body text-xs">{post.date}</span>
-            <span className="text-cream-600 font-body text-sm group-hover:text-cream-700 transition-colors">
+            <span className="text-gray-500 text-xs">{post.date}</span>
+            <span className="text-cream-600 text-sm group-hover:text-cream-700 transition-colors">
               Leer más →
             </span>
           </div>

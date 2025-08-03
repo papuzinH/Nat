@@ -15,7 +15,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
     <div className="flex flex-wrap gap-3 mb-8">
       <button
         onClick={() => onCategoryChange('Todos')}
-        className={`px-4 py-2 rounded-full text-sm font-body transition-all duration-200 ${
+        className={`px-4 py-2 rounded-full text-sm transition-all duration-200 ${
           selectedCategory === 'Todos'
             ? 'bg-cream-600 text-white shadow-md'
             : 'bg-cream-100 text-cream-700 hover:bg-cream-200'
@@ -27,7 +27,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
         <button
           key={category}
           onClick={() => onCategoryChange(category)}
-          className={`px-4 py-2 rounded-full text-sm font-body transition-all duration-200 ${
+          className={`px-4 py-2 rounded-full text-sm transition-all duration-200 ${
             selectedCategory === category
               ? 'bg-cream-600 text-white shadow-md'
               : 'bg-cream-100 text-cream-700 hover:bg-cream-200'
