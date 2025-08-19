@@ -15,7 +15,7 @@ const Marcadores: React.FC = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div>
       <HeaderObras 
         title="Marcadores"
         description="La inmediatez y precisión de los marcadores permite capturar gestos espontáneos y crear obras con trazos seguros y colores vibrantes."

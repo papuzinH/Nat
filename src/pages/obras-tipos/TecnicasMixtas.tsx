@@ -15,7 +15,7 @@ const TecnicasMixtas: React.FC = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div>
       <HeaderObras 
         title="Técnicas Mixtas"
         description="La combinación de diferentes materiales y técnicas permite crear obras únicas que exploran nuevas posibilidades expresivas y texturas innovadoras."

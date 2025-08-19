@@ -11,3 +11,5 @@ export { default as AboutSobreMi } from '../sobremi/AboutSobreMi';
 export { default as Section } from './Section';
 export { default as HeroSection } from './HeroSection';
 export { default as ScrollToTop } from './ScrollToTop';
+export { default as ImageGallery } from './ImageGallery';
+export type { GalleryImage } from './ImageGallery';

@@ -15,7 +15,7 @@ const Stickers: React.FC = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div>
       <HeaderObras 
         title="Stickers"
         description="Diseños únicos y divertidos que transforman cualquier superficie en un lienzo para la expresión personal y la creatividad cotidiana."

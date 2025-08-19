@@ -19,7 +19,7 @@ const Ilustraciones: React.FC = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div>
       <HeaderObras 
         title="Ilustraciones"
         description="Creaciones que narran historias, desarrollan personajes y exploran mundos imaginarios a través de técnicas tradicionales y digitales."

@@ -15,7 +15,7 @@ const Gouache: React.FC = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div >
       <HeaderObras 
         title="Gouache"
         description="La opacidad y versatilidad del gouache permite crear obras con colores intensos y acabados únicos, combinando la fluidez de la acuarela con la cobertura del acrílico."

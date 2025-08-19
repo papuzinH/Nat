@@ -6,7 +6,7 @@ import {
   Tattoo, 
   SobreMi, 
   Blog,
-  BlogPost, 
+  // BlogPost, 
   FAQs, 
   Contacto,
   Acrilicos,
@@ -45,7 +45,7 @@ function App() {
               <Route path="/tattoo" element={<Tattoo />} />
               <Route path="/sobre-mi" element={<SobreMi />} />
               <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:id" element={<BlogPost />} />
+              {/* <Route path="/blog/:id" element={<BlogPost />} /> */}
               <Route path="/faqs" element={<FAQs />} />
               <Route path="/contacto" element={<Contacto />} />
             </Routes>

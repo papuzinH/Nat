@@ -21,7 +21,7 @@ const Acuarelas: React.FC = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div>
       <HeaderObras 
         title="Acuarelas"
         description="La delicadeza y transparencia de la acuarela permite crear obras llenas de sutileza y expresión, jugando con la fluidez del agua y los pigmentos."

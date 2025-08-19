@@ -15,7 +15,7 @@ const FloresPrensadas: React.FC = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div>
       <HeaderObras 
         title="Flores Prensadas"
         description="Una técnica ancestral que conserva la belleza natural de las flores, creando composiciones únicas que capturan la esencia de cada estación."

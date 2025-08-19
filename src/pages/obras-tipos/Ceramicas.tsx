@@ -15,7 +15,7 @@ const Ceramicas: React.FC = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div >
       <HeaderObras 
         title="Cerámicas"
         description="El trabajo en cerámica combina la tradición artesanal con la expresión contemporánea, creando piezas únicas que fusionan funcionalidad y arte."
