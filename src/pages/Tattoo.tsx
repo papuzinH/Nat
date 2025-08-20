@@ -1,15 +1,15 @@
 import React from 'react';
-import { Title, Section, Button } from '../components/shared';
+import { Title } from '../components/shared';
 import HeroSection from '@/components/shared/HeroSection';
 import ContenidoText from '@/components/tattoo/ContenidoText';
 import CTATattooSection from '@/components/tattoo/CTATattooSection';
 import GallerySection from '@/components/tattoo/GallerySection';
+import StudioCTA from '@/components/tattoo/StudioCTA';
 // Import tattoo images
 import tat1 from '../assets/tattoo/tat1.jpg';
 import tat2 from '../assets/tattoo/tat2.jpg';
 import tat3 from '../assets/tattoo/tat3.jpg';
 import tat4 from '../assets/tattoo/tat4.jpg';
-import heroRoomImage from '../assets/hero_room_image.webp';
 import heroVideo from '../assets/hero_video.mov';
 
 const Tattoo: React.FC = () => {
@@ -65,44 +65,7 @@ const Tattoo: React.FC = () => {
 
       <ContenidoText content={content_first} />
 
-      <div
-        className='relative bg-cover bg-center bg-no-repeat my-16 py-32'
-        style={{ backgroundImage: `url(${heroRoomImage})` }}
-      >
-        <div className="absolute top-0 left-0 right-0 h-32 overflow-hidden">
-          <svg
-            className="absolute top-0 w-full h-full z-30 rotate-180 scale-x-[-1]"
-            preserveAspectRatio="none"
-            viewBox="0 0 1200 120"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M 0 60 C 600 180 600 -60 1200 60 L 1200 120 L 0 120 Z"
-              fill="#fdfcfb"
-            />
-          </svg>
-        </div>
-        <Section className='relative z-20 py-32 flex flex-col items-center justify-center text-center gap-8'>
-          <Title as="h2" variant="titleSection" className="font-normal text-white text-center">
-            Conocé el estudio
-          </Title>
-          <Button className='mx-auto'>Ver más</Button>
-        </Section>
-        <div className='absolute inset-0 backdrop-blur-sm bg-black/30 z-10'></div>
-        <div className="absolute bottom-0 left-0 right-0 h-32 overflow-hidden">
-          <svg
-            className="absolute bottom-0 w-full h-full z-30"
-            preserveAspectRatio="none"
-            viewBox="0 0 1200 120"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M 0 60 C 600 180 600 -60 1200 60 L 1200 120 L 0 120 Z"
-              fill="#fdfcfb"
-            />
-          </svg>
-        </div>
-      </div>
+      <StudioCTA />
 
       <CTATattooSection />
 
