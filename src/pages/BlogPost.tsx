@@ -35,9 +35,6 @@ const BlogPostPage: React.FC = () => {
     }
   }, [id, posts, loading, navigate]);
 
-  const handleRelatedPostClick = (post: BlogPost) => {
-    navigate(`/blog/${post.id}`);
-  };
 
   if (loading) {
     return (
@@ -75,7 +72,6 @@ const BlogPostPage: React.FC = () => {
     <BlogPostDetail
       post={currentPost}
       relatedPosts={relatedPosts}
-      onRelatedPostClick={handleRelatedPostClick}
     />
   );
 };
