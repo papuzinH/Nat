@@ -12,4 +12,5 @@ export { default as BlogPostContent } from './BlogPostContent';
 export { default as BlogPostActions } from './BlogPostActions';
 export { default as BlogPostSidebar } from './BlogPostSidebar';
 export { default as BlogPostNewsletter } from './BlogPostNewsletter';
+export { default as PostCard } from './PostCard';
 export type { BlogPost } from './BlogPostCard';

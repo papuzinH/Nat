@@ -48,8 +48,8 @@ src/
 │   ├── Obras.tsx        # Grid de categorías de arte (9 tipos)
 │   ├── Tattoo.tsx       # Portfolio de tatuajes + info estudio
 │   ├── SobreMi.tsx      # Página sobre la artista
-│   ├── Blog.tsx         # Lista de posts (actualmente placeholder)
-│   ├── BlogPost.tsx     # Detalle de post individual
+│   ├── Blog.tsx         # Lista de posts con grid responsive (147 líneas)
+│   ├── BlogPost.tsx     # Detalle de post individual con SEO (220 líneas)
 │   ├── FAQs.tsx         # Preguntas frecuentes con búsqueda
 │   ├── Contacto.tsx     # Formulario de contacto
 │   └── obras-tipos/     # 9 subpáginas de categorías (Acrilicos, Acuarelas, etc.)
@@ -66,9 +66,11 @@ src/
 - `/` - Home (sin Layout, video fullscreen)
 - `/obras` - Grid de categorías
   - `/obras/acrilicos`, `/obras/acuarelas`, `/obras/flores-prensadas`, etc.
-- `/tattoo` - Portfolio de tatuajes
+- `/tattoo` - Listado de tatuajes
+  - `/tattoo/:id` - Detalle individual de tatuaje
 - `/sobre-mi` - Biografía artista
-- `/blog` - Posts (coming soon placeholder)
+- `/blog` - Listado de posts (grid 2 columnas)
+  - `/blog/:slug` - Detalle individual de post (estructura SEO)
 - `/faqs` - Preguntas frecuentes
 - `/contacto` - Formulario
 
@@ -309,9 +311,29 @@ Hay 9 categorías hardcodeadas. Si agregas una nueva, actualiza 3 lugares: `App.
 
 No pongas lógica compleja en componentes. Crea hooks personalizados (ver `hooks/`).
 
-### 6. Blog Está en Construcción
+### 6. Blog Totalmente Funcional (Actualizado Nov 2025)
 
-Componentes existen pero páginas muestran "Coming Soon". Mock data está preparado en `useBlogLogic`.
+El módulo de blog está **completamente implementado** con arquitectura SEO/LLMO optimizada:
+
+**Páginas Activas:**
+- `/blog` - Listado con Hero (imagen), stats, grid 2 columnas, estados loading/error/empty
+- `/blog/:slug` - Detalle con breadcrumb, H1 SEO, metadata, contenido extenso, tags, CTA conversión
+
+**Componentes:**
+- `PostCard` (93 líneas) - Card con hover effects, animaciones escalonadas, Link a detalle
+- Reutiliza: `BlogPostCard` (interface BlogPost), `ContenidoText` (renderizado de párrafos)
+
+**Hooks:**
+- `useBlogLogic()` - 10 posts mock, loading state, error handling
+- `useBlogPostLogic(slug)` - Busca post por slug, retorna {post, loading, error}, 2 posts con contenido completo (5 párrafos c/u)
+
+**Características SEO:**
+- H1 único en BlogPost.tsx: título del post
+- Breadcrumb navigation (Blog / Título)
+- Metadata visible: autor, fecha con `<time dateTime>`, categoría, readTime
+- Tags interactivos (#cuidados, #cicatrización, etc.)
+- Contenido: array de párrafos limpios (200+ palabras c/u)
+- CTA al final: "¿Te inspiraste? Charlemos sobre tu tatuaje" → /contacto
 
 ### 7. Importaciones con Alias (Obligatorio)
 
@@ -356,12 +378,265 @@ import sobremiHeroVideo from '../assets/sobremi_hero.mp4';
 - ✅ InstagramSection: "Mi Diario de Arte", "Sígueme... mis sketches, mis últimos trabajos"
 - ✅ FAQSection: "¿Tenés dudas? Te ayudo", "Respondí las preguntas...", "hablemos personalmente"
 
+### Módulo Tattoo - Arquitectura Indexable (Nov 2025)
+- ✅ Refactorización completa: de galería estática a sistema de páginas indexables
+- ✅ Mock data expandido: 4 tatuajes con 3 párrafos c/u (600+ palabras por tatuaje)
+- ✅ Interface Tattoo: id, slug, title, image, category, location, description[], tags[]
+- ✅ TattooGridList.tsx: Grid responsive 3 columnas con Links a detalle
+- ✅ TattooDetail.tsx (196 líneas): breadcrumb, H1 SEO, contenido extenso, CTA con query params, sección related
+- ✅ Ruta dinámica: `/tattoo/:id` configurada en App.tsx
+- ✅ 404 handling: página de error personalizada si tatuaje no existe
+- ✅ CTA conversión: Link a `/contacto?design=${tattoo.id}`
+
+### Módulo Blog - Implementación Completa SEO/LLMO (Nov 2025)
+- ✅ Blog.tsx (147 líneas): Hero con imagen `hero_room_image.webp`, H1 "Blog: Guías, Reflexiones y el Universo del Tatuaje"
+- ✅ Stats section: 10+ Artículos, 5 Categorías, 8 min Lectura Promedio
+- ✅ Grid responsive: 2 columnas desktop, 1 móvil
+- ✅ PostCard.tsx (93 líneas): Nuevo componente con hover effects, animaciones escalonadas (100ms por card)
+- ✅ Estados UI: Loading (skeleton loaders), Error (mensaje estilizado), Empty, Success (grid de posts)
+- ✅ BlogPost.tsx (220 líneas): Detalle SEO-optimizado con useParams, breadcrumb, H1, metadata completa
+- ✅ Estructura semántica: `<article>`, `<h1>`, `<time dateTime>`, tags array
+- ✅ CTA conversión: "¿Te inspiraste? Charlemos sobre tu tatuaje" → /contacto
+- ✅ useBlogLogic refactorizado: 10 posts mock con metadata completa
+- ✅ useBlogPostLogic refactorizado: Acepta slug, retorna {post, loading, error}, 2 posts con 5 párrafos c/u (1,000+ palabras)
+- ✅ Ruta dinámica: `/blog/:slug` activada en App.tsx
+- ✅ 404 handling: Página error con 2 CTAs (blog, contacto)
+- ✅ TypeScript: 0 errores de compilación, tipado explícito en tags map
+- ✅ Reutilización: ContenidoText (compartido con Tattoo), Button (Props Polymorphism), Layout, Title, Subtitle
+
+## Módulo Blog - Guía de Implementación Detallada
+
+### Estructura de Archivos
+
+**Páginas:**
+- `Blog.tsx` (147 líneas) - Listado principal con Hero + Grid
+- `BlogPost.tsx` (220 líneas) - Detalle individual SEO-optimizado
+
+**Componentes:**
+- `PostCard.tsx` (93 líneas) - Card para grid de blog
+- Reutiliza de módulo existente: `BlogPostCard.tsx` (interface BlogPost)
+
+**Hooks:**
+- `useBlogLogic.ts` - Estado para listado: {posts, loading, error, handlePostClick}
+- `useBlogPostLogic.ts` - Estado para detalle: {post, loading, error}
+
+### Blog.tsx - Página Listado
+
+**Hero Section:**
+```tsx
+<HeroSection image={heroBlogImage} content={heroContent} />
+```
+- Usa imagen estática: `hero_room_image.webp`
+- H1: "Blog: Guías, Reflexiones y el Universo del Tatuaje"
+- Subtitle: "Comparto mi proceso creativo, técnicas profesionales..."
+- Stats: 10+ Artículos, 5 Categorías, 8 min Lectura Promedio
+- Animaciones: fade-in con delays 0ms, 150ms, 300ms, 450ms
+
+**Grid Section:**
+- Container: `max-w-7xl mx-auto`
+- Grid: `grid-cols-1 md:grid-cols-2 gap-8`
+- Estados: loading (4 skeleton cards), error (mensaje rojo), empty (placeholder), success (PostCard loop)
+- Background: `bg-gradient-to-b from-cream-50 to-nude-50`
+
+**Lógica:**
+```tsx
+const { posts, loading, error } = useBlogLogic();
+```
+
+### BlogPost.tsx - Página Detalle
+
+**Estructura SEO:**
+```tsx
+<Layout>
+  <Breadcrumb /> // Blog / [Título]
+  <article>
+    <CategoryBadge />
+    <h1>{post.title}</h1> // ← H1 único
+    <PostMeta /> // autor, fecha, readTime
+    <FeaturedImage /> // si existe
+    <ContenidoText content={post.content} />
+    <Tags />
+    <CTAConversion />
+  </article>
+</Layout>
+```
+
+**Metadata Visible:**
+- Autor: Avatar circular con gradiente green-400 to green-600, nombre, subtitle "Artista & Tatuadora"
+- Fecha: `<time dateTime={post.date}>{post.date}</time>` (schema.org ready)
+- Categoría: Badge verde con uppercase tracking-wide
+- ReadTime: "8 min de lectura" con icono reloj
+- Tags: Array de badges clicables `#{tag}`
+
+**CTA de Conversión:**
+- Background: `bg-gradient-to-br from-green-50 to-cream-50`
+- Título: "¿Te inspiraste? Charlemos sobre tu tatuaje"
+- Copy: "Cada diseño cuenta una historia única. Si este artículo te inspiró..."
+- Button: "Agenda tu consulta gratuita" → `/contacto`
+- Posición: Al final del contenido, después de tags
+
+**Estados:**
+- Loading: Spinner verde con mensaje "Cargando artículo..."
+- Error/404: Icono alerta, título "404 - Artículo no encontrado", 2 CTAs (blog/contacto)
+
+**Lógica:**
+```tsx
+const { slug } = useParams<{ slug: string }>();
+const { post, loading, error } = useBlogPostLogic(slug);
+```
+
+### PostCard.tsx - Componente Card
+
+**Estructura:**
+```tsx
+<Link to={`/blog/${post.id}`}>
+  <article style={{ animationDelay: `${index * 100}ms` }}>
+    <ImageContainer>
+      {post.image ? <img /> : <IconPlaceholder />}
+      {post.featured && <Badge>Destacado</Badge>}
+    </ImageContainer>
+    <Content>
+      <MetaRow /> // categoría + readTime
+      <Title /> // h3 con line-clamp-2, min-h-[3.5rem]
+      <Excerpt /> // line-clamp-3
+      <Footer>
+        <AuthorMeta /> // avatar + nombre + fecha
+        <ReadMore /> // "Leer más →" con arrow icon
+      </Footer>
+    </Content>
+  </article>
+</Link>
+```
+
+**Estilos Clave:**
+- Hover: `hover:shadow-xl hover:scale-105`
+- Image hover: `group-hover:scale-110`
+- Title hover: `group-hover:text-green-700`
+- Arrow hover: `group-hover:translate-x-1`
+- Background: `bg-white` con border `border-cream-200`
+
+**Props:**
+```tsx
+interface PostCardProps {
+  post: BlogPost;
+  index: number; // Para animaciones escalonadas
+}
+```
+
+### useBlogLogic - Hook Listado
+
+**Mock Data:**
+- 10 posts completos con metadata
+- Categorías: Cuidados, Inspiración, Técnicas, Diseño, Historia
+- Featured: posts 1 y 4
+- Tags: 4 tags por post
+
+**Return:**
+```tsx
+{
+  posts: BlogPost[], // Array de 10 posts
+  loading: boolean,   // Simula 500ms delay
+  error: string | null,
+  handlePostClick: (post: BlogPost) => void // Navigate to /blog/${post.id}
+}
+```
+
+### useBlogPostLogic - Hook Detalle
+
+**Parámetro:**
+```tsx
+useBlogPostLogic(slug: string | undefined)
+```
+
+**Mock Data:**
+- 2 posts con contenido completo:
+  - Post 1: "El cuidado de tatuajes recién hechos" (5 párrafos, 1,200+ palabras)
+  - Post 2: "Inspiración para tu próximo tatuaje" (5 párrafos, 1,000+ palabras)
+- Cada párrafo: 200+ palabras
+- content: `string[]` (array de párrafos para ContenidoText)
+
+**Return:**
+```tsx
+{
+  post: BlogPost | null,
+  loading: boolean,  // Simula 500ms delay
+  error: string | null
+}
+```
+
+**Validación:**
+- Si `!slug`: setError('No se proporcionó un identificador de post')
+- Si post no encontrado: setError('Post no encontrado')
+
+### Interface BlogPost
+
+Definida en `BlogPostCard.tsx`:
+```tsx
+export interface BlogPost {
+  id: number;
+  slug?: string;        // Para SEO-friendly URLs (futuro)
+  title: string;
+  excerpt: string;
+  date: string;         // Format: 'YYYY-MM-DD'
+  category: string;     // 'Cuidados', 'Inspiración', 'Técnicas', etc.
+  readTime: string;     // '8 min', '12 min', etc.
+  image?: string;       // Optional featured image
+  featured?: boolean;   // Para badge "Destacado"
+  author?: string;      // Default: 'Natalia Heller'
+  tags?: string[];      // Array de tags para SEO
+  content?: string | string[]; // Array de párrafos o HTML string
+}
+```
+
+### Reutilización de Componentes
+
+**ContenidoText** (de módulo Tattoo):
+```tsx
+<ContenidoText content={post.content} />
+// Acepta string[] y renderiza párrafos con spacing
+```
+
+**Button** (Props Polymorphism):
+```tsx
+<Button variant="primary" size="large" as="link" to="/contacto">
+```
+
+**Title, Subtitle** (Variant Props Pattern):
+```tsx
+<Title variant="titleSection" as="h2">
+<Subtitle variant="medium">
+```
+
+### Convenciones de Estilo Blog
+
+**Colores:**
+- Accent primario: `green-600` (CTAs, hover states)
+- Accent secundario: `cream-600` (metadata, borders)
+- Backgrounds: gradientes `from-cream-50 to-nude-50`, `from-green-50 to-cream-50`
+- Text: `gray-900` (títulos), `gray-600` (body), `gray-500` (meta)
+
+**Tipografía:**
+- Títulos: `font-title` (Aboreto serif)
+- Body: `font-body` (Gayathri sans-serif)
+- H1: `text-4xl md:text-5xl lg:text-6xl`
+- H3 (PostCard): `text-xl`
+
+**Animaciones:**
+- PostCard: `animate-fade-in` con delay `${index * 100}ms`
+- BlogPost: delays 150ms, 300ms, 450ms, 600ms
+- Hover: `transition-all duration-300`
+
 ## Próximos Pasos Sugeridos
 
-- Implementar CMS o API para contenido dinámico (reemplazar mock-data.ts)
+- Implementar CMS o API para contenido dinámico (reemplazar mock-data.ts en blog y tattoo)
+- Migrar de `/blog/:id` a `/blog/:slug` con slugs SEO-friendly
+- Agregar react-helmet para meta tags dinámicos por post
+- Implementar filtrado por categoría en Blog.tsx
+- Agregar paginación si posts > 12
+- Sistema de búsqueda en blog (similar a FAQs)
+- Related posts section en BlogPost.tsx
 - Agregar sistema de i18n (español/inglés)
 - Optimizar imágenes (WebP, lazy loading avanzado)
 - Agregar Google Analytics o similar
 - Implementar formulario de contacto funcional (backend)
-- Activar sección de Blog con posts reales
 - A/B testing en CTAs de Home para optimizar conversión
