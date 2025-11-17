@@ -286,6 +286,25 @@ const InstagramSection: React.FC = () => {
             </div>
           </div>
 
+          {/* Instagram Feed - Widget Real */}
+          <div className="my-12 animate-fade-in animation-delay-450">
+            {/* Feed Title */}
+            <h2 className="font-title text-2xl md:text-3xl text-brown-800 mb-8">
+              Mis Últimos Tatuajes
+            </h2>
+
+            {/* LightWidget Instagram Feed */}
+            <div className="w-full">
+              <script src="https://cdn.lightwidget.com/widgets/lightwidget.js"></script>
+              <iframe 
+                src="//lightwidget.com/widgets/11730c9547d65b8da1544c6a36290e44.html" 
+                scrolling="no" 
+                allowTransparency={true}
+                className="lightwidget-widget w-full border-0 min-h-[400px] md:min-h-[550px]"
+              />
+            </div>
+          </div>
+
           {/* CTA Button */}
           <div className="animate-fade-in animation-delay-600">
             <Button 
