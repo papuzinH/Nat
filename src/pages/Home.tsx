@@ -1,160 +1,458 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Title, Footer } from '../components/shared';
-import sobremiHeroVideo from '../assets/sobremi_hero.mp4';
+import { HeroSection, Footer, Title, Subtitle, Button } from '@/components/shared';
+import sobremiHeroVideo from '@/assets/sobremi_hero.mp4';
+import { tattoos } from '@/assets/tattoo/mock-data';
 
-const NavigationCard: React.FC<{ 
-  to: string; 
-  title: string; 
-  description: string;
-  delay?: string;
-}> = ({ to, title, description, delay = '' }) => (
-  <Link 
-    to={to}
-    className={`group relative p-6 rounded-2xl backdrop-blur-md bg-white/10 hover:bg-white/20 
-               border border-white/20 hover:border-white/30 transition-all duration-500 
-               transform hover:scale-105 hover:-translate-y-2 hover:shadow-2xl
-               ${delay}`}
-  >
-    <div className="text-center">
-      <h3 className="font-title text-white text-xl md:text-2xl mb-2 group-hover:text-cream-100 transition-colors duration-300">
-        {title}
-      </h3>
-      <p className="text-white/80 text-sm md:text-base group-hover:text-white transition-colors duration-300">
-        {description}
-      </p>
-    </div>
-    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent 
-                    opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-  </Link>
-);
-
-const MainNavigation = () => {
-  const navigationItems = [
-    { to: '/obras', title: 'Obras', description: 'Explora mi portafolio artístico' },
-    { to: '/tattoo', title: 'Tattoo', description: 'Diseños únicos en tu piel' },
-    { to: '/sobre-mi', title: 'Sobre Mi', description: 'Conoce mi historia' },
-    { to: '/blog', title: 'Blog', description: 'Proceso creativo y reflexiones' },
-    { to: '/faqs', title: 'FAQs', description: 'Preguntas frecuentes' },
-    { to: '/contacto', title: 'Contacto', description: 'Hagamos algo juntos' },
-  ];
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 w-full max-w-6xl mx-auto px-6">
-      {navigationItems.map((item, index) => (
-        <NavigationCard
-          key={item.to}
-          to={item.to}
-          title={item.title}
-          description={item.description}
-          delay={`animation-delay-${index * 150}`}
-        />
-      ))}
-    </div>
-  );
-};
-
+// Hero Content Component
 const ContentHero = () => (
-  <div className="relative w-full h-full flex flex-col items-center justify-center px-4">
-    {/* Brand Header */}
-    <div className="text-center mb-12 md:mb-16 animate-fade-in">
-      <Title as='h1' variant='titlePage' className='text-white text-center mb-4'>
-        <span className='text-4xl md:text-6xl lg:text-7xl block mb-2'>Natalia</span>
-        <span className='text-6xl md:text-8xl lg:text-9xl font-light'>HELLER</span>
+  <div className="px-4 py-12 md:py-16">
+    <div className="max-w-4xl mx-auto text-center">
+      {/* H1 optimizado para SEO */}
+      <Title 
+        as="h1" 
+        variant="titlePage" 
+        className="text-white mb-6 animate-fade-in"
+      >
+        Diseños de Tatuajes Únicos y Personalizados en Buenos Aires
       </Title>
-      <div className="w-24 h-0.5 bg-white/60 mx-auto mb-6"></div>
-      <p className="text-white/90 text-lg md:text-xl font-body max-w-2xl mx-auto leading-relaxed">
-        Artista & Tatuadora
-      </p>
-      <p className="text-white/70 text-sm md:text-base font-body max-w-3xl mx-auto mt-2">
-        Donde el arte encuentra su expresión más pura
-      </p>
-    </div>
-
-    {/* Navigation Grid */}
-    <MainNavigation />
-
-    {/* Floating Logo/Signature */}
-    <div className="absolute top-8 left-8 z-20">
-      <Link to="/" className="font-title text-white/80 hover:text-white text-2xl md:text-3xl transition-colors duration-300">
-        NH
-      </Link>
+      
+      {/* Subtitle descriptivo */}
+      <Subtitle 
+        variant="large" 
+        className="text-white/90 mb-8 max-w-2xl mx-auto animate-fade-in animation-delay-150"
+      >
+        Transforma tus ideas en arte permanente con diseños exclusivos 
+        que reflejan tu esencia y personalidad
+      </Subtitle>
+      
+      {/* CTA Principal */}
+      <div className="animate-fade-in animation-delay-300">
+        <Button 
+          variant="primary" 
+          size="large"
+          as="link"
+          to="/contacto"
+          className="font-title tracking-wide shadow-2xl hover:shadow-green-500/50 transition-all duration-300"
+        >
+          AGENDA TU CITA
+        </Button>
+      </div>
     </div>
   </div>
 );
 
+// Testimonios / Prueba Social Component
+const SocialProofSection: React.FC = () => {
+  const testimonials = [
+    {
+      id: 1,
+      text: '+500 diseños únicos creados',
+      subtitle: 'Cada tatuaje es una obra de arte personalizada',
+      icon: '🎨'
+    },
+    {
+      id: 2,
+      text: '8+ años de experiencia',
+      subtitle: 'Perfeccionando el arte del tatuaje con pasión',
+      icon: '⭐'
+    },
+    {
+      id: 3,
+      text: 'Estudio profesional certificado',
+      subtitle: 'Ambiente seguro con los más altos estándares de higiene',
+      icon: '✨'
+    }
+  ];
+
+  return (
+    <section className="relative py-16 md:py-24 bg-cream-50">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Title */}
+        <div className="text-center mb-12 md:mb-16">
+          <Title 
+            as="h2" 
+            variant="titleSection" 
+            className="text-cream-800 mb-4 animate-fade-in"
+          >
+            Tu Confianza, Nuestra Prioridad
+          </Title>
+          <Subtitle 
+            variant="medium" 
+            className="text-cream-600 max-w-2xl mx-auto animate-fade-in animation-delay-150"
+          >
+            Descubre por qué cientos de clientes confían en nosotros 
+            para plasmar sus historias en la piel
+          </Subtitle>
+        </div>
+
+        {/* Testimonials Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {testimonials.map((testimonial, index) => (
+            <div
+              key={testimonial.id}
+              className={`bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 
+                         border border-cream-200 hover:border-green-300 transform hover:scale-105
+                         animate-fade-in`}
+              style={{ animationDelay: `${index * 150 + 300}ms` }}
+            >
+              {/* Icon */}
+              <div className="text-5xl mb-4 text-center">
+                {testimonial.icon}
+              </div>
+              
+              {/* Main Text */}
+              <Title 
+                as="h3" 
+                variant="titleCard" 
+                className="text-cream-800 text-center mb-3"
+              >
+                {testimonial.text}
+              </Title>
+              
+              {/* Subtitle */}
+              <Subtitle 
+                variant="small" 
+                className="text-cream-600 text-center leading-relaxed"
+              >
+                {testimonial.subtitle}
+              </Subtitle>
+            </div>
+          ))}
+        </div>
+
+        {/* Secondary CTA */}
+        <div className="text-center mt-12 md:mt-16 animate-fade-in animation-delay-600">
+          <Button 
+            variant="outline" 
+            size="large"
+            as="link"
+            to="/tattoo"
+            className="font-body"
+          >
+            Ver Portfolio de Tatuajes
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Portafolio Destacado Component
+const FeaturedPortfolioSection: React.FC = () => {
+  // Seleccionar los primeros 4 tatuajes para mostrar
+  const featuredTattoos = tattoos.slice(0, 4);
+
+  return (
+    <section className="relative py-16 md:py-24 bg-gradient-to-b from-nude-50 to-brown-50">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
+        <div className="text-center mb-12 md:mb-16">
+          <Title 
+            as="h2" 
+            variant="titleSection" 
+            className="text-brown-800 mb-4 animate-fade-in"
+          >
+            Trabajos Destacados
+          </Title>
+          <Subtitle 
+            variant="medium" 
+            className="text-brown-600 max-w-2xl mx-auto animate-fade-in animation-delay-150"
+          >
+            Explora algunos de nuestros diseños más emblemáticos. 
+            Cada tatuaje cuenta una historia única.
+          </Subtitle>
+        </div>
+
+        {/* Grid de Tatuajes */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 max-w-7xl mx-auto mb-12">
+          {featuredTattoos.map((tattoo, index) => (
+            <Link
+              key={tattoo.id}
+              to="/tattoo"
+              className={`group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl 
+                         transition-all duration-500 transform hover:scale-105 animate-fade-in
+                         border border-brown-200 hover:border-green-400`}
+              style={{ animationDelay: `${index * 150}ms` }}
+            >
+              {/* Image Container */}
+              <div className="aspect-[3/4] overflow-hidden bg-nude-100">
+                <img
+                  src={tattoo.image}
+                  alt={tattoo.title}
+                  className="w-full h-full object-cover transition-transform duration-500 
+                           group-hover:scale-110"
+                />
+              </div>
+
+              {/* Overlay con info */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent 
+                            opacity-0 group-hover:opacity-100 transition-opacity duration-300 
+                            flex flex-col justify-end p-6">
+                <h3 className="font-title text-white text-lg md:text-xl mb-2">
+                  {tattoo.title}
+                </h3>
+                <p className="font-body text-white/80 text-sm">
+                  {tattoo.category}
+                </p>
+              </div>
+
+              {/* Badge de categoría */}
+              <div className="absolute top-4 right-4 bg-green-600/90 backdrop-blur-sm 
+                            text-white text-xs font-body px-3 py-1 rounded-full">
+                {tattoo.category}
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* CTA Secundario */}
+        <div className="text-center animate-fade-in animation-delay-600">
+          <Button 
+            variant="primary" 
+            size="large"
+            as="link"
+            to="/tattoo"
+            className="font-title tracking-wide bg-green-600 hover:bg-green-700"
+          >
+            VER PORTAFOLIO COMPLETO
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Instagram CTA Component
+const InstagramSection: React.FC = () => {
+  return (
+    <section className="relative py-16 md:py-20 bg-gradient-to-br from-brown-100 via-nude-100 to-cream-100 overflow-hidden">
+      {/* Decorative Elements */}
+      <div className="absolute top-0 left-0 w-64 h-64 bg-green-200/20 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-brown-200/20 rounded-full blur-3xl"></div>
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-4xl mx-auto text-center">
+          {/* Icon/Emoji */}
+          <div className="text-6xl md:text-7xl mb-6 animate-fade-in">
+            📸
+          </div>
+
+          {/* Title */}
+          <Title 
+            as="h2" 
+            variant="titleSection" 
+            className="text-brown-800 mb-6 animate-fade-in animation-delay-150"
+          >
+            Inspírate con Nuestro Proceso Creativo
+          </Title>
+
+          {/* Subtitle */}
+          <Subtitle 
+            variant="large" 
+            className="text-brown-600 mb-8 animate-fade-in animation-delay-300"
+          >
+            Síguenos en Instagram para ver sketches, trabajos en proceso, 
+            y las últimas tendencias en tatuaje artístico
+          </Subtitle>
+
+          {/* Stats Row */}
+          <div className="flex justify-center gap-8 md:gap-12 mb-10 animate-fade-in animation-delay-450">
+            <div className="text-center">
+              <div className="font-title text-3xl md:text-4xl text-green-700 mb-1">
+                10K+
+              </div>
+              <div className="font-body text-sm md:text-base text-brown-600">
+                Seguidores
+              </div>
+            </div>
+            <div className="w-px bg-brown-300"></div>
+            <div className="text-center">
+              <div className="font-title text-3xl md:text-4xl text-green-700 mb-1">
+                500+
+              </div>
+              <div className="font-body text-sm md:text-base text-brown-600">
+                Publicaciones
+              </div>
+            </div>
+            <div className="w-px bg-brown-300"></div>
+            <div className="text-center">
+              <div className="font-title text-3xl md:text-4xl text-green-700 mb-1">
+                4.9★
+              </div>
+              <div className="font-body text-sm md:text-base text-brown-600">
+                Valoración
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Button */}
+          <div className="animate-fade-in animation-delay-600">
+            <Button 
+              variant="primary" 
+              size="large"
+              as="link"
+              href="https://instagram.com/nataliaceller_art"
+              target="_blank"
+              className="font-title tracking-wide bg-gradient-to-r from-green-600 to-green-700 
+                       hover:from-green-700 hover:to-green-800 shadow-xl hover:shadow-green-500/50"
+            >
+              📱 Sígueme en Instagram
+            </Button>
+          </div>
+
+          {/* Handle */}
+          <p className="mt-4 font-body text-brown-500 text-sm animate-fade-in animation-delay-600">
+            @nataliaceller_art
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// FAQ Section - Props Interface
+interface FAQItemProps {
+  question: string;
+  answer: string;
+  delay?: string;
+}
+
+// FAQ Item Component
+const FAQItem: React.FC<FAQItemProps> = ({ question, answer, delay = '' }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  return (
+    <div 
+      className={`bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 
+                 border border-cream-200 overflow-hidden ${delay}`}
+    >
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-6 py-5 text-left flex items-center justify-between 
+                 hover:bg-cream-50 transition-colors duration-200"
+        aria-expanded={isOpen}
+      >
+        <Title 
+          as="h3" 
+          variant="titleCard" 
+          className="text-cream-800 pr-4"
+        >
+          {question}
+        </Title>
+        <span 
+          className={`text-green-600 text-2xl font-bold transform transition-transform duration-300 
+                     flex-shrink-0 ${isOpen ? 'rotate-45' : ''}`}
+        >
+          +
+        </span>
+      </button>
+      
+      <div 
+        className={`overflow-hidden transition-all duration-300 ${
+          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="px-6 pb-5 pt-2">
+          <Subtitle 
+            variant="small" 
+            className="text-cream-700 leading-relaxed"
+          >
+            {answer}
+          </Subtitle>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// FAQ Section Component
+const FAQSection: React.FC = () => {
+  const faqs: Array<{ question: string; answer: string }> = [
+    {
+      question: '¿Cuál es el rango de precios para un tatuaje?',
+      answer: 'Los precios varían según el tamaño, complejidad y tiempo estimado. Un tatuaje pequeño comienza desde $5,000 ARS, mientras que diseños más elaborados pueden requerir una consulta personalizada. Contactanos para obtener un presupuesto ajustado a tu proyecto específico.'
+    },
+    {
+      question: '¿Cómo funciona el proceso de reserva y diseño?',
+      answer: 'Primero agendas una consulta donde discutimos tu idea. Luego creo un diseño personalizado que revisamos juntos. Una vez aprobado, reservamos tu cita con una seña del 30%. El día del tatuaje, finalizamos los detalles y comenzamos el trabajo en un ambiente profesional y seguro.'
+    }
+  ];
+
+  return (
+    <section className="relative py-16 md:py-24 bg-gradient-to-b from-cream-100 to-cream-50">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
+        <div className="text-center mb-12 md:mb-16">
+          <Title 
+            as="h2" 
+            variant="titleSection" 
+            className="text-cream-800 mb-4 animate-fade-in"
+          >
+            ¿Tienes Dudas? Te Ayudamos
+          </Title>
+          <Subtitle 
+            variant="medium" 
+            className="text-cream-600 max-w-2xl mx-auto animate-fade-in animation-delay-150"
+          >
+            Respondemos las preguntas más frecuentes para que tomes 
+            la mejor decisión con total confianza
+          </Subtitle>
+        </div>
+
+        {/* FAQ Items */}
+        <div className="max-w-3xl mx-auto space-y-4 mb-12">
+          {faqs.map((faq, index) => (
+            <FAQItem
+              key={index}
+              question={faq.question}
+              answer={faq.answer}
+              delay={`animate-fade-in animation-delay-${index * 150 + 300}`}
+            />
+          ))}
+        </div>
+
+        {/* CTA Terciario */}
+        <div className="text-center animate-fade-in animation-delay-600">
+          <Button 
+            variant="outline" 
+            size="large"
+            as="link"
+            to="/faqs"
+            className="font-body border-2 border-green-600 text-green-700 hover:bg-green-600 hover:text-white"
+          >
+            PREGUNTAS FRECUENTES (FAQs)
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Main Home Component
 const Home: React.FC = () => {
   return (
     <div className="relative min-h-screen flex flex-col">
-      {/* Background Video - Full Page */}
-      <video
-        className="fixed top-0 left-0 w-full h-full object-cover z-0"
-        autoPlay
-        muted
-        loop
-        playsInline
-      >
-        <source src={sobremiHeroVideo} type="video/mp4" />
-        Tu navegador no soporta el elemento de video.
-      </video>
+      {/* Hero Section con video background */}
+      <HeroSection 
+        video={sobremiHeroVideo} 
+        content={<ContentHero />}
+      />
 
-      {/* Background Overlay - Full Page */}
-      <div className="fixed inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60 z-0"></div>
+      {/* Social Proof / Testimonials Section */}
+      <SocialProofSection />
 
-      {/* Hero Content Section */}
-      <section className="relative h-[100dvh] flex items-center justify-center overflow-hidden z-10">
-        {/* Content over video */}
-        <div className="relative w-full h-full">
-          <ContentHero />
-        </div>
-      </section>
+      {/* Featured Portfolio Section */}
+      <FeaturedPortfolioSection />
 
-      {/* Footer */}
-      <div className="relative z-10">
-        <Footer />
-      </div>
+      {/* Instagram Engagement Section */}
+      <InstagramSection />
 
-      {/* Custom styles for animations */}
-      <style>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
+      {/* FAQ Section - Cierre de objeciones */}
+      <FAQSection />
 
-        .animate-fade-in {
-          animation: fade-in 1s ease-out;
-        }
-
-        .animation-delay-0 {
-          animation: fade-in 1s ease-out 0.2s both;
-        }
-
-        .animation-delay-150 {
-          animation: fade-in 1s ease-out 0.35s both;
-        }
-
-        .animation-delay-300 {
-          animation: fade-in 1s ease-out 0.5s both;
-        }
-
-        .animation-delay-450 {
-          animation: fade-in 1s ease-out 0.65s both;
-        }
-
-        .animation-delay-600 {
-          animation: fade-in 1s ease-out 0.8s both;
-        }
-
-        .animation-delay-750 {
-          animation: fade-in 1s ease-out 0.95s both;
-        }
-      `}</style>
+      {/* Footer con estilo transparente */}
+      <Footer />
     </div>
   );
 };

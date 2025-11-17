@@ -28,6 +28,14 @@
     animation-delay: 300ms;
   }
 
+  .animation-delay-450 {
+    animation-delay: 450ms;
+  }
+
+  .animation-delay-600 {
+    animation-delay: 600ms;
+  }
+
   /* Ocultar scrollbar para carrusel */
   .scrollbar-hide {
     -ms-overflow-style: none;

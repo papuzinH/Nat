@@ -44,7 +44,7 @@ src/
 │   ├── sobremi/         # Componentes de página "Sobre Mi"
 │   └── tattoo/          # Componentes específicos de tatuajes
 ├── pages/
-│   ├── Home.tsx         # Landing page con video fullscreen + grid navigation
+│   ├── Home.tsx         # Landing page dinámica (SEO + conversión, 461 líneas)
 │   ├── Obras.tsx        # Grid de categorías de arte (9 tipos)
 │   ├── Tattoo.tsx       # Portfolio de tatuajes + info estudio
 │   ├── SobreMi.tsx      # Página sobre la artista
@@ -58,7 +58,7 @@ src/
 │   └── useBlogPostLogic.ts  # Lógica para post individual
 └── assets/
     ├── obras/           # Imágenes de obras de arte
-    └── tattoo/          # Imágenes de tatuajes
+    └── tattoo/          # Imágenes de tatuajes + mock-data.ts (interface Tattoo)
 ```
 
 ### Sistema de Rutas
@@ -136,7 +136,7 @@ Componentes como `Title`, `Subtitle`, `Button` usan prop `variant` para diferent
 .transition-smooth       /* Transición cubic-bezier personalizada */
 @keyframes fade-in, slide-in-right, slide-in-left
 .animate-fade-in, .animate-slide-in-right, .animate-slide-in-left
-.animation-delay-150 / .animation-delay-300
+.animation-delay-150 / .animation-delay-300 / .animation-delay-450 / .animation-delay-600
 ```
 
 ### Path Alias
@@ -157,11 +157,53 @@ El `Header` cambia de `bg-transparent` a `bg-black/30 backdrop-blur-md` cuando `
 - **Transparente**: en rutas `/` y `/contacto` → `bg-black/20 backdrop-blur-md`
 - **Sólido**: resto de rutas → `bg-cream-100/50 backdrop-blur-sm`
 
-### Home Page Video Background
+### Home Page - Landing Dinámica (Actualizada Nov 2025)
 
-- Video fullscreen con overlay `bg-gradient-to-b from-black/50 via-black/40 to-black/60`
-- Grid de 6 tarjetas con glassmorphism: `backdrop-blur-md bg-white/10`
-- Animaciones de entrada escalonadas con delays
+**Arquitectura de Conversión** - 6 secciones modulares enfocadas en funnel de conversión:
+
+1. **Hero Section** (ContentHero)
+   - Usa componente reutilizable `<HeroSection>` con video background
+   - H1 optimizado SEO: "Diseños de Tatuajes Únicos y Personalizados en Buenos Aires"
+   - CTA primario: "AGENDA TU CITA" → /contacto
+   - Animaciones: fade-in con delays 0ms, 150ms, 300ms
+
+2. **Social Proof Section** (SocialProofSection)
+   - 3 bloques de autoridad y confianza (500+ diseños, 8+ años, certificado)
+   - Grid responsive: 1 col móvil → 3 cols desktop
+   - CTA secundario: "Ver Portfolio de Tatuajes" → /tattoo
+   - Estilo: `bg-cream-50`, icons emoji, hover effects
+
+3. **Featured Portfolio Section** (FeaturedPortfolioSection)
+   - Importa `tattoos` desde `@/assets/tattoo/mock-data`
+   - Grid 4 tatuajes destacados (aspect ratio 3:4)
+   - Cards con Link a /tattoo, overlay en hover, badge categoría
+   - CTA: "VER PORTAFOLIO COMPLETO" con bg-green-600
+   - Estilo: gradient `from-nude-50 to-brown-50`
+
+4. **Instagram Section** (InstagramSection)
+   - Stats row: 10K+ seguidores, 500+ posts, 4.9★ valoración
+   - CTA externo: botón con Props Polymorphism (href + target="_blank")
+   - Handle: @nataliaceller_art
+   - Elementos decorativos: círculos blur-3xl en esquinas
+   - Estilo: gradient `from-brown-100 via-nude-100 to-cream-100`
+
+5. **FAQ Section** (FAQSection + FAQItem)
+   - Componente accordion interactivo (estado local con useState)
+   - 2 preguntas clave: precios y proceso de reserva
+   - Interface TypeScript: `FAQItemProps` (question, answer, delay)
+   - CTA terciario: "PREGUNTAS FRECUENTES (FAQs)" → /faqs (outline variant)
+   - Accesibilidad: aria-expanded, keyboard navigation
+   - Estilo: `bg-cream-100 to cream-50`, icono "+" rotatorio
+
+6. **Footer** (transparente)
+
+**Características técnicas:**
+- Path alias `@/` en todos los imports
+- TypeScript strict: interfaces para props, arrays tipados
+- Mock data: `src/assets/tattoo/mock-data.ts` (interface Tattoo, 4 items)
+- Animaciones escalonadas: delays 150ms, 300ms, 450ms, 600ms
+- Responsive: mobile-first con breakpoints sm/md/lg
+- 461 líneas totales, modularizado en 6 componentes
 
 ### HeroSection Reutilizable
 
@@ -233,9 +275,9 @@ npm run lint     # ESLint con reglas React hooks + refresh
 
 ## Aspectos Clave para Nuevos Agentes
 
-### 1. La Home es Diferente
+### 1. La Home es Landing de Conversión (Actualizada)
 
-No uses `Layout` en `/`. Tiene estructura única: video fullscreen + grid navigation + footer transparente.
+No uses `Layout` en `/`. Estructura única: 6 secciones modulares con funnel de conversión. Hero con video + 5 CTAs estratégicos + footer transparente. Usa path alias `@/` para imports, componentes tipados con `React.FC<Props>`, y mock data desde `@/assets/tattoo/mock-data`.
 
 ### 2. Componentes Shared son la Base
 
@@ -260,9 +302,19 @@ No pongas lógica compleja en componentes. Crea hooks personalizados (ver `hooks
 
 Componentes existen pero páginas muestran "Coming Soon". Mock data está preparado en `useBlogLogic`.
 
-### 7. Importaciones con Alias
+### 7. Importaciones con Alias (Obligatorio)
 
-Usa `@/` para imports absolutos desde `src/`. Configurado en Vite y TS.
+**SIEMPRE** usa `@/` para imports absolutos desde `src/`. Configurado en Vite y TS. Ejemplo:
+```tsx
+// ✅ CORRECTO
+import { HeroSection } from '@/components/shared';
+import sobremiHeroVideo from '@/assets/sobremi_hero.mp4';
+import { tattoos } from '@/assets/tattoo/mock-data';
+
+// ❌ INCORRECTO
+import { HeroSection } from '../components/shared';
+import sobremiHeroVideo from '../assets/sobremi_hero.mp4';
+```
 
 ## Testing y Debug
 
@@ -273,11 +325,25 @@ Usa `@/` para imports absolutos desde `src/`. Configurado en Vite y TS.
   - Rutas no funcionan: revisar anidación en `App.tsx`
   - Estilos no aplican: verificar orden de imports en index.css
 
+## Changelog Reciente (Nov 2025)
+
+### Home.tsx - Landing Page Dinámica
+- ✅ Reestructuración completa: de grid estático a funnel de conversión (6 secciones)
+- ✅ SEO: H1 optimizado "Diseños de Tatuajes Únicos y Personalizados en Buenos Aires"
+- ✅ 5 CTAs estratégicos: agenda, portfolio (x2), Instagram, FAQs
+- ✅ Componentes nuevos: `ContentHero`, `SocialProofSection`, `FeaturedPortfolioSection`, `InstagramSection`, `FAQSection`, `FAQItem`
+- ✅ Mock data: `@/assets/tattoo/mock-data.ts` (interface Tattoo, 4 items con imágenes reales)
+- ✅ TypeScript: interfaces `FAQItemProps`, arrays tipados, React.FC<Props>
+- ✅ Path alias: todos los imports usan `@/` (no rutas relativas)
+- ✅ CSS: animation-delay-450 y animation-delay-600 agregados a index.css
+- ✅ HeroSection: detección automática tipo de video (mp4/webm/mov)
+
 ## Próximos Pasos Sugeridos
 
-- Implementar CMS o API para contenido dinámico
+- Implementar CMS o API para contenido dinámico (reemplazar mock-data.ts)
 - Agregar sistema de i18n (español/inglés)
 - Optimizar imágenes (WebP, lazy loading avanzado)
 - Agregar Google Analytics o similar
 - Implementar formulario de contacto funcional (backend)
 - Activar sección de Blog con posts reales
+- A/B testing en CTAs de Home para optimizar conversión

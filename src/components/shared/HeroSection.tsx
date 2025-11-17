@@ -1,5 +1,13 @@
 
 const HeroSection = ({video, image, content}: {video?: string, image?: string, content: React.ReactNode}) => {
+    // Detectar el tipo de video por extensión
+    const getVideoType = (videoSrc: string) => {
+        if (videoSrc.endsWith('.webm')) return 'video/webm';
+        if (videoSrc.endsWith('.mp4')) return 'video/mp4';
+        if (videoSrc.endsWith('.mov')) return 'video/mp4';
+        return 'video/mp4'; // default
+    };
+
     return (
         <section className="relative min-h-[calc(100dvh+8rem)] flex items-center justify-center overflow-hidden pb-32">
             {/* Background Video or Image */}
@@ -11,7 +19,7 @@ const HeroSection = ({video, image, content}: {video?: string, image?: string, c
                     loop
                     playsInline
                 >
-                    <source src={video} type="video/webm" />
+                    <source src={video} type={getVideoType(video)} />
                     Tu navegador no soporta el elemento de video.
                 </video>
             ) : image ? (
