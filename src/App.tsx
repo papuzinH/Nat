@@ -3,7 +3,8 @@ import { Layout, ScrollToTop } from './components/shared';
 import { 
   Home, 
   Obras, 
-  Tattoo, 
+  Tattoo,
+  TattooDetail,
   SobreMi, 
   Blog,
   // BlogPost, 
@@ -43,6 +44,7 @@ function App() {
               <Route path="/obras/ceramicas" element={<Ceramicas />} />
               <Route path="/obras/stickers" element={<Stickers />} />
               <Route path="/tattoo" element={<Tattoo />} />
+              <Route path="/tattoo/:id" element={<TattooDetail />} />
               <Route path="/sobre-mi" element={<SobreMi />} />
               <Route path="/blog" element={<Blog />} />
               {/* <Route path="/blog/:id" element={<BlogPost />} /> */}

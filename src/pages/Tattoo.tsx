@@ -1,45 +1,14 @@
 import React from 'react';
-import { Title } from '../components/shared';
+import { Title } from '@/components/shared';
 import HeroSection from '@/components/shared/HeroSection';
 import ContenidoText from '@/components/tattoo/ContenidoText';
 import CTATattooSection from '@/components/tattoo/CTATattooSection';
-import GallerySection from '@/components/tattoo/GallerySection';
+import TattooGridList from '@/components/tattoo/TattooGridList';
 import StudioCTA from '@/components/tattoo/StudioCTA';
-// Import tattoo images
-import tat1 from '../assets/tattoo/tat1.jpg';
-import tat2 from '../assets/tattoo/tat2.jpg';
-import tat3 from '../assets/tattoo/tat3.jpg';
-import tat4 from '../assets/tattoo/tat4.jpg';
-import heroVideo from '../assets/hero_video.mov';
+import { tattoos } from '@/assets/tattoo/mock-data';
+import heroVideo from '@/assets/hero_video.mov';
 
 const Tattoo: React.FC = () => {
-  const tattoos = [
-    {
-      id: 'tattoo1',
-      title: 'Tatuaje Floral',
-      image: tat1,
-      description: 'Un hermoso tatuaje floral con detalles intrincados.',
-    },
-    {
-      id: 'tattoo2',
-      title: 'Tatuaje Geométrico',
-      image: tat2,
-      description: 'Un tatuaje geométrico moderno y minimalista.',
-    },
-    {
-      id: 'tattoo3',
-      title: 'Tatuaje de Animales',
-      image: tat3,
-      description: 'Un tatuaje realista de un animal salvaje.',
-    },
-    {
-      id: 'tattoo4',
-      title: 'Tatuaje de Mandala',
-      image: tat4,
-      description: 'Un tatuaje mandala con patrones detallados.',
-    }
-  ];
-
   const content_first = [
     'Empecé a tatuar en el 2017 en lo que era el cuarto en lo de mis viejxs. Era un espacio bastante pequeño, con menos luz, me acuerdo que siempre nos recibía mi perra con su saludo super emocionada. Quienes me conocen desde entonces saben de lo que hablo.',
     'Al principio me frustraba mucho porque estudiaba al mismo tiempo y para mi era demasiado trabajo. Siempre me encargué de todo sola: las consultas, la agenda de los turnos, el trabajo de diseño, el tatuar todos los días, organizar eventos flash day, mantener el stock de los insumos, crear contenido para redes, etc. Aunque fue cansador, nunca dejé de ponerle todo mi amor. Siempre me sentí muy afortunada de poder dedicarme a esto que me hace tan feliz.',
@@ -57,7 +26,7 @@ const Tattoo: React.FC = () => {
         Mi trabajo en el estudio
       </Title>
     </>
-  )
+  );
 
   return (
     <div className="min-h-screen">
@@ -69,8 +38,7 @@ const Tattoo: React.FC = () => {
 
       <CTATattooSection />
 
-
-      <GallerySection tattoos={tattoos} />
+      <TattooGridList tattoos={tattoos} />
     </div>
   );
 };
