@@ -22,8 +22,8 @@ const ContentHero = () => (
         variant="large" 
         className="text-white/90 mb-8 max-w-2xl mx-auto animate-fade-in animation-delay-150"
       >
-        Transforma tus ideas en arte permanente con diseños exclusivos 
-        que reflejan tu esencia y personalidad
+        Transformo tu historia y esencia en un diseño único, permanente. 
+        En mi estudio, la naturaleza y la simetría guían cada trazo.
       </Subtitle>
       
       {/* CTA Principal */}
@@ -35,7 +35,7 @@ const ContentHero = () => (
           to="/contacto"
           className="font-title tracking-wide shadow-2xl hover:shadow-green-500/50 transition-all duration-300"
         >
-          AGENDA TU CITA
+          AGENDA MI CITA
         </Button>
       </div>
     </div>
@@ -47,20 +47,20 @@ const SocialProofSection: React.FC = () => {
   const testimonials = [
     {
       id: 1,
-      text: '+500 diseños únicos creados',
-      subtitle: 'Cada tatuaje es una obra de arte personalizada',
+      text: '500+ Diseños de Autor',
+      subtitle: 'Cada pieza refleja la esencia única de quien la lleva.',
       icon: '🎨'
     },
     {
       id: 2,
-      text: '8+ años de experiencia',
-      subtitle: 'Perfeccionando el arte del tatuaje con pasión',
+      text: 'Mi Experiencia: 8+ Años',
+      subtitle: 'Perfeccionando el arte del tatuaje con pasión y dedicación.',
       icon: '⭐'
     },
     {
       id: 3,
-      text: 'Estudio profesional certificado',
-      subtitle: 'Ambiente seguro con los más altos estándares de higiene',
+      text: 'Estudio Personal & Seguro',
+      subtitle: 'Trabajo bajo los más altos estándares de higiene y cuidado.',
       icon: '✨'
     }
   ];
@@ -75,14 +75,14 @@ const SocialProofSection: React.FC = () => {
             variant="titleSection" 
             className="text-cream-800 mb-4 animate-fade-in"
           >
-            Tu Confianza, Nuestra Prioridad
+            Mi Universo Creativo y Tu Historia
           </Title>
           <Subtitle 
             variant="medium" 
             className="text-cream-600 max-w-2xl mx-auto animate-fade-in animation-delay-150"
           >
-            Descubre por qué cientos de clientes confían en nosotros 
-            para plasmar sus historias en la piel
+            Enfocada en el detalle, te invito a co-crear un diseño exclusivo, 
+            con la confianza y seguridad de 8+ años de experiencia.
           </Subtitle>
         </div>
 
@@ -244,7 +244,7 @@ const InstagramSection: React.FC = () => {
             variant="titleSection" 
             className="text-brown-800 mb-6 animate-fade-in animation-delay-150"
           >
-            Inspírate con Nuestro Proceso Creativo
+            Mi Diario de Arte: Proceso y Reflexiones
           </Title>
 
           {/* Subtitle */}
@@ -252,8 +252,8 @@ const InstagramSection: React.FC = () => {
             variant="large" 
             className="text-brown-600 mb-8 animate-fade-in animation-delay-300"
           >
-            Síguenos en Instagram para ver sketches, trabajos en proceso, 
-            y las últimas tendencias en tatuaje artístico
+            Sígueme en Instagram para ver mis sketches, mis últimos trabajos 
+            y las inspiraciones que guían mi proceso creativo.
           </Subtitle>
 
           {/* Stats Row */}
@@ -389,14 +389,14 @@ const FAQSection: React.FC = () => {
             variant="titleSection" 
             className="text-cream-800 mb-4 animate-fade-in"
           >
-            ¿Tienes Dudas? Te Ayudamos
+            ¿Tenés dudas? Te ayudo
           </Title>
           <Subtitle 
             variant="medium" 
             className="text-cream-600 max-w-2xl mx-auto animate-fade-in animation-delay-150"
           >
-            Respondemos las preguntas más frecuentes para que tomes 
-            la mejor decisión con total confianza
+            Respondí las preguntas más frecuentes para que tomes la mejor decisión. 
+            Si tienes más dudas, hablemos personalmente.
           </Subtitle>
         </div>
 

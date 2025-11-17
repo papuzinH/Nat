@@ -159,16 +159,22 @@ El `Header` cambia de `bg-transparent` a `bg-black/30 backdrop-blur-md` cuando `
 
 ### Home Page - Landing Dinámica (Actualizada Nov 2025)
 
-**Arquitectura de Conversión** - 6 secciones modulares enfocadas en funnel de conversión:
+**Arquitectura de Conversión** - 6 secciones modulares con funnel + **voz personal (primera persona)**:
 
 1. **Hero Section** (ContentHero)
    - Usa componente reutilizable `<HeroSection>` con video background
    - H1 optimizado SEO: "Diseños de Tatuajes Únicos y Personalizados en Buenos Aires"
-   - CTA primario: "AGENDA TU CITA" → /contacto
+   - Subtitle personal: "Transformo tu historia y esencia en un diseño único, permanente. En mi estudio, la naturaleza y la simetría guían cada trazo."
+   - CTA primario: "AGENDA MI CITA" → /contacto (singular)
    - Animaciones: fade-in con delays 0ms, 150ms, 300ms
 
 2. **Social Proof Section** (SocialProofSection)
-   - 3 bloques de autoridad y confianza (500+ diseños, 8+ años, certificado)
+   - Título: "Mi Universo Creativo y Tu Historia"
+   - Subtitle: "Enfocada en el detalle, te invito a co-crear un diseño exclusivo, con la confianza y seguridad de 8+ años de experiencia."
+   - 3 bloques con voz personal:
+     - "500+ Diseños de Autor" - "Cada pieza refleja la esencia única de quien la lleva."
+     - "Mi Experiencia: 8+ Años" - "Perfeccionando el arte del tatuaje con pasión y dedicación."
+     - "Estudio Personal & Seguro" - "Trabajo bajo los más altos estándares de higiene y cuidado."
    - Grid responsive: 1 col móvil → 3 cols desktop
    - CTA secundario: "Ver Portfolio de Tatuajes" → /tattoo
    - Estilo: `bg-cream-50`, icons emoji, hover effects
@@ -181,13 +187,17 @@ El `Header` cambia de `bg-transparent` a `bg-black/30 backdrop-blur-md` cuando `
    - Estilo: gradient `from-nude-50 to-brown-50`
 
 4. **Instagram Section** (InstagramSection)
+   - Título: "Mi Diario de Arte: Proceso y Reflexiones"
+   - Subtitle: "Sígueme en Instagram para ver mis sketches, mis últimos trabajos y las inspiraciones que guían mi proceso creativo."
    - Stats row: 10K+ seguidores, 500+ posts, 4.9★ valoración
-   - CTA externo: botón con Props Polymorphism (href + target="_blank")
+   - CTA externo: "📱 Sígueme en Instagram" con Props Polymorphism (href + target="_blank")
    - Handle: @nataliaceller_art
    - Elementos decorativos: círculos blur-3xl en esquinas
    - Estilo: gradient `from-brown-100 via-nude-100 to-cream-100`
 
 5. **FAQ Section** (FAQSection + FAQItem)
+   - Título: "¿Tenés dudas? Te ayudo"
+   - Subtitle: "Respondí las preguntas más frecuentes para que tomes la mejor decisión. Si tienes más dudas, hablemos personalmente."
    - Componente accordion interactivo (estado local con useState)
    - 2 preguntas clave: precios y proceso de reserva
    - Interface TypeScript: `FAQItemProps` (question, answer, delay)
@@ -198,6 +208,7 @@ El `Header` cambia de `bg-transparent` a `bg-black/30 backdrop-blur-md` cuando `
 6. **Footer** (transparente)
 
 **Características técnicas:**
+- **Voz en primera persona** (yo/mi) en todo el copy - marca personal auténtica
 - Path alias `@/` en todos los imports
 - TypeScript strict: interfaces para props, arrays tipados
 - Mock data: `src/assets/tattoo/mock-data.ts` (interface Tattoo, 4 items)
@@ -330,13 +341,20 @@ import sobremiHeroVideo from '../assets/sobremi_hero.mp4';
 ### Home.tsx - Landing Page Dinámica
 - ✅ Reestructuración completa: de grid estático a funnel de conversión (6 secciones)
 - ✅ SEO: H1 optimizado "Diseños de Tatuajes Únicos y Personalizados en Buenos Aires"
-- ✅ 5 CTAs estratégicos: agenda, portfolio (x2), Instagram, FAQs
+- ✅ **Copywriting en primera persona**: toda la página usa voz personal (yo/mi) eliminando lenguaje corporativo
+- ✅ 5 CTAs estratégicos: agenda (singular), portfolio (x2), Instagram, FAQs
 - ✅ Componentes nuevos: `ContentHero`, `SocialProofSection`, `FeaturedPortfolioSection`, `InstagramSection`, `FAQSection`, `FAQItem`
 - ✅ Mock data: `@/assets/tattoo/mock-data.ts` (interface Tattoo, 4 items con imágenes reales)
 - ✅ TypeScript: interfaces `FAQItemProps`, arrays tipados, React.FC<Props>
 - ✅ Path alias: todos los imports usan `@/` (no rutas relativas)
 - ✅ CSS: animation-delay-450 y animation-delay-600 agregados a index.css
 - ✅ HeroSection: detección automática tipo de video (mp4/webm/mov)
+
+### Refactorización de Copy (Nov 2025)
+- ✅ ContentHero: "Transformo tu historia..." + "AGENDA MI CITA"
+- ✅ SocialProofSection: "Mi Universo Creativo", "500+ Diseños de Autor", "Mi Experiencia: 8+ Años", "Estudio Personal & Seguro"
+- ✅ InstagramSection: "Mi Diario de Arte", "Sígueme... mis sketches, mis últimos trabajos"
+- ✅ FAQSection: "¿Tenés dudas? Te ayudo", "Respondí las preguntas...", "hablemos personalmente"
 
 ## Próximos Pasos Sugeridos
 
