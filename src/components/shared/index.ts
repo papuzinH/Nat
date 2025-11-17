@@ -12,4 +12,5 @@ export { default as Section } from './Section';
 export { default as HeroSection } from './HeroSection';
 export { default as ScrollToTop } from './ScrollToTop';
 export { default as ImageGallery } from './ImageGallery';
+export { default as SchemaMarkup } from './SchemaMarkup';
 export type { GalleryImage } from './ImageGallery';

@@ -18,6 +18,7 @@ const HeroSection = ({video, image, content}: {video?: string, image?: string, c
                     muted
                     loop
                     playsInline
+                    preload="auto"
                 >
                     <source src={video} type={getVideoType(video)} />
                     Tu navegador no soporta el elemento de video.
@@ -27,6 +28,8 @@ const HeroSection = ({video, image, content}: {video?: string, image?: string, c
                     src={image}
                     alt="Background"
                     className="absolute top-0 left-0 w-full h-full object-cover"
+                    fetchPriority="high"
+                    loading="eager"
                 />
             ) : (
                 <div className="absolute top-0 left-0 w-full h-full bg-cream-200" />

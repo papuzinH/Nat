@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { HeroSection, Footer, Title, Subtitle, Button } from '@/components/shared';
+import { HeroSection, Footer, Title, Subtitle, Button, SchemaMarkup } from '@/components/shared';
 import sobremiHeroVideo from '@/assets/sobremi_hero.mp4';
 import { tattoos } from '@/assets/tattoo/mock-data';
 
@@ -182,6 +182,8 @@ const FeaturedPortfolioSection: React.FC = () => {
                   alt={tattoo.title}
                   className="w-full h-full object-cover transition-transform duration-500 
                            group-hover:scale-110"
+                  loading={index < 2 ? "eager" : "lazy"}
+                  fetchPriority={index === 0 ? "high" : "auto"}
                 />
               </div>
 
@@ -300,6 +302,7 @@ const InstagramSection: React.FC = () => {
                 src="//lightwidget.com/widgets/11730c9547d65b8da1544c6a36290e44.html" 
                 scrolling="no" 
                 allowTransparency={true}
+                loading="lazy"
                 className="lightwidget-widget w-full border-0 min-h-[400px] md:min-h-[550px]"
               />
             </div>
@@ -450,13 +453,47 @@ const FAQSection: React.FC = () => {
 
 // Main Home Component
 const Home: React.FC = () => {
+  // Schema.org LocalBusiness Data
+  const localBusinessSchema = {
+    name: 'Natalia Heller Tattoo Studio',
+    image: 'https://tatuajesnaty.com/hero-image.webp',
+    url: 'https://tatuajesnaty.com/',
+    telephone: '+54 9 11 6619-1209',
+    address: {
+      '@type': 'PostalAddress' as const,
+      addressLocality: 'Buenos Aires',
+      addressRegion: 'CABA',
+      addressCountry: 'AR',
+    },
+    priceRange: '$$',
+    serviceType: [
+      'Tatuaje Line Art',
+      'Tatuaje Botánico',
+      'Diseño Personalizado',
+      'Tatuaje Minimalista',
+      'Cover Up',
+    ],
+    description: 'Estudio de tatuajes especializado en diseños únicos y personalizados. Line Art, Botánico, Minimalista. 8+ años de experiencia en Buenos Aires.',
+    openingHours: [
+      'Mo-Fr 10:00-19:00',
+      'Sa 11:00-17:00',
+    ],
+    sameAs: [
+      'https://instagram.com/nataliaceller_art',
+    ],
+  };
+
   return (
-    <div className="relative min-h-screen flex flex-col">
-      {/* Hero Section con video background */}
-      <HeroSection 
-        video={sobremiHeroVideo} 
-        content={<ContentHero />}
-      />
+    <>
+      {/* Schema.org Structured Data */}
+      <SchemaMarkup type="LocalBusiness" data={localBusinessSchema} />
+
+      <div className="relative min-h-screen flex flex-col">
+        {/* Hero Section con video background */}
+        <HeroSection 
+          video={sobremiHeroVideo} 
+          content={<ContentHero />}
+        />
 
       {/* Social Proof / Testimonials Section */}
       <SocialProofSection />
@@ -472,7 +509,8 @@ const Home: React.FC = () => {
 
       {/* Footer con estilo transparente */}
       <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 
