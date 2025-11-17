@@ -13,4 +13,6 @@ export { default as HeroSection } from './HeroSection';
 export { default as ScrollToTop } from './ScrollToTop';
 export { default as ImageGallery } from './ImageGallery';
 export { default as SchemaMarkup } from './SchemaMarkup';
+export { default as GTMTag } from './GTMTag';
+export { default as NoscriptGTM } from './NoscriptGTM';
 export type { GalleryImage } from './ImageGallery';

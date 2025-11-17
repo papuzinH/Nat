@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Layout, ScrollToTop } from './components/shared';
+import { Layout, ScrollToTop, GTMTag, NoscriptGTM } from './components/shared';
 import { 
   Home, 
   Obras, 
@@ -23,9 +23,16 @@ import {
 
 function App() {
   return (
-    <Router>
-      <ScrollToTop />
-      <Routes>
+    <>
+      {/* Google Tag Manager */}
+      <GTMTag gtmId="GTM-WXL45DSC" />
+      
+      <Router>
+        {/* Google Tag Manager (noscript) */}
+        <NoscriptGTM gtmId="GTM-WXL45DSC" />
+        
+        <ScrollToTop />
+        <Routes>
         {/* Ruta Home sin Layout (sin navbar) */}
         <Route path="/" element={<Home />} />
         
@@ -53,8 +60,9 @@ function App() {
             </Routes>
           </Layout>
         } />
-      </Routes>
-    </Router>
+        </Routes>
+      </Router>
+    </>
   );
 }
 

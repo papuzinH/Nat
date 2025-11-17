@@ -221,9 +221,10 @@ El `Header` cambia de `bg-transparent` a `bg-black/30 backdrop-blur-md` cuando `
 - Mock data: `src/assets/tattoo/mock-data.ts` (interface Tattoo, 4 items)
 - Animaciones escalonadas: delays 150ms, 300ms, 450ms, 600ms
 - Responsive: mobile-first con breakpoints sm/md/lg
-- **Schema.org LocalBusiness**: JSON-LD con datos completos del negocio
+- **Schema.org LocalBusiness**: JSON-LD con datos completos del negocio (39 líneas de schema)
 - **Core Web Vitals optimized**: LCP < 2s con estrategias de carga condicional
-- 483 líneas totales, modularizado en 6 componentes + Schema
+- **Widget Instagram real**: LightWidget integrado con lazy loading
+- 518 líneas totales, modularizado en 6 componentes + Schema + Instagram widget
 
 ### HeroSection Reutilizable
 
@@ -244,12 +245,40 @@ Componente que acepta `video`, `image` y `content` como props, usado en Obras, T
 
 ### Schema.org Structured Data
 
-**Componente SchemaMarkup** (`src/components/shared/SchemaMarkup.tsx`):
+**Componente SchemaMarkup** (`src/components/shared/SchemaMarkup.tsx` - 60 líneas):
 - Implementación nativa con React hooks (sin dependencias externas)
-- Compatible con React 19+
+- Compatible con React 19+ (no usa react-helmet-async por incompatibilidad)
 - Inyección dinámica de JSON-LD en `<head>` via `useEffect`
 - Cleanup automático al desmontar componente
 - Soporte para tipos: LocalBusiness, Person, Organization
+- Interface TypeScript completa con todos los campos de LocalBusiness
+
+**Implementación SchemaMarkup.tsx:**
+```tsx
+const SchemaMarkup: React.FC<SchemaMarkupProps> = ({ type, data }) => {
+  useEffect(() => {
+    const schemaData = {
+      '@context': 'https://schema.org',
+      '@type': type,
+      ...data,
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(schemaData, null, 2);
+    script.id = `schema-${type.toLowerCase()}`;
+
+    document.head.appendChild(script);
+
+    return () => {
+      const existingScript = document.getElementById(`schema-${type.toLowerCase()}`);
+      if (existingScript) document.head.removeChild(existingScript);
+    };
+  }, [type, data]);
+
+  return null;
+};
+```
 
 **Uso en Home.tsx:**
 ```tsx
@@ -322,6 +351,98 @@ const localBusinessSchema = {
 - ✅ Alt text descriptivo en todas las imágenes
 - ✅ fetchPriority y loading estratégicos para LCP
 - ✅ Lazy loading en contenido below-the-fold
+- ✅ Google Tag Manager integrado para analytics y tracking
+
+### Google Tag Manager (GTM)
+
+**Componentes GTM** (`src/components/shared/GTMTag.tsx` y `NoscriptGTM.tsx`):
+- Implementación en dos partes según especificaciones de Google
+- Carga asíncrona no bloqueante del script principal
+- Fallback noscript para navegadores sin JavaScript
+- ID de contenedor: `GTM-WXL45DSC`
+
+**GTMTag.tsx (44 líneas):**
+```tsx
+const GTMTag: React.FC<GTMTagProps> = ({ gtmId }) => {
+  useEffect(() => {
+    if (document.getElementById('gtm-script')) return;
+    
+    const script = document.createElement('script');
+    script.id = 'gtm-script';
+    script.innerHTML = `
+      (function(w,d,s,l,i){
+        w[l]=w[l]||[];
+        w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+        var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),
+            dl=l!='dataLayer'?'&l='+l:'';
+        j.async=true;
+        j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+        f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','${gtmId}');
+    `;
+    document.head.appendChild(script);
+    
+    return () => {
+      const existingScript = document.getElementById('gtm-script');
+      if (existingScript) document.head.removeChild(existingScript);
+    };
+  }, [gtmId]);
+  
+  return null;
+};
+```
+
+**NoscriptGTM.tsx (17 líneas):**
+```tsx
+const NoscriptGTM: React.FC<NoscriptGTMProps> = ({ gtmId }) => {
+  return (
+    <noscript>
+      <iframe
+        src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+        height="0"
+        width="0"
+        style={{ display: 'none', visibility: 'hidden' }}
+        title="Google Tag Manager"
+      />
+    </noscript>
+  );
+};
+```
+
+**Integración en App.tsx:**
+```tsx
+import { GTMTag, NoscriptGTM } from './components/shared';
+
+function App() {
+  return (
+    <>
+      {/* Google Tag Manager */}
+      <GTMTag gtmId="GTM-WXL45DSC" />
+      
+      <Router>
+        {/* Google Tag Manager (noscript) */}
+        <NoscriptGTM gtmId="GTM-WXL45DSC" />
+        
+        <ScrollToTop />
+        <Routes>
+          {/* todas las rutas */}
+        </Routes>
+      </Router>
+    </>
+  );
+}
+```
+
+**Características:**
+- Script inyectado en `<head>` via `useEffect` con snippet oficial de Google
+- Verificación de carga previa con `document.getElementById` (evita duplicados)
+- Noscript iframe para accesibilidad y fallback sin JS
+- dataLayer initialization automática con `gtm.start` timestamp
+- Compatible con React 19+ sin dependencias externas
+- Sin bloqueo del renderizado inicial (async: true)
+- Cleanup automático al desmontar componente
+- ID parametrizable para múltiples ambientes
 
 ## Workflows de Desarrollo
 
@@ -474,6 +595,7 @@ import sobremiHeroVideo from '../assets/sobremi_hero.mp4';
 - ✅ **Schema.org JSON-LD**: Componente `SchemaMarkup` con datos de LocalBusiness (nombre, dirección, teléfono, servicios)
 - ✅ **Widget Instagram Real**: Integración LightWidget con altura responsiva (`min-h-[400px] md:min-h-[550px]`)
 - ✅ **Structured Data**: LocalBusiness schema con serviceType, openingHours, sameAs (Instagram), priceRange
+- ✅ **Google Tag Manager**: Integración GTM (GTM-WXL45DSC) con carga asíncrona no bloqueante
 
 ### Refactorización de Copy (Nov 2025)
 - ✅ ContentHero: "Transformo tu historia..." + "AGENDA MI CITA"
