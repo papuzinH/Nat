@@ -28,10 +28,10 @@ const ContactHero: React.FC = () => {
                         <div className="mx-auto px-4 flex items-center justify-between gap-8 max-w-6xl w-full">
                             <div className="text-left mb-12 max-w-md ml-0 mr-auto">
                                 <Title variant='titlePage' className='text-white mb-8'>
-                                    Contacto
+                                    ¡Hablemos de tu Próximo Tatuaje!
                                 </Title>
                                 <Subtitle variant='large' className='text-white'>
-                                    ¿Listo para crear algo único juntos? Ponte en contacto conmigo.
+                                    Usa este formulario para contarme tu idea, obtener una cotización o agendar una consulta gratuita. Tu historia comienza aquí.
                                 </Subtitle>
                             </div>
 

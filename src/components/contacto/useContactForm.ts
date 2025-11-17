@@ -4,17 +4,27 @@ interface FormData {
   name: string;
   email: string;
   phone: string;
-  service: string;
+  consultType: string;
   message: string;
 }
 
-export const useContactForm = () => {
+interface UseContactFormProps {
+  designId?: string;
+  designTitle?: string;
+}
+
+export const useContactForm = ({ designId, designTitle }: UseContactFormProps = {}) => {
+  // Pre-llenar mensaje si viene desde un diseño específico
+  const initialMessage = designId && designTitle 
+    ? `Me inspiró el diseño: ${designTitle}. Mi idea es... `
+    : '';
+
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     phone: '',
-    service: '',
-    message: ''
+    consultType: '',
+    message: initialMessage
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,12 +52,16 @@ export const useContactForm = () => {
       setShowSuccessModal(true);
       
       // Reset form después de mostrar el modal
+      const initialMessage = designId && designTitle 
+        ? `Me inspiró el diseño: ${designTitle}. Mi idea es... `
+        : '';
+      
       setFormData({
         name: '',
         email: '',
         phone: '',
-        service: '',
-        message: ''
+        consultType: '',
+        message: initialMessage
       });
       
     } catch (error) {
@@ -62,12 +76,16 @@ export const useContactForm = () => {
   };
 
   const resetForm = () => {
+    const initialMessage = designId && designTitle 
+      ? `Me inspiró el diseño: ${designTitle}. Mi idea es... `
+      : '';
+    
     setFormData({
       name: '',
       email: '',
       phone: '',
-      service: '',
-      message: ''
+      consultType: '',
+      message: initialMessage
     });
     setShowSuccessModal(false);
   };

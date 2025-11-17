@@ -1,18 +1,31 @@
 import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Button from '../shared/Button';
 import InputField from './InputField';
-import SelectField from './SelectField';
+import RadioField from './RadioField';
 import TextareaField from './TextareaField';
 import { useContactForm } from './useContactForm';
+import { tattoos } from '@/assets/tattoo/mock-data';
 
 const FormContainer: React.FC = () => {
-  const { formData, isSubmitting, showSuccessModal, handleChange, handleSubmit, closeSuccessModal } = useContactForm();
+  // Capturar query param 'design'
+  const [searchParams] = useSearchParams();
+  const designId = searchParams.get('design');
+  
+  // Buscar el tatuaje en mock data si existe designId
+  const selectedDesign = designId 
+    ? tattoos.find(t => t.id === Number(designId) || t.slug === designId)
+    : undefined;
 
-  const serviceOptions = [
-    { value: 'tattoo', label: 'Consulta de Tatuaje' },
-    { value: 'painting', label: 'Encargo de Pintura' },
-    { value: 'design', label: 'Diseño Personalizado' },
-    { value: 'other', label: 'Otro' }
+  const { formData, isSubmitting, showSuccessModal, handleChange, handleSubmit, closeSuccessModal } = useContactForm({
+    designId: designId || undefined,
+    designTitle: selectedDesign?.title
+  });
+
+  const consultTypeOptions = [
+    { value: 'cotizacion', label: 'Cotización de un Diseño' },
+    { value: 'pregunta', label: 'Pregunta General/Información' },
+    { value: 'retoque', label: 'Retoque o Diseño Anterior' }
   ];
 
   return (
@@ -53,12 +66,11 @@ const FormContainer: React.FC = () => {
           onChange={handleChange}
         />
 
-        <SelectField
-          id="service"
-          name="service"
+        <RadioField
+          name="consultType"
           label="Tipo de Consulta"
-          value={formData.service}
-          options={serviceOptions}
+          value={formData.consultType}
+          options={consultTypeOptions}
           required
           disabled={isSubmitting}
           onChange={handleChange}
@@ -69,10 +81,10 @@ const FormContainer: React.FC = () => {
           name="message"
           label="Mensaje"
           value={formData.message}
-          placeholder="Cuéntame sobre tu proyecto, ideas, referencias, etc."
+          placeholder="Describe tu idea: estilo (Line Art, Botánico), tamaño (en cm), y la ubicación exacta en el cuerpo. Si es una cotización, incluye referencias."
           required
           disabled={isSubmitting}
-          rows={5}
+          rows={6}
           onChange={handleChange}
         />
 
