@@ -1,14 +1,14 @@
 import React from 'react';
-import { Title, Subtitle, Button } from '@/components/shared';
+import { Title, Subtitle, Button, Section } from '@/components/shared';
 
 const InstagramSection: React.FC = () => {
   return (
-    <section className="relative py-16 md:py-20 bg-gradient-to-br from-brown-100 via-nude-100 to-cream-100 overflow-hidden">
+    <div className="relative bg-gradient-to-br from-brown-100 via-nude-100 to-cream-100 overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-green-200/20 rounded-full blur-3xl"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-brown-200/20 rounded-full blur-3xl"></div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <Section className="relative z-10 md:py-20">
         <div className="max-w-4xl mx-auto text-center">
           {/* Icon/Emoji */}
           <div className="text-6xl md:text-7xl mb-6 animate-fade-in">
@@ -103,8 +103,8 @@ const InstagramSection: React.FC = () => {
             @nataliaceller_art
           </p>
         </div>
-      </div>
-    </section>
+      </Section>
+    </div>
   );
 };
 

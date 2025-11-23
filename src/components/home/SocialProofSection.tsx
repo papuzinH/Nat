@@ -1,5 +1,5 @@
 import React from 'react';
-import { Title, Subtitle, Button } from '@/components/shared';
+import { Title, Subtitle, Button, Section } from '@/components/shared';
 
 const SocialProofSection: React.FC = () => {
   const testimonials = [
@@ -24,8 +24,8 @@ const SocialProofSection: React.FC = () => {
   ];
 
   return (
-    <section className="relative py-16 md:py-24 bg-cream-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="relative bg-cream-50">
+      <Section className="md:py-24">
         {/* Section Title */}
         <div className="text-center mb-12 md:mb-16">
           <Title 
@@ -91,8 +91,8 @@ const SocialProofSection: React.FC = () => {
             Ver Portfolio de Tatuajes
           </Button>
         </div>
-      </div>
-    </section>
+      </Section>
+    </div>
   );
 };
 

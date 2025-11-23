@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Title, Subtitle, Button } from '@/components/shared';
+import { Title, Subtitle, Button, Section } from '@/components/shared';
 
 // FAQ Section - Props Interface
 interface FAQItemProps {
@@ -69,8 +69,8 @@ const HomeFAQSection: React.FC = () => {
   ];
 
   return (
-    <section className="relative py-16 md:py-24 bg-gradient-to-b from-cream-100 to-cream-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="relative bg-gradient-to-b from-cream-100 to-cream-50">
+      <Section className="md:py-24">
         {/* Section Header */}
         <div className="text-center mb-12 md:mb-16">
           <Title 
@@ -113,8 +113,8 @@ const HomeFAQSection: React.FC = () => {
             PREGUNTAS FRECUENTES (FAQs)
           </Button>
         </div>
-      </div>
-    </section>
+      </Section>
+    </div>
   );
 };
 

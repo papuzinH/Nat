@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Title, Subtitle, Button } from '@/components/shared';
+import { Title, Subtitle, Button, Section } from '@/components/shared';
 import { tattoos } from '@/assets/tattoo/mock-data';
 
 const FeaturedPortfolioSection: React.FC = () => {
@@ -8,8 +8,8 @@ const FeaturedPortfolioSection: React.FC = () => {
   const featuredTattoos = tattoos.slice(0, 4);
 
   return (
-    <section className="relative py-16 md:py-24 bg-gradient-to-b from-nude-50 to-brown-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="relative bg-gradient-to-b from-nude-50 to-brown-50">
+      <Section className="md:py-24">
         {/* Section Header */}
         <div className="text-center mb-12 md:mb-16">
           <Title 
@@ -84,8 +84,8 @@ const FeaturedPortfolioSection: React.FC = () => {
             VER PORTAFOLIO COMPLETO
           </Button>
         </div>
-      </div>
-    </section>
+      </Section>
+    </div>
   );
 };
 
