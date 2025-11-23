@@ -1,5 +1,5 @@
 import React from 'react';
-import { Section, Title } from '../shared';
+import { Section, Title, Button } from '../shared';
 import ContentImage from './ContentImage';
 // Import images
 import sobremi1 from '../../assets/sobremi_1.webp';
@@ -68,6 +68,22 @@ const AboutSobreMi: React.FC = () => {
         image={sobremi3}
         alt="Natalia trabajando en su estudio"
       />
+
+      {/* Cierre de Conversión */}
+      <div className="mt-24 text-center animate-fade-in">
+        <Title variant="titleSection" as="h3" className="mb-8 text-brown-800">
+          ¿Conectaste con mi historia? Me encantaría conocer la tuya.
+        </Title>
+        <Button 
+          variant="primary" 
+          size="large" 
+          as="link" 
+          to="/contacto"
+          className="shadow-xl hover:shadow-green-500/30"
+        >
+          CHARLEMOS SOBRE TU IDEA
+        </Button>
+      </div>
     </Section>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { AboutSobreMi, HeroSection, Title } from '../components/shared';
+import { AboutSobreMi, HeroSection, Title, SchemaMarkup } from '../components/shared';
 import natProfileImage from '../assets/nat_profile.webp';
 import sobremiHeroVideo from '../assets/sobremi_hero.mp4';
 
@@ -15,11 +15,28 @@ const ContentHero = () => (
 );
 
 const SobreMi: React.FC = () => {
+  const personalSchema = {
+    name: 'Natalia Heller',
+    image: 'https://tatuajesnaty.com/nat_profile.webp',
+    url: 'https://tatuajesnaty.com/sobre-mi',
+    sameAs: [
+      'https://instagram.com/nataliaceller_art'
+    ],
+    jobTitle: 'Tattoo Artist',
+    worksFor: {
+      '@type': 'Organization',
+      name: 'Natalia Heller Tattoo Studio'
+    }
+  };
+
   return (
-    <div className="min-h-screen">
-      <HeroSection video={sobremiHeroVideo} content={<ContentHero />} />
-      <AboutSobreMi />
-    </div>
+    <>
+      <SchemaMarkup type="Person" data={personalSchema} />
+      <div className="min-h-screen">
+        <HeroSection video={sobremiHeroVideo} content={<ContentHero />} />
+        <AboutSobreMi />
+      </div>
+    </>
   );
 };
 
