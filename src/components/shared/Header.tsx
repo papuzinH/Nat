@@ -19,6 +19,8 @@ const Header: React.FC = () => {
     return location.pathname === path;
   };
 
+  const isHome = location.pathname === '/';
+
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
@@ -85,7 +87,7 @@ const Header: React.FC = () => {
           {/* Mobile Menu Button */}
           <button
             className={`lg:hidden p-2 transition-colors duration-200 focus:outline-none ${
-              isScrolled 
+              isScrolled || isHome
                 ? 'text-white hover:text-green-400' 
                 : 'text-gray-700 hover:text-orange-600'
             }`}

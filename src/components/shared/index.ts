@@ -6,7 +6,6 @@ export { default as Subtitle } from './Subtitle';
 export { default as Button } from './Button';
 export { default as HeaderObras } from './HeaderObras';
 export { default as GridObras } from './GridObras';
-export { default as HeroSobreMi } from './HeroSobreMi';
 export { default as AboutSobreMi } from '../sobremi/AboutSobreMi';
 export { default as Section } from './Section';
 export { default as HeroSection } from './HeroSection';

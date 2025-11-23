@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Layout, ScrollToTop, GTMTag, NoscriptGTM } from './components/shared';
+import { Layout, ScrollToTop, GTMTag, NoscriptGTM, Header } from './components/shared';
 import { 
   Home, 
   Obras, 
@@ -33,8 +33,13 @@ function App() {
         
         <ScrollToTop />
         <Routes>
-        {/* Ruta Home sin Layout (sin navbar) */}
-        <Route path="/" element={<Home />} />
+        {/* Ruta Home con Header manual (sin Layout completo para evitar padding) */}
+        <Route path="/" element={
+          <>
+            <Header />
+            <Home />
+          </>
+        } />
         
         {/* Todas las demás rutas con Layout */}
         <Route path="/*" element={
