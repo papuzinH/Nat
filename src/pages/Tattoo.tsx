@@ -1,5 +1,5 @@
 import React from 'react';
-import { Title } from '@/components/shared';
+import { Title, SchemaMarkup } from '@/components/shared';
 import HeroSection from '@/components/shared/HeroSection';
 import ContenidoText from '@/components/tattoo/ContenidoText';
 import CTATattooSection from '@/components/tattoo/CTATattooSection';
@@ -9,6 +9,23 @@ import { tattoos } from '@/assets/tattoo/mock-data';
 import heroVideo from '@/assets/hero_video.mov';
 
 const Tattoo: React.FC = () => {
+  const collectionSchema = {
+    name: 'Portfolio de Tatuajes - Natalia Heller',
+    description: 'Galería de trabajos realizados: Line Art, Botánico, Minimalista.',
+    url: 'https://tatuajesnaty.com/tattoo',
+    numberOfItems: tattoos.length,
+    itemListElement: tattoos.map((tattoo, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'CreativeWork',
+        name: tattoo.title,
+        image: tattoo.image,
+        url: `https://tatuajesnaty.com/tattoo/${tattoo.id}`
+      }
+    }))
+  };
+
   const content_first = [
     'Empecé a tatuar en el 2017 en lo que era el cuarto en lo de mis viejxs. Era un espacio bastante pequeño, con menos luz, me acuerdo que siempre nos recibía mi perra con su saludo super emocionada. Quienes me conocen desde entonces saben de lo que hablo.',
     'Al principio me frustraba mucho porque estudiaba al mismo tiempo y para mi era demasiado trabajo. Siempre me encargué de todo sola: las consultas, la agenda de los turnos, el trabajo de diseño, el tatuar todos los días, organizar eventos flash day, mantener el stock de los insumos, crear contenido para redes, etc. Aunque fue cansador, nunca dejé de ponerle todo mi amor. Siempre me sentí muy afortunada de poder dedicarme a esto que me hace tan feliz.',
@@ -30,6 +47,7 @@ const Tattoo: React.FC = () => {
 
   return (
     <div className="min-h-screen">
+      <SchemaMarkup type="CollectionPage" data={collectionSchema} />
       <HeroSection video={heroVideo} content={contentHero()} />
 
       <ContenidoText content={content_first} />

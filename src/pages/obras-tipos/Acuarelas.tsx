@@ -1,5 +1,7 @@
 import React from 'react';
 import { HeaderObras, GridObras } from '../../components/shared';
+import CategoryNavigation from '../../components/obras/CategoryNavigation';
+import { tiposObras } from '../../data/obras';
 // Import placeholder image
 import heroAcrilico from '../../assets/obras/hero-acrilico.webp';
 
@@ -27,6 +29,7 @@ const Acuarelas: React.FC = () => {
         description="La delicadeza y transparencia de la acuarela permite crear obras llenas de sutileza y expresión, jugando con la fluidez del agua y los pigmentos."
       />
       <GridObras obras={acuarelasData} />
+      <CategoryNavigation tiposObras={tiposObras} currentRoute="/obras/acuarelas" />
     </div>
   );
 };

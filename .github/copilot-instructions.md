@@ -19,7 +19,7 @@ Sitio web portfolio para Natalia Heller, artista y tatuadora. Objetivo: mostrar 
 
 - **Ruta especial `/`**: Home sin Layout (sin header/navbar), con footer transparente
 - **Todas las demás rutas**: Envueltas en `<Layout>` que incluye `<Header>` + contenido + `<Footer>`
-- Subrutas de obras: `/obras/acrilicos`, `/obras/acuarelas`, etc. (9 categorías de arte)
+- Ruta dinámica de obras: `/obras/:slug` (Maneja las 9 categorías de arte dinámicamente)
 
 ### Organización de Componentes
 
@@ -52,12 +52,12 @@ src/
 │   ├── BlogPost.tsx     # Detalle de post individual con SEO (220 líneas)
 │   ├── FAQs.tsx         # Preguntas frecuentes con búsqueda
 │   ├── Contacto.tsx     # Formulario de contacto
-│   └── obras-tipos/     # 9 subpáginas de categorías (Acrilicos, Acuarelas, etc.)
+│   └── CategoryPage.tsx # Página dinámica para categorías de obras
 ├── hooks/
 │   ├── useBlogLogic.ts      # Lógica de estado para blog
 │   └── useBlogPostLogic.ts  # Lógica para post individual
 └── assets/
-    ├── obras/           # Imágenes de obras de arte
+    ├── obras/           # Imágenes + obras-data.ts (Datos centralizados)
     └── tattoo/          # Imágenes de tatuajes + mock-data.ts (interface Tattoo)
 ```
 
@@ -65,7 +65,7 @@ src/
 
 - `/` - Home (sin Layout, video fullscreen)
 - `/obras` - Grid de categorías
-  - `/obras/acrilicos`, `/obras/acuarelas`, `/obras/flores-prensadas`, etc.
+  - `/obras/:slug` - Detalle de categoría (Acrílicos, Acuarelas, etc.)
 - `/tattoo` - Listado de tatuajes
   - `/tattoo/:id` - Detalle individual de tatuaje
 - `/sobre-mi` - Biografía artista
@@ -250,7 +250,8 @@ Componente que acepta `video`, `image` y `content` como props, usado en Obras, T
 - Compatible con React 19+ (no usa react-helmet-async por incompatibilidad)
 - Inyección dinámica de JSON-LD en `<head>` via `useEffect`
 - Cleanup automático al desmontar componente
-- Soporte para tipos: LocalBusiness, Person, Organization
+- Soporte para tipos: LocalBusiness, Person, Organization, Article, Product, CollectionPage, ContactPage
+- **Cobertura Total**: Implementado en Home, Blog, Tatuajes, Obras y Contacto
 - Interface TypeScript completa con todos los campos de LocalBusiness
 
 **Implementación SchemaMarkup.tsx:**
@@ -512,9 +513,13 @@ No uses `Layout` en `/`. Estructura única: 6 secciones modulares con funnel de 
 
 Antes de crear componentes nuevos, revisa `components/shared/`. Hay utilidades reutilizables como `Title`, `Section`, `HeroSection`.
 
-### 3. El Sistema de Tipos de Obras
+### 3. El Sistema de Tipos de Obras (Dinámico)
 
-Hay 9 categorías hardcodeadas. Si agregas una nueva, actualiza 3 lugares: `App.tsx` routes, `obras-tipos/`, y el array en `Obras.tsx`.
+Anteriormente eran 9 páginas estáticas. Ahora es **un único componente dinámico** `CategoryPage.tsx` que consume datos centralizados desde `@/assets/obras/obras-data.ts`.
+Para agregar una categoría:
+1. Agregar entrada en `obras-data.ts` (slug, title, description, obras[]).
+2. Agregar entrada en `src/data/obras.ts` (para navegación y grid principal).
+No es necesario crear nuevos archivos de página ni rutas en App.tsx.
 
 ### 4. Estilo Visual Coherente
 
@@ -575,6 +580,20 @@ import sobremiHeroVideo from '../assets/sobremi_hero.mp4';
   - Estilos no aplican: verificar orden de imports en index.css
 
 ## Changelog Reciente (Nov 2025)
+
+### Implementación Avanzada SEO & UX (Nov 2025)
+- ✅ **Estrategia GTM Completa**: Auditoría e implementación de `GTMTag` y `NoscriptGTM` en `App.tsx`.
+- ✅ **Schema Markup Extendido**: Soporte para `Article`, `Product`, `CollectionPage`, `ContactPage`.
+- ✅ **Rich Snippets**: Implementación de datos estructurados en todas las páginas clave (Blog, Tatuajes, Obras, Contacto).
+- ✅ **Paginación en Categorías**: Implementación de paginación (6 items/página) en `CategoryPage.tsx` con scroll automático y controles de navegación.
+
+### Refactorización Módulo Obras (Nov 2025)
+- ✅ **Arquitectura Dinámica**: Reemplazo de 9 páginas estáticas por `CategoryPage.tsx` con `useParams`.
+- ✅ **Centralización de Datos**: Nuevo archivo `obras-data.ts` con toda la info de categorías.
+- ✅ **Navegación Cruzada**: Nuevo componente `CategoryNavigation` al pie de cada categoría.
+- ✅ **Limpieza de Rutas**: `App.tsx` simplificado con una única ruta `/obras/:slug`.
+- ✅ **Optimización**: Mantenimiento de LCP y lazy loading en el nuevo sistema dinámico.
+- ✅ **Paginación**: Sistema de paginación cliente-side (6 obras por página) con scroll-to-top suave.
 
 ### Home.tsx - Landing Page Dinámica
 - ✅ Reestructuración completa: de grid estático a funnel de conversión (6 secciones)

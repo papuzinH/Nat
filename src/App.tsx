@@ -10,15 +10,7 @@ import {
   BlogPost, 
   FAQs, 
   Contacto,
-  Acrilicos,
-  Acuarelas,
-  FloresPrensadas,
-  Gouache,
-  Ilustraciones,
-  TecnicasMixtas,
-  Marcadores,
-  Ceramicas,
-  Stickers
+  CategoryPage
 } from './pages';
 
 function App() {
@@ -46,15 +38,7 @@ function App() {
           <Layout>
             <Routes>
               <Route path="/obras" element={<Obras />} />
-              <Route path="/obras/acrilicos" element={<Acrilicos />} />
-              <Route path="/obras/acuarelas" element={<Acuarelas />} />
-              <Route path="/obras/flores-prensadas" element={<FloresPrensadas />} />
-              <Route path="/obras/gouache" element={<Gouache />} />
-              <Route path="/obras/ilustraciones" element={<Ilustraciones />} />
-              <Route path="/obras/tecnicas-mixtas" element={<TecnicasMixtas />} />
-              <Route path="/obras/marcadores" element={<Marcadores />} />
-              <Route path="/obras/ceramicas" element={<Ceramicas />} />
-              <Route path="/obras/stickers" element={<Stickers />} />
+              <Route path="/obras/:slug" element={<CategoryPage />} />
               <Route path="/tattoo" element={<Tattoo />} />
               <Route path="/tattoo/:id" element={<TattooDetail />} />
               <Route path="/sobre-mi" element={<SobreMi />} />

@@ -24,7 +24,7 @@ interface LocalBusinessSchema {
 }
 
 interface SchemaMarkupProps {
-  type: 'LocalBusiness' | 'Person' | 'Organization';
+  type: 'LocalBusiness' | 'Person' | 'Organization' | 'Article' | 'Product' | 'CollectionPage' | 'ContactPage' | 'BreadcrumbList';
   data: LocalBusinessSchema | Record<string, any>;
 }
 

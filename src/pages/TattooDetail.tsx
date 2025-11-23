@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Title, Subtitle, Button } from '@/components/shared';
+import { Title, Subtitle, Button, SchemaMarkup } from '@/components/shared';
 import ContenidoText from '@/components/tattoo/ContenidoText';
 import { tattoos } from '@/assets/tattoo/mock-data';
 
@@ -31,8 +31,27 @@ const TattooDetail: React.FC = () => {
     );
   }
 
+  const productSchema = {
+    name: tattoo.title,
+    image: [tattoo.image],
+    description: tattoo.description.join(' '),
+    brand: {
+      '@type': 'Brand',
+      name: 'Natalia Heller Tattoo'
+    },
+    category: tattoo.category,
+    offers: {
+      '@type': 'Offer',
+      url: `https://tatuajesnaty.com/tattoo/${tattoo.id}`,
+      priceCurrency: 'ARS',
+      price: '0', // Consultar precio
+      availability: 'https://schema.org/InStock'
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-cream-50 to-nude-50">
+      <SchemaMarkup type="Product" data={productSchema} />
       {/* Breadcrumb Navigation */}
       <div className="bg-white border-b border-cream-200">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">

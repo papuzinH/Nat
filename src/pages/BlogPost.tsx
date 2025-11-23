@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Layout, Title, Subtitle, Button } from '@/components/shared';
+import { Layout, Title, Subtitle, Button, SchemaMarkup } from '@/components/shared';
 import ContenidoText from '@/components/tattoo/ContenidoText';
 import { useBlogPostLogic } from '@/hooks/useBlogPostLogic';
 
@@ -73,8 +73,31 @@ const BlogPost: React.FC = () => {
     );
   }
 
+  const articleSchema = {
+    headline: post.title,
+    image: post.image ? [post.image] : [],
+    datePublished: post.date,
+    dateModified: post.date,
+    author: [{
+      '@type': 'Person',
+      name: post.author || 'Natalia Heller',
+      url: 'https://tatuajesnaty.com/sobre-mi'
+    }],
+    publisher: {
+      '@type': 'Organization',
+      name: 'Natalia Heller Tattoo Studio',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://tatuajesnaty.com/logo.png'
+      }
+    },
+    description: post.excerpt,
+    articleBody: Array.isArray(post.content) ? post.content.join(' ') : post.content
+  };
+
   return (
     <Layout>
+      <SchemaMarkup type="Article" data={articleSchema} />
       <div className="min-h-screen bg-gradient-to-b from-white via-cream-50 to-nude-50">
         {/* Breadcrumb Navigation */}
         <div className="bg-white border-b border-cream-200">

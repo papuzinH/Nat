@@ -1,4 +1,6 @@
-import { Button, Title, Subtitle, Section } from '@/components/shared';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Section } from '@/components/shared';
 
 type TipoObra = {
     id: string;
@@ -11,40 +13,37 @@ type TipoObra = {
 const ObrasGrid = ({ tiposObras }: { tiposObras: TipoObra[] }) => {
     return (
         <Section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {tiposObras.map((tipo) => (
-                <div key={tipo.id} className="group relative overflow-hidden rounded-lg bg-white shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-105">
-                    {/* Image Container */}
-                    <div className="relative h-64 bg-gradient-to-br from-cream-200 to-cream-300 flex items-center justify-center">
+            {tiposObras.map((tipo, index) => (
+                <Link 
+                    key={tipo.id} 
+                    to={tipo.route}
+                    className="group relative block overflow-hidden rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-1"
+                >
+                    {/* Image Container - Fixed Height to prevent layout shifts */}
+                    <div className="relative h-80 w-full bg-cream-200">
                         <img
                             src={tipo.image}
                             alt={tipo.title}
-                            className="w-full h-full object-cover transition-transform duration-300"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            // LCP Optimization: Eager load first 3 images (above the fold)
+                            loading={index < 3 ? "eager" : "lazy"}
+                            fetchPriority={index < 3 ? "high" : "auto"}
                         />
-                        {/* Overlay */}
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
-                        {/* Button - aparece solo en hover */}
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <Button
-                                variant="secondary"
-                                size="medium"
-                                as="link"
-                                to={tipo.route}
-                            >
-                                Ver Obras
-                            </Button>
+                        
+                        {/* Permanent Gradient Overlay for text readability */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-300 group-hover:from-black/90" />
+                        
+                        {/* Content Positioned at Bottom */}
+                        <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300">
+                            <h3 className="font-title text-2xl text-white mb-2 group-hover:text-green-300 transition-colors">
+                                {tipo.title}
+                            </h3>
+                            <p className="font-body text-cream-100 text-sm line-clamp-2 opacity-90 group-hover:opacity-100">
+                                {tipo.description}
+                            </p>
                         </div>
                     </div>
-
-                    {/* Content */}
-                    <div className="p-6">
-                        <Title variant="titleCard" as="h3" className="mb-3 group-hover:text-cream-700 transition-colors">
-                            {tipo.title}
-                        </Title>
-                        <Subtitle variant="small" as="p" className="text-cream-600 leading-relaxed">
-                            {tipo.description}
-                        </Subtitle>
-                    </div>
-                </div>
+                </Link>
             ))}
         </Section>
     )
