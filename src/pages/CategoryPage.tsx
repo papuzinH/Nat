@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
-import { HeaderObras, GridObras, Button, SchemaMarkup } from '@/components/shared';
+import { HeaderObras, GridObras, Button, SchemaMarkup, Title, Subtitle } from '@/components/shared';
 import CategoryNavigation from '@/components/obras/CategoryNavigation';
 import { obrasData } from '@/assets/obras/obras-data';
 import { tiposObras } from '@/data/obras';
@@ -96,6 +96,32 @@ const CategoryPage: React.FC = () => {
         </div>
       )}
       
+      {/* Conversational Commerce CTA */}
+      <section className="py-16 px-4 bg-gradient-to-br from-green-50 to-cream-50 border-y border-green-100/50">
+        <div className="max-w-4xl mx-auto text-center space-y-8">
+          <div className="space-y-4">
+            <Title variant="titleSection" className="text-green-900">
+              ¿Te Inspiró una Obra? Consúltame por tu Pieza Única
+            </Title>
+            <Subtitle variant="medium" className="text-green-800/80 max-w-2xl mx-auto">
+              Todas las obras originales (Acuarelas, Acrílicos, etc.) están disponibles para venta. 
+              Hablemos de precios, formatos o encargos personalizados.
+            </Subtitle>
+          </div>
+          
+          <Button 
+            as="link"
+            href={`https://wa.me/+5491166191209?text=${encodeURIComponent(`Hola Naty, estoy interesado en una obra de tu colección [${categoryData.title}] y quiero consultar por disponibilidad o un encargo.`)}`}
+            target="_blank"
+            variant="primary"
+            size="large"
+            className="shadow-xl shadow-green-900/10 hover:shadow-green-900/20"
+          >
+            ENVIAR CONSULTA POR WHATSAPP
+          </Button>
+        </div>
+      </section>
+
       <CategoryNavigation 
         tiposObras={tiposObras} 
         currentRoute={`/obras/${slug}`} 

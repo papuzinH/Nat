@@ -23,19 +23,21 @@ const ContactHero: React.FC = () => {
                 <div className="fixed inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60 z-0"></div>
 
                 {/* Hero Content Section */}
-                <section className="relative flex items-center justify-center overflow-hidden z-10">
-                    <div className="relative w-full h-full flex items-center justify-center">
-                        <div className="mx-auto px-4 flex items-center justify-between gap-8 max-w-6xl w-full">
-                            <div className="text-left mb-12 max-w-md ml-0 mr-auto">
-                                <Title variant='titlePage' className='text-white mb-8'>
+                <section className="relative w-full z-10">
+                    <div className="w-full h-full flex justify-center">
+                        <div className="mx-auto px-4 flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6 lg:gap-12 max-w-6xl w-full">
+                            <div className="text-center lg:text-left mb-4 lg:mb-0 max-w-md lg:max-w-lg w-full lg:sticky lg:top-32">
+                                <Title variant='titlePage' className='text-white mb-4 lg:mb-8 text-3xl md:text-4xl lg:text-5xl drop-shadow-lg'>
                                     ¡Hablemos de tu Próximo Tatuaje!
                                 </Title>
-                                <Subtitle variant='large' className='text-white'>
+                                <Subtitle variant='large' className='text-white/95 text-base md:text-lg drop-shadow-md'>
                                     Usa este formulario para contarme tu idea, obtener una cotización o agendar una consulta gratuita. Tu historia comienza aquí.
                                 </Subtitle>
                             </div>
 
-                            <ContactForm />
+                            <div className="w-full max-w-md">
+                                <ContactForm />
+                            </div>
                         </div>
                     </div>
                 </section>

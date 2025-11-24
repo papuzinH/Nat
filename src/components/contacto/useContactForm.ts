@@ -48,6 +48,18 @@ export const useContactForm = ({ designId, designTitle }: UseContactFormProps = 
       // Simular envío
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Push al DataLayer para GTM
+      if ((window as any).dataLayer) {
+        (window as any).dataLayer.push({
+          event: 'form_submitted_success',
+          design_id: designId || undefined,
+          design_title: designTitle || undefined,
+          conversion_value: 50,
+          currency: 'USD',
+          lead_type: designId ? 'tattoo_inquiry' : 'general_contact'
+        });
+      }
+
       // Mostrar modal de éxito
       setShowSuccessModal(true);
       

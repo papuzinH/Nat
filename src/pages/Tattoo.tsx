@@ -5,10 +5,37 @@ import ContenidoText from '@/components/tattoo/ContenidoText';
 import CTATattooSection from '@/components/tattoo/CTATattooSection';
 import TattooGridList from '@/components/tattoo/TattooGridList';
 import StudioCTA from '@/components/tattoo/StudioCTA';
-import { tattoos } from '@/assets/tattoo/mock-data';
+import { useDataLoader } from '@/hooks/data-loader';
 import heroVideo from '@/assets/hero_video.mov';
 
 const Tattoo: React.FC = () => {
+  const { data: tattoos, loading, error } = useDataLoader();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-cream-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-cream-50">
+        <div className="text-center max-w-md px-4">
+          <h2 className="text-2xl font-title text-red-800 mb-4">No se pudo cargar la galería</h2>
+          <p className="text-brown-600 mb-6">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const collectionSchema = {
     name: 'Portfolio de Tatuajes - Natalia Heller',
     description: 'Galería de trabajos realizados: Line Art, Botánico, Minimalista.',

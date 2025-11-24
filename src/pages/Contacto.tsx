@@ -24,7 +24,7 @@ const Contacto: React.FC = () => {
   return (
     <>
       <SchemaMarkup type="ContactPage" data={contactPageSchema} />
-      <div className="min-h-screen py-32">
+      <div className="min-h-screen pt-24 pb-16 md:py-32 bg-cream-50">
         <ContactHero />
       </div>
     </>
