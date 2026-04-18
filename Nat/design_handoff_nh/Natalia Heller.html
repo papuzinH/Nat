@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Natalia Heller — Arte y tatuaje</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Mulish:wght@400;500;600;700&family=Fraunces:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Nunito:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+  html, body { margin: 0; padding: 0; background: #262320; min-height: 100vh; font-family: system-ui; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px 24px; gap: 40px;
+    background:
+      radial-gradient(1400px 800px at 30% 10%, #2f2b27, #1d1b18 70%);
+  }
+  .canvas-wrap {
+    display: flex; gap: 48px; align-items: flex-start;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .frame-label {
+    text-align: center; margin-top: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(253, 252, 251, 0.5);
+  }
+  .project-caption {
+    text-align: center; color: rgba(253, 252, 251, 0.8);
+    max-width: 720px; margin: 0 auto 40px;
+    font-family: 'Bitter', serif;
+  }
+  .project-caption h1 {
+    font-size: 26px; font-weight: 400; margin: 0 0 8px;
+    font-style: italic;
+  }
+  .project-caption p {
+    font-size: 13px; color: rgba(253, 252, 251, 0.5);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.08em;
+    margin: 0;
+  }
+  .desktop-body {
+    overflow-y: auto; overflow-x: hidden;
+    height: 100%;
+  }
+  .desktop-body::-webkit-scrollbar { width: 10px; }
+  .desktop-body::-webkit-scrollbar-thumb { background: rgba(138, 122, 106, 0.4); border-radius: 99px; }
+  .mobile-body {
+    overflow-y: auto; overflow-x: hidden;
+    height: 100%;
+  }
+  .mobile-body::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body data-pair="bitter" data-card="pressed" data-motif="on">
+
+<div>
+  <div class="project-caption">
+    <h1>Natalia Heller — arte y tatuaje</h1>
+    <p>DESKTOP + MOBILE · INTERACTIVO · HAZ CLIC EN LA NAVEGACIÓN</p>
+  </div>
+
+  <div class="canvas-wrap">
+    <div>
+      <div id="desktop-root" style="width: 1180px; height: 820px;"></div>
+      <div class="frame-label">Escritorio — 1280 × 820</div>
+    </div>
+    <div>
+      <div id="mobile-root" style="width: 402px; height: 874px;"></div>
+      <div class="frame-label">Móvil — iPhone 15</div>
+    </div>
+  </div>
+</div>
+
+<!-- Tweaks panel mount -->
+<div id="tweaks-root"></div>
+
+<!-- React + Babel -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<!-- Starters -->
+<script type="text/babel" src="browser-window.jsx"></script>
+<script type="text/babel" src="ios-frame.jsx"></script>
+
+<!-- Our code -->
+<script type="text/babel" src="data.jsx"></script>
+<script type="text/babel" src="shared.jsx"></script>
+<script type="text/babel" src="pages-a.jsx"></script>
+<script type="text/babel" src="pages-b.jsx"></script>
+<script type="text/babel" src="app.jsx"></script>
+
+<!-- Tweakable config (editable block) -->
+<script>
+  window.NH_TWEAKS = /*EDITMODE-BEGIN*/{
+    "cardStyle": "pressed",
+    "motif": "on",
+    "typePair": "fraunces"
+  }/*EDITMODE-END*/;
+</script>
+
+<!-- Tweaks panel + mount -->
+<script type="text/babel">
+  const applyTweaks = (t) => {
+    document.body.dataset.card = t.cardStyle;
+    document.body.dataset.motif = t.motif;
+    document.body.dataset.pair = t.typePair;
+  };
+  applyTweaks(window.NH_TWEAKS);
+
+  function Tweaks() {
+    const [t, setT] = React.useState(window.NH_TWEAKS);
+    const [enabled, setEnabled] = React.useState(false);
+
+    React.useEffect(() => {
+      const onMsg = (e) => {
+        if (!e.data) return;
+        if (e.data.type === '__activate_edit_mode') setEnabled(true);
+        if (e.data.type === '__deactivate_edit_mode') setEnabled(false);
+      };
+      window.addEventListener('message', onMsg);
+      window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+      return () => window.removeEventListener('message', onMsg);
+    }, []);
+
+    const update = (patch) => {
+      const next = { ...t, ...patch };
+      setT(next); applyTweaks(next);
+      window.parent.postMessage({ type: '__edit_mode_set_keys', edits: patch }, '*');
+    };
+
+    if (!enabled) return null;
+
+    const seg = (key, opts) => (
+      <div className="nh-seg">
+        {opts.map(([v, l]) => (
+          <button key={v}
+            className={t[key] === v ? 'is-active' : ''}
+            onClick={() => update({ [key]: v })}>{l}</button>
+        ))}
+      </div>
+    );
+
+    return (
+      <div className="nh-tweaks">
+        <h4>Tweaks</h4>
+        <div className="nh-tweak-row">
+          <span className="nh-tweak-label">Card style</span>
+          {seg('cardStyle', [['pressed','Pressed'],['gallery','Gallery'],['linen','Linen']])}
+        </div>
+        <div className="nh-tweak-row">
+          <span className="nh-tweak-label">Botanical motif</span>
+          {seg('motif', [['on','On'],['off','Off']])}
+        </div>
+        <div className="nh-tweak-row">
+          <span className="nh-tweak-label">Type pairing</span>
+          {seg('typePair', [['bitter','Bitter + Mulish'],['fraunces','Fraunces + Nunito'],['eb-work','EB Garamond + Work']])}
+        </div>
+      </div>
+    );
+  }
+
+  function Composed() {
+    return (
+      <React.Fragment>
+        {/* Desktop */}
+        <div style={{ backgroundColor: 'rgb(226, 218, 206)' }}>
+          <ChromeWindow
+            tabs={[{ title: 'Natalia Heller · arte + tatuaje' }]}
+            activeIndex={0}
+            url="nataliaheller.ar"
+            width={1180}
+            height={820}>
+            <div className="desktop-body" data-scroll-desktop style={{ height: '100%', background: 'var(--cream-100)' }}>
+              <NHApp variant="desktop" />
+            </div>
+          </ChromeWindow>
+        </div>
+      </React.Fragment>
+    );
+  }
+
+  // Mount desktop
+  ReactDOM.createRoot(document.getElementById('desktop-root'))
+    .render(<Composed />);
+
+  // Mount mobile — custom body inside IOSDevice
+  function MobileMount() {
+    return (
+      <IOSDevice width={402} height={874}>
+        <div className="mobile-body" data-scroll-mobile style={{ height: '100%', background: 'var(--cream-100)', overflowY: 'auto' }}>
+          <NHApp variant="mobile" />
+        </div>
+      </IOSDevice>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('mobile-root'))
+    .render(<MobileMount />);
+
+  // Mount tweaks
+  ReactDOM.createRoot(document.getElementById('tweaks-root')).render(<Tweaks />);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,318 @@
+/* Natalia Heller — earthy modern art & tattoo site */
+
+:root {
+  --cream-50: #fdfcfb;
+  --cream-100: #faf6f0;
+  --cream-200: #f5efe6;
+  --cream-300: #ede4d5;
+  --taupe-300: #d4c5b0;
+  --taupe-500: #b8a898;
+  --taupe-700: #8a7a6a;
+  --sage-200: #c8d5b9;
+  --sage-400: #9bb89f;
+  --sage-500: #7a9e7e;
+  --sage-700: #4a7c59;
+  --sage-900: #2f4a37;
+  --ink: #2c2c2c;
+  --ink-soft: #5a5350;
+  --line: rgba(44, 44, 44, 0.12);
+  --line-soft: rgba(44, 44, 44, 0.06);
+
+  --font-display: 'Bitter', 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Mulish', 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+[data-pair="fraunces"] {
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+}
+[data-pair="eb-work"] {
+  --font-display: 'EB Garamond', Georgia, serif;
+  --font-body: 'Work Sans', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+.nh-root {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--cream-100);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  font-size: 15px;
+}
+
+.nh-serif { font-family: var(--font-display); font-weight: 400; letter-spacing: -0.01em; }
+.nh-mono { font-family: var(--font-mono); font-feature-settings: 'ss01'; }
+
+.nh-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--sage-700);
+}
+
+.nh-eyebrow-ink {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+}
+
+/* ── Buttons ── */
+.nh-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 22px; border-radius: 999px;
+  font-family: var(--font-body); font-size: 14px; font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent; cursor: pointer;
+  transition: all 220ms var(--ease);
+  text-decoration: none;
+}
+.nh-btn-primary {
+  background: var(--sage-700); color: var(--cream-50);
+}
+.nh-btn-primary:hover { background: var(--sage-900); transform: translateY(-1px); }
+.nh-btn-ghost {
+  background: transparent; color: var(--ink);
+  border-color: var(--ink);
+}
+.nh-btn-ghost:hover { background: var(--ink); color: var(--cream-50); }
+.nh-btn-sm { padding: 10px 16px; font-size: 13px; }
+
+/* ── Link underline ── */
+.nh-link {
+  color: var(--ink); text-decoration: none;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1px;
+  transition: border-color 200ms var(--ease);
+}
+.nh-link:hover { border-color: var(--sage-700); }
+
+/* ── Placeholder — striped ── */
+.nh-ph {
+  position: relative; overflow: hidden;
+  background: var(--cream-200);
+  border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+}
+.nh-ph::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0, transparent 11px,
+    rgba(74, 124, 89, 0.07) 11px, rgba(74, 124, 89, 0.07) 12px
+  );
+}
+.nh-ph-tone-a { background: #ece2d1; }
+.nh-ph-tone-b { background: #dde2d1; }
+.nh-ph-tone-c { background: #e5d9c7; }
+.nh-ph-tone-d { background: #d5ddcf; }
+.nh-ph-tone-e { background: #e8dfd0; }
+.nh-ph-tone-f { background: #dfdfd1; }
+.nh-ph-label {
+  position: relative; z-index: 1;
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: rgba(253, 252, 251, 0.85);
+  padding: 5px 9px; border-radius: 2px;
+  text-align: center;
+}
+
+/* ── Card (pressed-flower: floats on cream, subtle shadow) ── */
+.nh-card {
+  background: var(--cream-50);
+  border-radius: 4px;
+  transition: all 300ms var(--ease);
+}
+
+[data-card="pressed"] .nh-card {
+  background: var(--cream-50);
+  box-shadow:
+    0 1px 2px rgba(44, 44, 44, 0.04),
+    0 8px 24px rgba(74, 124, 89, 0.06);
+  padding: 18px 18px 22px;
+}
+[data-card="pressed"] .nh-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 2px 4px rgba(44, 44, 44, 0.05),
+    0 16px 36px rgba(74, 124, 89, 0.1);
+}
+
+[data-card="gallery"] .nh-card {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+[data-card="gallery"] .nh-card .nh-card-media {
+  border: 8px solid var(--cream-50);
+  box-shadow:
+    0 1px 1px rgba(44, 44, 44, 0.05),
+    0 6px 18px rgba(44, 44, 44, 0.08);
+  background: var(--cream-50);
+}
+[data-card="gallery"] .nh-card:hover .nh-card-media {
+  box-shadow:
+    0 2px 3px rgba(44, 44, 44, 0.06),
+    0 12px 28px rgba(44, 44, 44, 0.12);
+}
+
+[data-card="linen"] .nh-card {
+  background:
+    repeating-linear-gradient(0deg, transparent 0, transparent 2px, rgba(138, 122, 106, 0.05) 2px, rgba(138, 122, 106, 0.05) 3px),
+    repeating-linear-gradient(90deg, transparent 0, transparent 2px, rgba(138, 122, 106, 0.05) 2px, rgba(138, 122, 106, 0.05) 3px),
+    #ebe2d3;
+  padding: 22px 22px 26px;
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 40px rgba(138, 122, 106, 0.15),
+    0 8px 20px rgba(44, 44, 44, 0.08);
+}
+[data-card="linen"] .nh-card:hover {
+  transform: translateY(-3px);
+}
+
+/* ── Motif (botanical placeholder marks: simple circles/lines) ── */
+[data-motif="off"] .nh-motif { display: none !important; }
+
+.nh-motif-mark {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--sage-500);
+}
+.nh-motif-mark .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.nh-motif-mark .line { width: 22px; height: 1px; background: currentColor; }
+
+.nh-divider-botanical {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  color: var(--sage-500);
+}
+.nh-divider-botanical::before,
+.nh-divider-botanical::after {
+  content: ''; flex: 1; height: 1px; max-width: 220px;
+  background: linear-gradient(90deg, transparent, var(--line), transparent);
+}
+
+/* ── Filter pill ── */
+.nh-filter {
+  font-family: var(--font-body); font-size: 13px; font-weight: 500;
+  padding: 8px 14px; border-radius: 999px;
+  background: transparent; color: var(--ink-soft);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: all 200ms var(--ease);
+  white-space: nowrap;
+}
+.nh-filter:hover { border-color: var(--sage-500); color: var(--ink); }
+.nh-filter.is-active {
+  background: var(--sage-900); color: var(--cream-50);
+  border-color: var(--sage-900);
+}
+
+/* ── Form ── */
+.nh-input, .nh-textarea, .nh-select {
+  width: 100%;
+  font-family: var(--font-body); font-size: 14px; color: var(--ink);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0 10px;
+  transition: border-color 200ms var(--ease);
+}
+.nh-input:focus, .nh-textarea:focus, .nh-select:focus {
+  outline: none; border-bottom-color: var(--sage-700);
+}
+.nh-textarea { resize: vertical; min-height: 110px; }
+.nh-label {
+  display: block;
+  font-family: var(--font-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-soft); margin-bottom: 4px;
+}
+.nh-error {
+  font-size: 12px; color: #a8503f; margin-top: 6px;
+  font-family: var(--font-body);
+}
+
+/* ── Cart drawer ── */
+.nh-drawer {
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: 340px;
+  background: var(--cream-100);
+  box-shadow: -20px 0 60px rgba(44, 44, 44, 0.18);
+  transform: translateX(100%);
+  transition: transform 420ms var(--ease);
+  z-index: 60;
+  display: flex; flex-direction: column;
+}
+.nh-drawer.is-open { transform: translateX(0); }
+.nh-backdrop {
+  position: absolute; inset: 0; background: rgba(44, 44, 44, 0.24);
+  opacity: 0; pointer-events: none;
+  transition: opacity 300ms var(--ease);
+  z-index: 55;
+}
+.nh-backdrop.is-open { opacity: 1; pointer-events: auto; }
+
+/* ── Utility ── */
+.nh-hover-lift { transition: transform 300ms var(--ease); }
+.nh-hover-lift:hover { transform: translateY(-2px); }
+
+/* ── Scrollbar (subtle) ── */
+.nh-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.nh-scroll::-webkit-scrollbar-thumb { background: rgba(138, 122, 106, 0.3); border-radius: 99px; }
+.nh-scroll::-webkit-scrollbar-track { background: transparent; }
+
+/* ── Animations ── */
+@keyframes nh-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.nh-page-enter { animation: nh-fade-up 400ms var(--ease) both; }
+
+@keyframes nh-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* ── Tweaks panel ── */
+.nh-tweaks {
+  position: fixed; bottom: 20px; right: 20px;
+  background: var(--cream-50);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-shadow: 0 10px 40px rgba(44, 44, 44, 0.12);
+  z-index: 1000;
+  font-family: var(--font-body);
+  font-size: 13px;
+  min-width: 220px;
+}
+.nh-tweaks h4 {
+  font-family: var(--font-mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-soft); margin: 0 0 10px;
+  font-weight: 500;
+}
+.nh-tweak-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.nh-tweak-row:last-child { margin-bottom: 0; }
+.nh-tweak-label { font-size: 11px; color: var(--ink-soft); }
+.nh-seg { display: flex; gap: 4px; background: var(--cream-200); padding: 3px; border-radius: 999px; }
+.nh-seg button {
+  flex: 1; padding: 6px 10px; border: none; background: transparent;
+  border-radius: 999px; font-family: inherit; font-size: 11px;
+  color: var(--ink-soft); cursor: pointer;
+  transition: all 180ms var(--ease);
+}
+.nh-seg button.is-active {
+  background: var(--cream-50); color: var(--ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}

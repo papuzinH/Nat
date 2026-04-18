@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(rtk next:*)",
+      "Bash(rm -rf src/pages/obras-tipos/)",
+      "Bash(rm -f src/pages/Obras.tsx src/pages/CategoryPage.tsx src/pages/SobreMi.tsx src/pages/TattooDetail.tsx src/pages/FAQs.tsx)",
+      "Bash(rm -rf src/components/obras/ src/components/sobremi/)",
+      "Bash(rm -f src/components/home/HomeFAQSection.tsx)",
+      "Bash(rm -f src/data/obras.ts src/assets/obras/obras-data.ts)",
+      "Bash(rtk ls:*)",
+      "Bash(rtk npm:*)"
+    ]
+  }
+}
