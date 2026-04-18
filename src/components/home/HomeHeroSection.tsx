@@ -76,11 +76,12 @@ const HomeHeroSection: React.FC = () => {
     if (isMobile) return
     if (gsapCtxRef.current) gsapCtxRef.current.revert()
 
+    setCurrentSlide(0)
     gsapCtxRef.current = gsap.context(() => {
       if (!shouldAnimate()) return
       SLIDES.forEach((_, i) => {
         if (!slideRefs.current[i]) return
-        gsap.set(slideRefs.current[i] as HTMLDivElement, { opacity: i === currentSlide ? 1 : 0, scale: 1 })
+        gsap.set(slideRefs.current[i] as HTMLDivElement, { opacity: i === 0 ? 1 : 0, scale: 1 })
       })
     })
 
