@@ -1,75 +1,62 @@
-import React from 'react';
-import { HeroSection, Footer, SchemaMarkup } from '@/components/shared';
-import { 
-  ContentHero, 
-  SocialProofSection, 
-  FeaturedPortfolioSection, 
-  InstagramSection, 
-  HomeFAQSection 
-} from '@/components/home';
-import sobremiHeroVideo from '@/assets/sobremi_hero.mp4';
+import React from 'react'
+import { SchemaMarkup } from '@/components/shared'
+import NHDivider from '@/components/shared/NHDivider'
+import { HomeHeroSection, FeaturedProductsSection, TattooTeaserSection } from '@/components/home'
 
-// Main Home Component
-const Home: React.FC = () => {
-  // Schema.org LocalBusiness Data
-  const localBusinessSchema = {
-    name: 'Natalia Heller Tattoo Studio',
-    image: 'https://tatuajesnaty.com/hero-image.webp',
-    url: 'https://tatuajesnaty.com/',
-    telephone: '+54 9 11 6619-1209',
-    address: {
-      '@type': 'PostalAddress' as const,
-      addressLocality: 'Buenos Aires',
-      addressRegion: 'CABA',
-      addressCountry: 'AR',
-    },
-    priceRange: '$$',
-    serviceType: [
-      'Tatuaje Line Art',
-      'Tatuaje Botánico',
-      'Diseño Personalizado',
-      'Tatuaje Minimalista',
-      'Cover Up',
-    ],
-    description: 'Estudio de tatuajes especializado en diseños únicos y personalizados. Line Art, Botánico, Minimalista. 8+ años de experiencia en Buenos Aires.',
-    openingHours: [
-      'Mo-Fr 10:00-19:00',
-      'Sa 11:00-17:00',
-    ],
-    sameAs: [
-      'https://instagram.com/nataliaceller_art',
-    ],
-  };
+const organizationSchema = {
+  name: 'Natalia Heller',
+  url: 'https://tatuajesnaty.com',
+  description: 'Arte original, tienda online y estudio de tatuajes en Buenos Aires. Prints, cerámica, textiles, stickers y tatuajes de línea fina.',
+  sameAs: ['https://instagram.com/nataliaceller_art'],
+}
 
-  return (
-    <>
-      {/* Schema.org Structured Data */}
-      <SchemaMarkup type="LocalBusiness" data={localBusinessSchema} />
+const websiteSchema = {
+  name: 'Natalia Heller',
+  url: 'https://tatuajesnaty.com',
+}
 
-      <div className="relative min-h-screen flex flex-col">
-        {/* Hero Section con video background */}
-        <HeroSection 
-          video={sobremiHeroVideo} 
-          content={<ContentHero />}
-        />
+const Home: React.FC = () => (
+  <>
+    <SchemaMarkup type="Organization" data={organizationSchema} />
+    <SchemaMarkup type="Organization" data={websiteSchema} />
 
-      {/* Social Proof / Testimonials Section */}
-      <SocialProofSection />
+    <main>
+      <HomeHeroSection />
 
-      {/* Featured Portfolio Section */}
-      <FeaturedPortfolioSection />
+      <FeaturedProductsSection />
 
-      {/* Instagram Engagement Section */}
-      <InstagramSection />
+      <NHDivider label="estudio + tatuaje" />
 
-      {/* FAQ Section - Cierre de objeciones */}
-      <HomeFAQSection />
+      <TattooTeaserSection />
 
-      {/* Footer con estilo transparente */}
-      <Footer />
-      </div>
-    </>
-  );
-};
+      {/* Quote strip */}
+      <section
+        className="py-20 md:py-28 px-6"
+        aria-label="Sobre el estudio"
+      >
+        <div className="max-w-[780px] mx-auto text-center">
+          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 mb-8">
+            · Sobre el estudio ·
+          </p>
+          <blockquote>
+            <p
+              className="font-display font-normal text-ink"
+              style={{ fontSize: 'clamp(22px, 4vw, 32px)', fontStyle: 'italic', lineHeight: 1.35 }}
+            >
+              "Cada obra empieza en el huerto del patio: hojas que seco, flores que dibujo, colores que preparo con ceniza y cebolla. Trabajar con la mano puesta en la tierra."
+            </p>
+            <footer className="mt-6">
+              <cite
+                className="font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 not-italic"
+              >
+                — Natalia, desde el estudio
+              </cite>
+            </footer>
+          </blockquote>
+        </div>
+      </section>
+    </main>
+  </>
+)
 
-export default Home;
+export default Home
