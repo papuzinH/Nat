@@ -1,21 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Aboreto:wght@400&family=Gayathri:wght@400;700&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Nunito:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
-  body {
-    font-family: 'Lato', sans-serif;
-    background-color: #fdfcfb;
-    color: #374151;
-    margin: 0;
-    min-height: 100vh;
+  :root {
+    --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+    --line: rgba(44, 44, 44, 0.12);
+    --line-soft: rgba(44, 44, 44, 0.06);
   }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Aboreto', serif;
+  body {
+    font-family: theme('fontFamily.body');
+    background-color: theme('colors.cream.100');
+    color: theme('colors.ink.DEFAULT');
+    -webkit-font-smoothing: antialiased;
   }
 }
 

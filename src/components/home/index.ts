@@ -1,5 +1,3 @@
-export { default as ContentHero } from './ContentHero';
-export { default as SocialProofSection } from './SocialProofSection';
-export { default as FeaturedPortfolioSection } from './FeaturedPortfolioSection';
-export { default as InstagramSection } from './InstagramSection';
-export { default as HomeFAQSection } from './HomeFAQSection';
+export { default as HomeHeroSection } from './HomeHeroSection'
+export { default as FeaturedProductsSection } from './FeaturedProductsSection'
+export { default as TattooTeaserSection } from './TattooTeaserSection'

@@ -1,126 +1,126 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React from 'react'
+import { Link } from 'react-router-dom'
+import NHLogo from './NHLogo'
 
 const Footer: React.FC = () => {
-  const currentYear = new Date().getFullYear();
-  const location = useLocation();
-  const isTransparent = location.pathname === '/' || location.pathname === '/contacto';
-
   return (
-    <footer className={`mt-auto transition-all duration-300 ${
-      isTransparent 
-        ? 'bg-black/20 backdrop-blur-md border-t border-white/20' 
-        : 'bg-cream-100/50 backdrop-blur-sm border-t border-cream-200'
-    }`}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Brand */}
-          <div className="space-y-4">
-            <h3 className={`text-xl font-title ${isTransparent ? 'text-white' : 'text-gray-800'}`}>
-              Natalia Heller
-            </h3>
-            <p className={`text-sm font-body leading-relaxed ${
-              isTransparent ? 'text-white/80' : 'text-gray-600'
-            }`}>
-              Artista y tatuadora especializada en crear obras únicas que capturan la esencia 
-              y personalidad de cada cliente.
+    <footer
+      role="contentinfo"
+      style={{
+        background: 'var(--cream-200, #f5efe6)',
+        borderTop: '1px solid var(--line-soft)',
+      }}
+    >
+      <div className="px-[22px] pt-10 pb-7 md:px-12 md:pt-16 md:pb-10">
+
+        {/* Main grid */}
+        <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr] gap-7 md:gap-10 mb-12 md:mb-16">
+
+          {/* Col 1 — Brand */}
+          <div className="flex flex-col gap-5">
+            <NHLogo size={32} />
+            <p
+              style={{
+                fontFamily: 'Fraunces, Georgia, serif',
+                fontSize: 20,
+                fontStyle: 'italic',
+                color: 'var(--ink-soft, #5a5350)',
+                lineHeight: 1.4,
+                maxWidth: 320,
+              }}
+            >
+              Arte y tatuaje sensible, desde el huerto del estudio en Buenos Aires.
             </p>
           </div>
 
-          {/* Quick Links */}
-          <div className="space-y-4">
-            <h4 className={`text-lg font-title ${isTransparent ? 'text-white' : 'text-gray-800'}`}>
-              Enlaces rápidos
-            </h4>
-            <nav className="space-y-2">
-              <Link 
-                to="/obras" 
-                className={`block transition-colors text-sm font-body ${
-                  isTransparent 
-                    ? 'text-white/80 hover:text-white' 
-                    : 'text-gray-600 hover:text-cream-600'
-                }`}
-              >
-                Obras
-              </Link>
-              <Link 
-                to="/tattoo" 
-                className={`block transition-colors text-sm font-body ${
-                  isTransparent 
-                    ? 'text-white/80 hover:text-white' 
-                    : 'text-gray-600 hover:text-cream-600'
-                }`}
-              >
-                Tattoo
-              </Link>
-              <Link 
-                to="/sobre-mi" 
-                className={`block transition-colors text-sm font-body ${
-                  isTransparent 
-                    ? 'text-white/80 hover:text-white' 
-                    : 'text-gray-600 hover:text-cream-600'
-                }`}
-              >
-                Sobre mi
-              </Link>
-              <Link 
-                to="/contacto" 
-                className={`block transition-colors text-sm font-body ${
-                  isTransparent 
-                    ? 'text-white/80 hover:text-white' 
-                    : 'text-gray-600 hover:text-cream-600'
-                }`}
-              >
-                Contacto
-              </Link>
+          {/* Col 2 — Navegar */}
+          <div className="flex flex-col gap-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft mb-1">
+              Navegar
+            </p>
+            <nav aria-label="Navegación footer">
+              <ul className="flex flex-col gap-3 list-none p-0 m-0">
+                {[
+                  { to: '/tienda', label: 'Tienda' },
+                  { to: '/estudio', label: 'El Estudio' },
+                  { to: '/blog', label: 'Blog' },
+                  { to: '/contacto', label: 'Contacto' },
+                ].map((item) => (
+                  <li key={item.to}>
+                    <Link
+                      to={item.to}
+                      className="font-body text-[15px] transition-colors duration-200 hover:text-sage-700"
+                      style={{ color: 'var(--ink, #2c2c2c)', textDecoration: 'none' }}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </nav>
           </div>
 
-          {/* Contact Info */}
-          <div className="space-y-4">
-            <h4 className={`text-lg font-title ${isTransparent ? 'text-white' : 'text-gray-800'}`}>
-              Contacto
-            </h4>
-            <div className={`space-y-2 text-sm font-body ${
-              isTransparent ? 'text-white/80' : 'text-gray-600'
-            }`}>
-              <p>Email: contacto@nataliaheller.com</p>
-              <p>Instagram: @nataliaheller.art</p>
-              <p>Ubicación: Buenos Aires, Argentina</p>
-            </div>
+          {/* Col 3 — Encontrame */}
+          <div className="flex flex-col gap-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft mb-1">
+              Encontrame
+            </p>
+            <ul className="flex flex-col gap-3 list-none p-0 m-0">
+              <li>
+                <a
+                  href="https://instagram.com/nataliaceller_art"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-body text-[15px] transition-colors duration-200 hover:text-sage-700"
+                  style={{ color: 'var(--ink, #2c2c2c)', textDecoration: 'none' }}
+                  aria-label="Instagram de Natalia Heller (@nataliaceller_art)"
+                >
+                  @nataliaceller_art
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#newsletter"
+                  className="font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 hover:text-sage-900 transition-colors duration-200"
+                  style={{ textDecoration: 'none' }}
+                >
+                  Newsletter mensual · Sumate
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Col 4 — Estudio */}
+          <div className="flex flex-col gap-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft mb-1">
+              Estudio
+            </p>
+            <ul className="flex flex-col gap-2 list-none p-0 m-0">
+              <li className="font-body text-[15px]" style={{ color: 'var(--ink, #2c2c2c)' }}>
+                Villa Crespo · Buenos Aires, AR
+              </li>
+              <li className="font-body text-[15px] text-sage-700">
+                Con turno previo
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className={`mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 ${
-          isTransparent ? 'border-t border-white/20' : 'border-t border-cream-200'
-        }`}>
-          <p className={`text-sm font-body ${
-            isTransparent ? 'text-white/70' : 'text-gray-500'
-          }`}>
-            © {currentYear} Natalia Heller. Todos los derechos reservados.
+        {/* Bottom bar */}
+        <div
+          className="flex flex-col md:flex-row justify-between gap-2 pt-6"
+          style={{ borderTop: '1px solid var(--line-soft)' }}
+        >
+          <p className="font-mono text-[12px] text-ink-soft">
+            © 2026 · Natalia Heller · Hecho con paciencia
           </p>
-          <div className="flex space-x-6">
-            <Link 
-              to="/faqs" 
-              className={`text-sm font-body transition-colors ${
-                isTransparent 
-                  ? 'text-white/70 hover:text-white' 
-                  : 'text-gray-500 hover:text-cream-600'
-              }`}
-            >
-              FAQs
-            </Link>
-            <span className={`text-sm font-body ${
-              isTransparent ? 'text-white/70' : 'text-gray-500'
-            }`}>
-              Política de Privacidad
-            </span>
-          </div>
+          <p className="font-mono text-[12px] text-ink-soft">
+            Envíos a todo el país · Retiro en CABA
+          </p>
         </div>
       </div>
     </footer>
-  );
-};
+  )
+}
 
-export default Footer;
+export default Footer
