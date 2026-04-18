@@ -10,15 +10,9 @@ const organizationSchema = {
   sameAs: ['https://instagram.com/nataliaceller_art'],
 }
 
-const websiteSchema = {
-  name: 'Natalia Heller',
-  url: 'https://tatuajesnaty.com',
-}
-
 const Home: React.FC = () => (
   <>
     <SchemaMarkup type="Organization" data={organizationSchema} />
-    <SchemaMarkup type="Organization" data={websiteSchema} />
 
     <main>
       <HomeHeroSection />

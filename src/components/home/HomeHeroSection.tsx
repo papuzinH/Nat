@@ -97,7 +97,7 @@ const HomeHeroSection: React.FC = () => {
     if (!prevEl || !nextEl) return
 
     if (shouldAnimate()) {
-      gsap.to(prevEl, { opacity: 0, scale: 1.04, duration: 0.7, ease: 'power2.inOut' })
+      gsap.to(prevEl, { opacity: 0, duration: 0.7, ease: 'power2.inOut' })
       gsap.fromTo(
         nextEl,
         { opacity: 0, scale: 1.04 },
@@ -119,7 +119,7 @@ const HomeHeroSection: React.FC = () => {
         const prevEl = slideRefs.current[prev]
         const nextEl = slideRefs.current[next]
         if (prevEl && nextEl && shouldAnimate()) {
-          gsap.to(prevEl, { opacity: 0, scale: 1.04, duration: 0.7, ease: 'power2.inOut' })
+          gsap.to(prevEl, { opacity: 0, duration: 0.7, ease: 'power2.inOut' })
           gsap.fromTo(
             nextEl,
             { opacity: 0, scale: 1.04 },
