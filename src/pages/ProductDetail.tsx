@@ -1,47 +1,129 @@
-import React from 'react'
-import { useParams, Link } from 'react-router-dom'
+import React, { useState } from 'react'
+import { useParams, Navigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
+import { PRODUCTS } from '@/data/products'
+import {
+  Breadcrumb,
+  ProductGallery,
+  ProductInfo,
+  AddedToast,
+  RelatedProducts,
+} from '@/components/tienda'
 import SchemaMarkup from '@/components/shared/SchemaMarkup'
+
+const BASE_URL = 'https://tatuajesnaty.com'
 
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
+  const product = PRODUCTS.find((p) => p.slug === slug)
+
+  const [toastVisible, setToastVisible] = useState(false)
+
+  if (!product) return <Navigate to="/tienda" replace />
 
   const productSchema = {
-    name: slug ?? 'Producto',
-    url: `https://tatuajesnaty.com/tienda/${slug ?? ''}`,
+    name: product.title,
+    description: product.description,
+    image: product.images[0] ?? `${BASE_URL}/og-placeholder.webp`,
+    url: `${BASE_URL}/tienda/${product.slug}`,
+    brand: { '@type': 'Brand', name: 'Natalia Heller' },
+    category: product.catLabel,
+    offers: {
+      '@type': 'Offer',
+      price: product.basePrice,
+      priceCurrency: 'ARS',
+      availability:
+        product.status === 'active'
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+      seller: { '@type': 'Person', name: 'Natalia Heller' },
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: { '@type': 'MonetaryAmount', currency: 'ARS' },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 1,
+            maxValue: 3,
+            unitCode: 'DAY',
+          },
+          transitTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 3,
+            maxValue: 6,
+            unitCode: 'DAY',
+          },
+        },
+      },
+    },
   }
+
+  const breadcrumbSchema = {
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: BASE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Tienda', item: `${BASE_URL}/tienda` },
+      { '@type': 'ListItem', position: 3, name: product.catLabel },
+      { '@type': 'ListItem', position: 4, name: product.title },
+    ],
+  }
+
+  const metaDescription = `${product.description} ${product.medium}. ${product.edition}. Envíos a todo el país.`
 
   return (
     <>
-      <SchemaMarkup type="Product" data={productSchema} />
-      <main className="min-h-screen py-16 px-6 md:px-12">
-        <nav className="max-w-5xl mx-auto mb-12">
-          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">
-            <Link to="/tienda" className="hover:text-sage-700 transition-colors">tienda</Link>
-            {' / '}
-            <span>{slug}</span>
-          </p>
-        </nav>
+      <Helmet>
+        <title>{`${product.title} — ${product.catLabel} | Natalia Heller`}</title>
+        <meta name="description" content={metaDescription} />
+        <meta
+          property="og:title"
+          content={`${product.title} — ${product.catLabel} | Natalia Heller`}
+        />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${BASE_URL}/tienda/${product.slug}`} />
+        <meta
+          property="og:image"
+          content={product.images[0] ?? `${BASE_URL}/og-placeholder.webp`}
+        />
+        <link rel="canonical" href={`${BASE_URL}/tienda/${product.slug}`} />
+      </Helmet>
 
-        <div className="max-w-5xl mx-auto text-center py-20">
-          <div className="inline-block border border-[var(--line)] rounded-card p-12">
-            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 mb-6">
-              En preparación
-            </p>
-            <h1 className="font-display text-4xl text-ink mb-4">
-              {slug}
-            </h1>
-            <p className="font-body text-ink-soft text-[16px] leading-relaxed max-w-md mx-auto mb-8">
-              El detalle de producto estará disponible pronto.
-            </p>
-            <Link
-              to="/tienda"
-              className="inline-flex items-center gap-2 bg-sage-700 text-cream-50 font-body font-semibold text-sm px-[22px] py-[14px] rounded-pill hover:bg-sage-900 transition-all duration-[220ms] hover:-translate-y-px"
-            >
-              ← Volver a la tienda
-            </Link>
+      <SchemaMarkup type="Product" data={productSchema} />
+      <SchemaMarkup type="BreadcrumbList" data={breadcrumbSchema} />
+
+      <main className="min-h-screen bg-cream-50">
+        {/* Breadcrumb */}
+        <div className="max-w-5xl mx-auto px-6 md:px-12 pt-8 pb-6">
+          <Breadcrumb
+            items={[
+              { label: 'tienda', href: '/tienda' },
+              { label: product.catLabel, href: `/tienda?cat=${product.category}` },
+              { label: product.title },
+            ]}
+          />
+        </div>
+
+        {/* Layout principal */}
+        <section className="max-w-5xl mx-auto px-6 md:px-12 pb-16">
+          <div className="grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-10 md:gap-16 items-start">
+            <ProductGallery product={product} />
+            <ProductInfo product={product} onAddToCart={() => setToastVisible(true)} />
           </div>
+        </section>
+
+        {/* Relacionados */}
+        <div className="max-w-5xl mx-auto px-6 md:px-12 pb-20 md:pb-28">
+          <RelatedProducts currentSlug={product.slug} category={product.category} />
         </div>
       </main>
+
+      {/* Toast */}
+      <AddedToast
+        visible={toastVisible}
+        productTitle={product.title}
+        onDismiss={() => setToastVisible(false)}
+      />
     </>
   )
 }

@@ -10,7 +10,8 @@
       "Bash(rm -f src/components/home/HomeFAQSection.tsx)",
       "Bash(rm -f src/data/obras.ts src/assets/obras/obras-data.ts)",
       "Bash(rtk ls:*)",
-      "Bash(rtk npm:*)"
+      "Bash(rtk npm:*)",
+      "Bash(rtk tsc:*)"
     ]
   }
 }

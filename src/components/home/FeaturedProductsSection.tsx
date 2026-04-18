@@ -1,36 +1,9 @@
 import React, { useLayoutEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { gsap, ScrollTrigger, shouldAnimate } from '@/lib/gsap'
+import { PRODUCTS, TONE_COLORS, formatARS, type Product } from '@/data/products'
 
-interface Product {
-  slug: string
-  title: string
-  category: string
-  cat_label: string
-  price: number
-  tone: string
-}
-
-const TONE_COLORS: Record<string, string> = {
-  a: '#ece2d1',
-  b: '#dde2d1',
-  c: '#e5d9c7',
-  d: '#d5ddcf',
-  e: '#e8dfd0',
-  f: '#dfdfd1',
-}
-
-const FEATURED_PRODUCTS: Product[] = [
-  { slug: 'helecho-i', title: 'Helecho I', category: 'laminas', cat_label: 'Lámina — Giclée', price: 8500, tone: 'a' },
-  { slug: 'cuenco-musgo', title: 'Cuenco Musgo', category: 'ceramica', cat_label: 'Cerámica — Gres esmaltado', price: 24000, tone: 'b' },
-  { slug: 'anemone-studio', title: 'Anémonas — estudio', category: 'acuarela', cat_label: 'Acuarela original', price: 46000, tone: 'c' },
-  { slug: 'tapiz-raiz', title: 'Tapiz Raíz', category: 'textil', cat_label: 'Fibra — telar manual', price: 92000, tone: 'd' },
-  { slug: 'gouache-membrillo', title: 'Membrillo en gouache', category: 'gouache', cat_label: 'Gouache original', price: 38000, tone: 'e' },
-  { slug: 'abanico-jazmin', title: 'Abanico Jazmín', category: 'abanicos', cat_label: 'Abanico pintado a mano', price: 28000, tone: 'f' },
-]
-
-const formatPrice = (price: number) =>
-  new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(price)
+const FEATURED_PRODUCTS = PRODUCTS.filter((p) => p.status === 'active').slice(0, 6)
 
 interface ProductCardProps {
   product: Product
@@ -49,7 +22,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => (
     {/* Placeholder image */}
     <div
       className="w-full relative overflow-hidden"
-      style={{ aspectRatio: '4 / 5', background: TONE_COLORS[product.tone] ?? '#ece2d1' }}
+      style={{ aspectRatio: `4 / ${4 * product.tall}`, background: TONE_COLORS[product.tone] ?? '#ece2d1' }}
     >
       <div
         className="absolute inset-0"
@@ -62,7 +35,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => (
         className="absolute bottom-3 left-3 font-mono text-[10px] uppercase tracking-[0.1em] px-2 py-1 rounded-sm"
         style={{ color: 'var(--ink-soft)', background: 'rgba(253,252,251,0.85)' }}
       >
-        {product.cat_label}
+        {product.catLabel}
       </span>
     </div>
 
@@ -72,7 +45,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => (
         {product.title}
       </h3>
       <p className="font-display text-[22px] text-sage-900 mt-2">
-        {formatPrice(product.price)}
+        {formatARS(product.basePrice)}
       </p>
     </div>
   </Link>
