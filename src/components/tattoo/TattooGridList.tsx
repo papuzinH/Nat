@@ -35,7 +35,7 @@ const TattooGridList: React.FC<TattooGridListProps> = ({ tattoos }) => {
           {tattoos.map((tattoo, index) => (
             <Link
               key={tattoo.id}
-              to={`/tattoo/${tattoo.id}`}
+              to="/contacto"
               className={`group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl 
                          transition-all duration-500 transform hover:scale-105 animate-fade-in
                          border border-cream-200 hover:border-green-400`}
@@ -80,7 +80,7 @@ const TattooGridList: React.FC<TattooGridListProps> = ({ tattoos }) => {
                             transition-opacity duration-300 bg-white/20 backdrop-blur-sm
                             text-white text-xs font-body px-3 py-1.5 rounded-full
                             border border-white/30">
-                Ver detalles →
+                Agendar turno →
               </div>
             </Link>
           ))}

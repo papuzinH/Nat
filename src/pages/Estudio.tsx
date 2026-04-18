@@ -8,7 +8,7 @@ import StudioCTA from '@/components/tattoo/StudioCTA';
 import { useDataLoader } from '@/hooks/data-loader';
 import heroVideo from '@/assets/hero_video.mov';
 
-const Tattoo: React.FC = () => {
+const Estudio: React.FC = () => {
   const { data: tattoos, loading, error } = useDataLoader();
 
   if (loading) {
@@ -25,8 +25,8 @@ const Tattoo: React.FC = () => {
         <div className="text-center max-w-md px-4">
           <h2 className="text-2xl font-title text-red-800 mb-4">No se pudo cargar la galería</h2>
           <p className="text-brown-600 mb-6">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
+          <button
+            onClick={() => window.location.reload()}
             className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
           >
             Reintentar
@@ -37,9 +37,9 @@ const Tattoo: React.FC = () => {
   }
 
   const collectionSchema = {
-    name: 'Portfolio de Tatuajes - Natalia Heller',
+    name: 'El Estudio — Natalia Heller',
     description: 'Galería de trabajos realizados: Line Art, Botánico, Minimalista.',
-    url: 'https://tatuajesnaty.com/tattoo',
+    url: 'https://tatuajesnaty.com/estudio',
     numberOfItems: tattoos.length,
     itemListElement: tattoos.map((tattoo, index) => ({
       '@type': 'ListItem',
@@ -48,7 +48,7 @@ const Tattoo: React.FC = () => {
         '@type': 'CreativeWork',
         name: tattoo.title,
         image: tattoo.image,
-        url: `https://tatuajesnaty.com/tattoo/${tattoo.id}`
+        url: `https://tatuajesnaty.com/estudio`
       }
     }))
   };
@@ -64,7 +64,7 @@ const Tattoo: React.FC = () => {
   const contentHero = () => (
     <>
       <Title as="h1" variant="titlePage" className="mb-4 text-white">
-        Tattoo
+        El Estudio
       </Title>
       <Title as="h2" variant="titleSection" className="font-normal text-white">
         Mi trabajo en el estudio
@@ -88,4 +88,4 @@ const Tattoo: React.FC = () => {
   );
 };
 
-export default Tattoo;
+export default Estudio;
