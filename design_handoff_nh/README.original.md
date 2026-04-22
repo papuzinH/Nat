@@ -1,71 +1,71 @@
 # Handoff: Natalia Heller — sitio de arte y tatuaje
 
 ## Overview
-Rediseño sitio Natalia Heller — artista visual + tatuadora, Buenos Aires. Sitio combina tienda de arte (foco principal) con portfolio estudio tatuaje. Identidad **earthy modern**: cálida, orgánica, íntima, botánica — nada de minimalismo tech ni lujo frío.
+Rediseño del sitio de Natalia Heller — artista visual y tatuadora radicada en Buenos Aires. El sitio combina una tienda de arte (foco principal) con el portfolio de su estudio de tatuaje. La identidad es **earthy modern**: cálida, orgánica, íntima y botánica — nada de minimalismo tech ni lujo frío.
 
-Páginas: Home, Tienda (catálogo + filtros), Producto (detalle), Estudio (portfolio tatuaje + booking), Contacto.
+Páginas incluidas: Home, Tienda (catálogo con filtros), Producto (detalle), Estudio (portfolio tatuaje + booking), Contacto.
 
 ## About the Design Files
-Archivos en paquete son **referencias de diseño en HTML/React** — prototipos Babel standalone para mostrar look, jerarquía e interacciones. **No son código productivo.** Tarea: **recrear diseños en el codebase**: React + Vite + TypeScript + Tailwind + GSAP, apuntando a migración Next.js. Usar patrones, componentes y tokens existentes; portar tokens nuevos a `tailwind.config`.
+Los archivos de este paquete son **referencias de diseño en HTML/React** — prototipos hechos en Babel standalone para mostrar el look, la jerarquía y las interacciones deseadas. **No son código productivo.** La tarea es **recrear estos diseños en el entorno del codebase**: React + Vite + TypeScript + Tailwind + GSAP, apuntando a migración a Next.js. Usá los patrones, componentes y tokens que ya existan en el proyecto y portá los tokens nuevos al `tailwind.config`.
 
 ## Fidelity
-**High-fidelity.** Colores, tipografía, espaciado, sombras, estados hover, animaciones carrusel, transición entre páginas y validación de formularios especificados. Imágenes son placeholders a rayas con labels monospace — reemplazar por fotos reales (WebP/AVIF) respetando aspect ratios indicados.
+**High-fidelity.** Colores, tipografía, espaciado, sombras, estados hover, animaciones de carrusel, transición entre páginas y validación de formularios están especificados. Las imágenes son placeholders a rayas con labels en monospace — reemplazarlas por fotos reales (WebP/AVIF) respetando los aspect ratios indicados.
 
 ## Screens
 
 ### 1. Home (`/`)
-- **Hero dos columnas** (desktop: 1.05fr / 0.95fr, mobile: 1 col apilado).
-  - Izquierda: eyebrow `Estudio · Buenos Aires · desde 2019` con marca botánica, H1 serif 78px segunda línea itálica sage-700, párrafo 18px soft, dos CTAs (primary sage + ghost).
-  - Derecha: **carrusel** 4:5 con 5 slides, auto-advance 4.5s, flechas circulares fondo cream semitransparente, contador `01 / 05` arriba izquierda, dots debajo (dot activo 22×6, inactivos 6×6).
+- **Hero a dos columnas** (desktop: 1.05fr / 0.95fr, mobile: 1 col apilado).
+  - Izquierda: eyebrow `Estudio · Buenos Aires · desde 2019` con marca botánica, H1 serif 78px con segunda línea en itálica sage-700, párrafo 18px soft, dos CTAs (primary sage + ghost).
+  - Derecha: **carrusel** 4:5 con 5 slides, auto-advance 4.5s, flechas circulares sobre fondo cream semitransparente, contador `01 / 05` arriba izquierda, dots debajo (dot activo ancho 22×6, inactivos 6×6).
   - Motivos decorativos: hoja SVG arriba derecha (sage-500), flor prensada abajo izquierda (opacity 0.7).
-- **Productos destacados**: grid 3 col desktop / 2 col mobile, cards pressed-flower.
+- **Productos destacados**: grid 3 col desktop / 2 col mobile, cards estilo pressed-flower.
 - **Divider botánico** "estudio + tatuaje".
-- **Teaser tatuaje**: dos columnas (mosaico 3 placeholders + bloque texto con CTA).
-- **Quote strip**: cita Natalia serif itálica 32px, centrada, max-width 780px.
+- **Teaser tatuaje**: dos columnas (mosaico de 3 placeholders + bloque de texto con CTA).
+- **Quote strip**: cita de Natalia en serif itálica 32px, centrada, max-width 780px.
 
 ### 2. Tienda (`/tienda`)
-- Hero simple count `Tienda · 12 piezas` y H1 `Obra disponible`.
-- **Barra filtros sticky** (top ~78px) pills redondeadas. Categorías: Todos, Cerámica, Acuarelas, Gouache, Textiles, Ilustraciones, Técnica mixta, Stickers, Láminas, Mandalas, Abanicos. Pill activa muestra count. Scroll horizontal mobile.
+- Hero simple con count `Tienda · 12 piezas` y H1 `Obra disponible`.
+- **Barra de filtros sticky** (top ~78px) con pills redondeadas. Categorías: Todos, Cerámica, Acuarelas, Gouache, Textiles, Ilustraciones, Técnica mixta, Stickers, Láminas, Mandalas, Abanicos. La pill activa muestra el count al lado. Scroll horizontal en mobile.
 - **Grid** 3 col desktop / 2 col mobile, gap 32px / 16px.
-- Empty state cuando filtro sin resultados.
+- Empty state cuando filtro no arroja resultados.
 
 ### 3. Producto (`/tienda/:slug`)
 - Breadcrumb monospace `tienda / categoría / producto`.
 - Layout 1.1fr / 0.9fr (desktop) o 1 col (mobile).
   - Izquierda: imagen principal + 4 thumbnails.
-  - Derecha: eyebrow, H1 52px, precio serif 28px sage-900 + pill `ARS`, descripción, selector tamaños (A6/A5/A4/A3 multiplicadores 0.55/0.75/1/1.6), checkbox "sumar marco de roble" (+$12.000), botón Agregar al carrito (sage) + botón corazón. Tabla specs (Técnica, Medidas, Edición, Envío).
+  - Derecha: eyebrow, H1 52px, precio serif 28px sage-900 + pill `ARS`, descripción, selector de tamaños (A6/A5/A4/A3 con multiplicadores 0.55/0.75/1/1.6), checkbox "sumar marco de roble" (+$12.000), botón Agregar al carrito (sage) + botón corazón. Tabla de specs (Técnica, Medidas, Edición, Envío).
 - **Productos relacionados** al final (misma categoría).
 
 ### 4. Estudio (`/estudio`)
-- Hero H1 84px `Línea fina, botánica y una conversación lenta.`
+- Hero con H1 84px `Línea fina, botánica y una conversación lenta.`
 - **Masonry gallery** 4 col desktop / 2 col mobile, `column-count` CSS. Pills `BOCETO` / `EN PIEL` sobre cada pieza.
 - Divider botánico "el proceso".
-- **Proceso** 4 pasos (01–04) número serif 56px sage-500 itálica.
-- Split: FAQ expandible (+/×) + formulario reserva con validación:
+- **Proceso** 4 pasos (01–04) con número serif 56px sage-500 itálica.
+- Split: FAQ expandible (+/×) + formulario de reserva con validación:
   - Campos: nombre, email (regex), zona del cuerpo (select), tamaño (select), idea (textarea, min 20 chars).
-  - Confirmación con icono hoja y mensaje personalizado.
+  - Confirmación con icono de hoja y mensaje personalizado.
 
 ### 5. Contacto (`/contacto`)
-- Split: info contacto izquierda (correo, IG, estudio Villa Crespo, horarios) + formulario derecha (nombre, email, motivo pills, mensaje).
-- Confirmación con icono hoja.
+- Split: info de contacto a la izquierda (correo, IG, estudio Villa Crespo, horarios) + formulario a la derecha (nombre, email, motivo pills, mensaje).
+- Confirmación con icono de hoja.
 
 ## Interactions & Behavior
 
 ### Navegación
 - SPA con estado `{ page, slug? }`. Persistir en `localStorage` (clave `nh-state-desktop` / `nh-state-mobile`).
 - Header sticky con backdrop blur. Link activo subrayado sage-700.
-- Al cambiar ruta: scroll al top + animación `nh-page-enter` (fade + translateY 8px, 400ms).
+- Al cambiar de ruta: scroll al top + animación `nh-page-enter` (fade + translateY 8px, 400ms).
 
 ### Carrito
 - Drawer lateral derecho, ancho 380px desktop / 86% mobile, `translateX(100%) → 0`, 420ms cubic-bezier(0.22,0.61,0.36,1).
-- Backdrop semitransparente (rgba(44,44,44,0.24)) fade 300ms.
+- Backdrop semi-transparente (rgba(44,44,44,0.24)) con fade 300ms.
 - Items combinan por `slug + size + frame` (aumentan qty).
-- Toast `"<título> · agregado"` al agregar; pill ink bottom-center, 2.2s.
+- Toast `"<título> · agregado"` al agregar; pill ink en bottom-center, 2.2s.
 
 ### Carrusel hero
-- Auto-advance 4.5s (`setInterval`, limpiar en unmount).
+- Auto-advance cada 4.5s (`setInterval`, limpiar en unmount).
 - Crossfade 700ms + scale 1.04→1 900ms.
-- Click flechas o dots reinicia posición (no timer).
+- Click en flechas o dots reinicia posición (no timer).
 
 ### Formularios
 - Validación al submit:
@@ -74,10 +74,10 @@ Archivos en paquete son **referencias de diseño en HTML/React** — prototipos 
   - Mensaje/idea: min 10/20 caracteres.
   - Zona del cuerpo (estudio): requerida.
 - Errores debajo del campo en `#a8503f` 12px.
-- Éxito reemplaza form con pantalla confirmación + botón "enviar otro".
+- Éxito reemplaza el form con pantalla de confirmación + botón "enviar otro".
 
 ### Tweaks (solo en prototipo)
-Panel floating bottom-right, 3 controles persistidos vía `data-*` en `<body>`:
+Panel floating bottom-right con 3 controles persistidos vía `data-*` en `<body>`:
 - `data-card`: `pressed` | `gallery` | `linen`
 - `data-motif`: `on` | `off`
 - `data-pair`: `bitter` | `fraunces` | `eb-work`
@@ -123,7 +123,7 @@ Líneas: `rgba(44,44,44,0.12)` normal, `rgba(44,44,44,0.06)` suave.
 Error: `#a8503f`.
 
 ### Typography
-3 pairs disponibles (por Tweaks). **Recomendado: Fraunces + Nunito** (elección del cliente).
+3 pairs disponibles (por Tweaks). **Recomendado: Fraunces + Nunito** (fue la elección del cliente).
 
 ```
 --font-display: 'Fraunces', Georgia, serif;    // H1–H3, precios, citas
@@ -147,7 +147,7 @@ Escalas:
 ### Radius
 - Buttons: `999px` (pill).
 - Cards pressed: `4px`.
-- Inputs: underline únicamente (border-bottom, sin radius).
+- Inputs: underline únicamente (border-bottom, no radius).
 - Tweaks panel / forms card: `6px–12px`.
 
 ### Shadows
@@ -164,7 +164,7 @@ Escalas:
 - Carrusel crossfade: 700–900ms.
 
 ### Placeholders
-Imágenes del prototipo son `.nh-ph` (rayas diagonales 135° sobre tono cream) con label monospace 10px. Reemplazar por fotos reales respetando `aspectRatio` indicado.
+Las imágenes del prototipo son `.nh-ph` (rayas diagonales 135° sobre tono cream) con label monospace 10px. Reemplazar por fotos reales respetando el `aspectRatio` indicado.
 
 ### Motivos botánicos (SVGs simples)
 - **NHLeafMark**: tallo curvo + 3 circulos (hojas). Tamaños 20–64px, color sage-500.
@@ -172,7 +172,7 @@ Imágenes del prototipo son `.nh-ph` (rayas diagonales 135° sobre tono cream) c
 - **NHFlower**: 5 pétalos elipse + círculo central. Usar como acento abajo-izquierda.
 
 ## State Management
-Props drilling suficiente para este scope. En producción, mover carrito a Context o Zustand:
+Props drilling es suficiente para este scope. En producción, mover carrito a Context o Zustand:
 ```ts
 // cartStore.ts
 {
@@ -192,19 +192,19 @@ Persistir items en localStorage.
   - Producto principal: variable por tall (`0.95`–`1.5`).
   - Tattoos masonry: variables (masonry CSS columns).
   - Thumbnails producto: 1:1.
-- **Iconos**: inline SVG en código (carrito, burger, corazón, chevron). 1.3 stroke, currentColor.
+- **Iconos**: inline SVG en el código (carrito, burger, corazón, chevron). 1.3 stroke, currentColor.
 
 ## Files
 Archivos en `design_handoff_nh/`:
 - `Natalia Heller.html` — shell que monta desktop + mobile.
 - `styles.css` — tokens y utilities (CSS custom props + data-attributes para variantes).
-- `data.jsx` — `NH_CATEGORIES`, `NH_PRODUCTS`, `NH_TATTOOS` (copy usable directo).
+- `data.jsx` — `NH_CATEGORIES`, `NH_PRODUCTS`, `NH_TATTOOS` (copy es usable directo).
 - `shared.jsx` — `NHLogo`, `NHHeader`, `NHFooter`, `NHProductCard`, `NHPh`, `NHLeafMark`, `NHSprig`, `NHFlower`, `NHDivider`.
 - `pages-a.jsx` — Home, Tienda, Producto.
 - `pages-b.jsx` — Estudio, Contacto.
 - `app.jsx` — shell con routing, cart, drawer.
 
 ## Notas finales
-- Copy en español rioplatense (validado con cliente).
+- Copy en español rioplatense (ya validado con cliente).
 - Mantener sensación de **calma**: animaciones lentas, cursiva en acentos, amplio whitespace. Nada rápido, nada cortante.
 - Evitar gradients saturados, emojis, dark mode y estética de marketplace.

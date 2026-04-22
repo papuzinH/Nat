@@ -1,9 +1,13 @@
 import React, { useState, useLayoutEffect, useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import NHLeafMark from '@/components/shared/NHLeafMark'
 import NHFlower from '@/components/shared/NHFlower'
 import NHSprig from '@/components/shared/NHSprig'
+import HeroEyebrow from '@/components/shared/HeroEyebrow'
+import HeroTitle from '@/components/shared/HeroTitle'
+import HeroSubtitle from '@/components/shared/HeroSubtitle'
+import ButtonPrimary from '@/components/shared/ButtonPrimary'
+import ButtonGhost from '@/components/shared/ButtonGhost'
 
 const SLIDES = [
   { label: 'Helecho · acuarela', tone: 'a' },
@@ -163,67 +167,26 @@ const HomeHeroSection: React.FC = () => {
           </div>
 
           {/* Eyebrow */}
-          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 mb-6 flex items-center gap-3">
+          <HeroEyebrow className="mb-6 flex items-center gap-3">
             <NHSprig size={40} color="var(--sage-500, #7a9e7e)" />
             Estudio · Buenos Aires · desde 2019
-          </p>
+          </HeroEyebrow>
 
           {/* H1 */}
-          <h1
-            className="font-display font-normal mb-6 text-ink"
-            style={{
-              fontSize: isMobile ? 42 : 78,
-              lineHeight: 1.02,
-              letterSpacing: '-0.02em',
-            }}
-          >
+          <HeroTitle className="mb-6">
             Botánica sensible,{' '}
-            <em style={{ fontStyle: 'italic', color: 'var(--sage-700, #4a7c59)' }}>
-              hecha con paciencia.
-            </em>
-          </h1>
+            <em>hecha con paciencia.</em>
+          </HeroTitle>
 
           {/* Paragraph */}
-          <p
-            className="font-body text-ink-soft mb-10 max-w-[480px]"
-            style={{ fontSize: isMobile ? 16 : 18, lineHeight: 1.65 }}
-          >
+          <HeroSubtitle className="mb-10 max-w-[480px]">
             Obra en papel, cerámica, textiles y tatuaje de línea fina. Cada pieza nace despacio en el estudio del barrio Villa Crespo, rodeada de plantas.
-          </p>
+          </HeroSubtitle>
 
           {/* CTAs */}
           <div className="flex flex-wrap gap-3">
-            <Link
-              to="/tienda"
-              className="inline-flex items-center font-body font-semibold text-sm rounded-pill transition-all duration-[220ms] hover:-translate-y-px"
-              style={{
-                background: 'var(--sage-700, #4a7c59)',
-                color: 'var(--cream-50, #fdfcfb)',
-                padding: '14px 22px',
-              }}
-            >
-              Explorar la tienda →
-            </Link>
-            <Link
-              to="/estudio"
-              className="inline-flex items-center font-body font-semibold text-sm rounded-pill border transition-all duration-[220ms]"
-              style={{
-                background: 'transparent',
-                color: 'var(--ink, #2c2c2c)',
-                border: '1px solid var(--ink, #2c2c2c)',
-                padding: '14px 22px',
-              }}
-              onMouseEnter={(e) => {
-                ;(e.currentTarget as HTMLAnchorElement).style.background = 'var(--ink, #2c2c2c)'
-                ;(e.currentTarget as HTMLAnchorElement).style.color = 'var(--cream-50, #fdfcfb)'
-              }}
-              onMouseLeave={(e) => {
-                ;(e.currentTarget as HTMLAnchorElement).style.background = 'transparent'
-                ;(e.currentTarget as HTMLAnchorElement).style.color = 'var(--ink, #2c2c2c)'
-              }}
-            >
-              Reservar tatuaje
-            </Link>
+            <ButtonPrimary to="/tienda">Explorar la tienda →</ButtonPrimary>
+            <ButtonGhost to="/estudio">Reservar tatuaje</ButtonGhost>
           </div>
         </div>
 

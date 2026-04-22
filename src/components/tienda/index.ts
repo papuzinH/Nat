@@ -1,3 +1,4 @@
+export { default as TiendaHero } from './TiendaHero'
 export { default as ProductImagePlaceholder } from './ProductImagePlaceholder'
 export { default as ProductCard } from './ProductCard'
 export { default as FilterBar } from './FilterBar'

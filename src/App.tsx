@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Layout, ScrollToTop, GTMTag, NoscriptGTM, Header } from './components/shared';
+import { Layout, ScrollToTop, GTMTag, NoscriptGTM, Header, Footer } from './components/shared';
 import {
   Home,
   Tienda,
@@ -24,6 +24,7 @@ function App() {
             <>
               <Header />
               <Home />
+              <Footer />
             </>
           } />
 

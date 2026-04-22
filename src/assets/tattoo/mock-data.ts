@@ -3,6 +3,30 @@ import tat2 from './tat2.jpg';
 import tat3 from './tat3.jpg';
 import tat4 from './tat4.jpg';
 
+export type TatTone = 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
+
+export interface TattooCard {
+  id: number
+  tone: TatTone
+  tall: number
+  label: string
+  kind: string
+  image?: string
+}
+
+export const TATTOO_CARDS: TattooCard[] = [
+  { id: 1,  tone: 'a', tall: 1.4,  label: 'BOCETO · 2025', kind: 'Helecho antebrazo',          image: tat1 },
+  { id: 2,  tone: 'd', tall: 0.9,  label: 'EN PIEL',        kind: 'Rama de olivo · clavícula',   image: tat2 },
+  { id: 3,  tone: 'c', tall: 1.2,  label: 'BOCETO',         kind: 'Ornamental · esternón',        image: tat3 },
+  { id: 4,  tone: 'b', tall: 1.6,  label: 'EN PIEL',        kind: 'Flor silvestre · espalda',     image: tat4 },
+  { id: 5,  tone: 'e', tall: 1.1,  label: 'BOCETO · 2024',  kind: 'Serie luna + hojas',           image: tat1 },
+  { id: 6,  tone: 'f', tall: 1.35, label: 'EN PIEL',        kind: 'Colibrí en línea fina',        image: tat2 },
+  { id: 7,  tone: 'd', tall: 1.0,  label: 'BOCETO',         kind: 'Jazmín del país · brazo',      image: tat3 },
+  { id: 8,  tone: 'a', tall: 1.45, label: 'EN PIEL',        kind: 'Mandala minimal · muñeca',     image: tat4 },
+  { id: 9,  tone: 'c', tall: 0.95, label: 'BOCETO',         kind: 'Hoja monstera · tobillo',      image: tat1 },
+  { id: 10, tone: 'b', tall: 1.3,  label: 'EN PIEL',        kind: 'Ornamental pecho',             image: tat2 },
+]
+
 // Mock data para tatuajes con contenido SEO/LLMO optimizado
 export interface Tattoo {
   id: number;

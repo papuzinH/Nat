@@ -31,17 +31,16 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
   return (
     <div
-      className="sticky z-20"
-      style={{ top: '78px' }}
+      className="sticky z-20 "
+      style={{ top: '84px' }}
     >
       <div
-        className="border-b"
+        className="border-b px-6 md:px-12 py-4"
         style={{
           background: 'rgba(250,246,240,0.95)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
           borderColor: 'var(--line-soft)',
-          padding: '12px 48px',
         }}
       >
         {/* Mobile padding */}
@@ -53,7 +52,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
         <div
           role="tablist"
           aria-label="Filtrar por categoría"
-          className="flex gap-2 overflow-x-auto scrollbar-hide"
+          className="flex gap-2 overflow-x-auto scrollbar-hide max-w-7xl mx-auto"
           style={{ padding: '0 0 2px' }}
         >
           {categories.map((cat) => {

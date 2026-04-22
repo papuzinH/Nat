@@ -11,7 +11,15 @@
       "Bash(rm -f src/data/obras.ts src/assets/obras/obras-data.ts)",
       "Bash(rtk ls:*)",
       "Bash(rtk npm:*)",
-      "Bash(rtk tsc:*)"
+      "Bash(rtk tsc:*)",
+      "Read(//c/Users/lautaro.hudson/.claude/plugins/cache/caveman/caveman/84cc3c14fa1e/skills/compress/**)",
+      "Bash(python3 -m scripts \"C:\\\\Users\\\\lautaro.hudson\\\\Desktop\\\\Proyectos\\\\Nat\\\\CLAUDE.md\")",
+      "Bash(py --version)",
+      "Bash(python -m scripts \"C:\\\\Users\\\\lautaro.hudson\\\\Desktop\\\\Proyectos\\\\Nat\\\\CLAUDE.md\")",
+      "Bash(PYTHONUTF8=1 PYTHONIOENCODING=utf-8 python -m scripts \"C:\\\\Users\\\\lautaro.hudson\\\\Desktop\\\\Proyectos\\\\Nat\\\\CLAUDE.md\")",
+      "Bash(python3 -m scripts \"C:\\\\Users\\\\lautaro.hudson\\\\Desktop\\\\Proyectos\\\\Nat\\\\design_handoff_nh\\\\README.md\")",
+      "Bash(python -m scripts \"C:\\\\Users\\\\lautaro.hudson\\\\Desktop\\\\Proyectos\\\\Nat\\\\design_handoff_nh\\\\README.md\")",
+      "Bash(py -m scripts \"C:\\\\Users\\\\lautaro.hudson\\\\Desktop\\\\Proyectos\\\\Nat\\\\design_handoff_nh\\\\README.md\")"
     ]
   }
 }

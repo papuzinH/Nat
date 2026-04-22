@@ -45,34 +45,38 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products, activeCategory }) =
 
   if (products.length === 0) {
     return (
-      <div
-        id="product-grid"
-        className="py-20 text-center"
-        role="region"
-        aria-label="Catálogo filtrado"
-      >
-        <p className="font-display italic text-[24px] text-ink-soft">
-          Nada nuevo por acá todavía
-        </p>
-        <p className="font-body text-[14px] text-ink-soft mt-3">
-          Sumate al newsletter para enterarte primero.
-        </p>
-      </div>
+      <section className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-20">
+        <div
+          id="product-grid"
+          className="py-20 text-center"
+          role="region"
+          aria-label="Catálogo filtrado"
+        >
+          <p className="font-display italic text-[24px] text-ink-soft">
+            Nada nuevo por acá todavía
+          </p>
+          <p className="font-body text-[14px] text-ink-soft mt-3">
+            Sumate al newsletter para enterarte primero.
+          </p>
+        </div>
+      </section>
     )
   }
 
   return (
-    <div
-      ref={gridRef}
-      id="product-grid"
-      role="region"
-      aria-label="Catálogo filtrado"
-      className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8"
-    >
-      {products.map((product, i) => (
-        <ProductCard key={product.slug} product={product} priority={i < 3} />
-      ))}
-    </div>
+    <section className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-20">
+      <div
+        ref={gridRef}
+        id="product-grid"
+        role="region"
+        aria-label="Catálogo filtrado"
+        className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8"
+      >
+        {products.map((product, i) => (
+          <ProductCard key={product.slug} product={product} priority={i < 3} />
+        ))}
+      </div>
+    </section>
   )
 }
 
