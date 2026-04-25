@@ -1,4 +1,5 @@
 import React from 'react'
+import { SectionContainer } from '../shared'
 
 const STEPS = [
   {
@@ -24,7 +25,7 @@ const STEPS = [
 ]
 
 const ProcessSteps: React.FC = () => (
-  <section className="bg-cream-100 px-6 md:px-12 py-16 md:py-20">
+  <SectionContainer>
     <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8 max-w-7xl mx-auto">
       {STEPS.map((step) => (
         <div key={step.num}>
@@ -46,7 +47,7 @@ const ProcessSteps: React.FC = () => (
         </div>
       ))}
     </div>
-  </section>
+  </SectionContainer>
 )
 
 export default ProcessSteps

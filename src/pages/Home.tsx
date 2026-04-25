@@ -49,6 +49,8 @@ const Home: React.FC = () => (
     <main>
       <HomeHeroSection />
 
+      <NHDivider label="Tienda" />
+
       <FeaturedProductsSection />
 
       <NHDivider label="estudio + tatuaje" />

@@ -5,6 +5,7 @@ import HeroTitle from '@/components/shared/HeroTitle'
 import HeroSubtitle from '@/components/shared/HeroSubtitle'
 import { useLayoutEffect, useRef } from 'react'
 import { gsap, shouldAnimate } from '@/lib/gsap'
+import { SectionContainer } from '../shared'
 
 const EstudioHero: React.FC = () => {
 
@@ -23,7 +24,7 @@ const EstudioHero: React.FC = () => {
   }, [])
 
   return (
-    <section className="relative bg-cream-100 px-6 md:px-12 py-16 md:py-20 overflow-hidden">
+    <SectionContainer>
       <NHLeafMark
         size={64}
         color="#7a9e7e"
@@ -49,7 +50,7 @@ const EstudioHero: React.FC = () => {
           tiene sentido en tu piel.
         </HeroSubtitle>
       </div>
-    </section>
+    </SectionContainer>
   )
 }
 

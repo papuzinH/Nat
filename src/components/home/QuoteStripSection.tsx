@@ -1,14 +1,13 @@
 import React from 'react'
+import { SectionContainer } from '../shared'
+import NHDivider from '../shared/NHDivider'
 
 const QuoteStripSection: React.FC = () => (
-  <section
-    className="py-20 md:py-28 px-6"
+  <SectionContainer
     aria-label="Sobre el estudio"
   >
-    <div className="max-w-[780px] mx-auto text-center">
-      <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 mb-8">
-        · Sobre el estudio ·
-      </p>
+    <NHDivider label="Un espacio distinto" className='md:mb-8' />
+    <div className="max-w-3xl mx-auto text-center">
       <blockquote>
         <p
           className="font-display font-normal text-ink"
@@ -25,7 +24,7 @@ const QuoteStripSection: React.FC = () => (
         </footer>
       </blockquote>
     </div>
-  </section>
+  </SectionContainer>
 )
 
 export default QuoteStripSection

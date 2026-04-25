@@ -24,7 +24,7 @@ const Estudio: React.FC = () => (
 
     <ProcessSteps />
 
-    <NHDivider />
+    <NHDivider label="contacto" />
 
     <ContactEstudioSection />
     

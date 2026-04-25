@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { ButtonPrimary, SectionContainer, SectionTitle } from '@/components/shared'
 
 const TONE_COLORS: Record<string, string> = {
   a: '#ece2d1',
@@ -8,8 +8,7 @@ const TONE_COLORS: Record<string, string> = {
 }
 
 const TattooTeaserSection: React.FC = () => (
-  <section
-    className="py-20 md:py-28 px-6 md:px-12 bg-cream-100"
+  <SectionContainer
     aria-labelledby="tattoo-teaser-heading"
   >
     <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
@@ -44,37 +43,26 @@ const TattooTeaserSection: React.FC = () => (
 
       {/* Right — text */}
       <div className="order-1 md:order-2">
-        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 mb-4">
-          El estudio
-        </p>
-        <h2
-          id="tattoo-teaser-heading"
-          className="font-display font-normal text-ink mb-6"
-          style={{ fontSize: 'clamp(28px, 5vw, 48px)', lineHeight: 1.1 }}
-        >
+
+        <SectionTitle id="tattoo-teaser-heading" className="mb-6">
           Tatuajes de línea fina, pensados con vos.
-        </h2>
+        </SectionTitle>
         <p
           className="font-body text-ink-soft mb-8"
-          style={{ fontSize: 16, lineHeight: 1.65, maxWidth: 440 }}
         >
           Line art botánico, ornamental y minimalista. Cada tatuaje empieza con una conversación y termina siendo parte de tu historia.
         </p>
-        <Link
+
+
+        <ButtonPrimary
           to="/estudio"
-          className="inline-flex items-center font-body font-semibold text-sm rounded-pill transition-all duration-[220ms] hover:-translate-y-px"
-          style={{
-            background: 'var(--sage-700, #4a7c59)',
-            color: 'var(--cream-50, #fdfcfb)',
-            padding: '14px 22px',
-            textDecoration: 'none',
-          }}
         >
           Conocer el estudio
-        </Link>
+        </ButtonPrimary>
+
       </div>
     </div>
-  </section>
+  </SectionContainer>
 )
 
 export default TattooTeaserSection

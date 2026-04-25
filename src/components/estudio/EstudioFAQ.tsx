@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { HeroEyebrow, SectionTitle } from '../shared'
 
 const FAQS = [
   {
@@ -24,15 +25,13 @@ const EstudioFAQ: React.FC = () => {
 
   return (
     <div>
-      <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft mb-3">
+      <HeroEyebrow>
         Antes de escribir
-      </p>
-      <h2
-        className="font-display font-normal mb-8"
-        style={{ fontSize: 'clamp(28px, 3vw, 42px)', color: '#2c2c2c' }}
+      </HeroEyebrow>
+      <SectionTitle
       >
         Cosas que suelen preguntar
-      </h2>
+      </SectionTitle>
 
       <div className="space-y-0 divide-y divide-[rgba(44,44,44,0.12)]">
         {FAQS.map((item, i) => (

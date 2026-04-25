@@ -1,139 +1,55 @@
-import React, { useLayoutEffect, useRef } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
-import { gsap, ScrollTrigger, shouldAnimate } from '@/lib/gsap'
-import { PRODUCTS, TONE_COLORS, formatARS, type Product } from '@/data/products'
+import { PRODUCTS } from '@/data/products'
+import { ProductGrid } from '@/components/tienda'
+import { SectionContainer, SectionTitle } from '@/components/shared'
 
 const FEATURED_PRODUCTS = PRODUCTS.filter((p) => p.status === 'active').slice(0, 6)
 
-interface ProductCardProps {
-  product: Product
-}
-
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => (
-  <Link
-    to={`/tienda/${product.slug}`}
-    className="group block rounded-card overflow-hidden transition-all duration-300 hover:-translate-y-1"
-    style={{
-      textDecoration: 'none',
-      background: 'var(--cream-50, #fdfcfb)',
-      boxShadow: '0 1px 2px rgba(44,44,44,0.04), 0 8px 24px rgba(74,124,89,0.06)',
-    }}
-  >
-    {/* Placeholder image */}
-    <div
-      className="w-full relative overflow-hidden"
-      style={{ aspectRatio: `4 / ${4 * product.tall}`, background: TONE_COLORS[product.tone] ?? '#ece2d1' }}
-    >
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage:
-            'repeating-linear-gradient(135deg, transparent 0, transparent 11px, rgba(74,124,89,0.07) 11px, rgba(74,124,89,0.07) 12px)',
-        }}
-      />
-      <span
-        className="absolute bottom-3 left-3 font-mono text-[10px] uppercase tracking-[0.1em] px-2 py-1 rounded-sm"
-        style={{ color: 'var(--ink-soft)', background: 'rgba(253,252,251,0.85)' }}
-      >
-        {product.catLabel}
-      </span>
-    </div>
-
-    {/* Info */}
-    <div className="p-4 pb-5">
-      <h3 className="font-display text-[18px] text-ink mb-1 group-hover:text-sage-700 transition-colors duration-200">
-        {product.title}
-      </h3>
-      <p className="font-display text-[22px] text-sage-900 mt-2">
-        {formatARS(product.basePrice)}
-      </p>
-    </div>
-  </Link>
-)
-
-// Void reference to suppress unused import warning — ScrollTrigger is registered globally via gsap lib
-void ScrollTrigger
-
 const FeaturedProductsSection: React.FC = () => {
-  const sectionRef = useRef<HTMLElement>(null)
-  const cardsRef = useRef<HTMLDivElement>(null)
-
-  useLayoutEffect(() => {
-    if (!cardsRef.current || !shouldAnimate()) return
-
-    const cards = cardsRef.current.querySelectorAll<HTMLElement>('.product-card')
-    const ctx = gsap.context(() => {
-      gsap.from(cards, {
-        opacity: 0,
-        y: 24,
-        duration: 0.6,
-        stagger: 0.08,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: cardsRef.current,
-          start: 'top 80%',
-          once: true,
-        },
-      })
-    }, sectionRef)
-
-    return () => ctx.revert()
-  }, [])
-
   return (
-    <section
-      ref={sectionRef}
-      className="py-20 md:py-28 px-6 md:px-12 bg-cream-100"
+    <SectionContainer
       aria-labelledby="featured-products-heading"
     >
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-start justify-between mb-10 md:mb-14">
-          <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 mb-3">
-              Tienda
-            </p>
-            <h2
-              id="featured-products-heading"
-              className="font-display font-normal text-ink"
-              style={{ fontSize: 'clamp(28px, 5vw, 44px)', lineHeight: 1.1 }}
-            >
-              Piezas que acaban de salir del estudio
-            </h2>
-          </div>
-          <Link
-            to="/tienda"
-            className="font-mono text-[13px] uppercase tracking-[0.14em] text-ink hover:text-sage-700 transition-colors duration-200 mt-2 shrink-0 hidden md:block"
-            style={{ textDecoration: 'none' }}
-          >
-            Ver todo →
-          </Link>
-        </div>
+      {/* Header */}
+      <div className="flex items-start justify-between mb-10 md:mb-14">
+        <div>
 
-        {/* Grid */}
-        <div
-          ref={cardsRef}
-          className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-7"
+          <SectionTitle
+            id="featured-products-heading"
+          >
+            Piezas que acaban de salir del estudio
+          </SectionTitle>
+        </div>
+        <Link
+          to="/tienda"
+          className="font-mono text-[13px] uppercase tracking-[0.14em] text-ink hover:text-sage-700 transition-colors duration-200 mt-2 shrink-0 hidden md:block"
+          style={{ textDecoration: 'none' }}
         >
-          {FEATURED_PRODUCTS.map((product) => (
-            <div key={product.slug} className="product-card">
-              <ProductCard product={product} />
-            </div>
-          ))}
-        </div>
-
-        {/* Mobile "ver todo" */}
-        <div className="mt-8 text-center md:hidden">
-          <Link
-            to="/tienda"
-            className="font-mono text-[13px] uppercase tracking-[0.14em] text-ink hover:text-sage-700 transition-colors duration-200"
-            style={{ textDecoration: 'none' }}
-          >
-            Ver todo →
-          </Link>
-        </div>
+          Ver todo →
+        </Link>
       </div>
-    </section>
+
+      <ProductGrid
+        products={FEATURED_PRODUCTS}
+        activeCategory="featured"
+        withSection={false}
+        gridId="featured-product-grid"
+        ariaLabel="Productos destacados"
+        gridClassName="gap-4 md:gap-7"
+      />
+
+      {/* Mobile "ver todo" */}
+      <div className="mt-8 text-center md:hidden">
+        <Link
+          to="/tienda"
+          className="font-mono text-[13px] uppercase tracking-[0.14em] text-ink hover:text-sage-700 transition-colors duration-200"
+          style={{ textDecoration: 'none' }}
+        >
+          Ver todo →
+        </Link>
+      </div>
+    </SectionContainer>
   )
 }
 

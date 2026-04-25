@@ -1,6 +1,7 @@
 import React from 'react'
 import { useBookingForm } from '@/hooks/useBookingForm'
 import NHLeafMark from '@/components/shared/NHLeafMark'
+import { SectionTitle } from '../shared'
 
 const ERROR_COLOR = '#a8503f'
 
@@ -37,9 +38,9 @@ const BookingForm: React.FC = () => {
         style={{ border: '1px solid rgba(44,44,44,0.08)', boxShadow: '0 1px 2px rgba(44,44,44,0.04), 0 8px 24px rgba(74,124,89,0.06)' }}
       >
         <NHLeafMark size={48} color="#7a9e7e" />
-        <h3 className="font-display font-normal" style={{ fontSize: '28px' }}>
+        <SectionTitle>
           Llegó tu mensaje
-        </h3>
+        </SectionTitle>
         <p className="font-body text-ink-soft leading-[1.6]" style={{ fontSize: '15px', maxWidth: '320px' }}>
           Gracias, {firstName}. Te voy a contestar en los próximos días
           desde hola@nataliaheller.ar. Mientras tanto, respirá hondo ✶

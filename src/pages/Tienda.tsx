@@ -1,7 +1,7 @@
 import React from 'react'
 import { SEOMeta } from '@/components/shared'
 import { useTiendaLogic } from '@/hooks/useTiendaLogic'
-import { TiendaHero, FilterBar, ProductGrid, ComingSoonSection } from '@/components/tienda'
+import { TiendaHero, FilterBar, ProductGrid } from '@/components/tienda'
 import { PRODUCTS } from '@/data/products'
 
 const BASE_URL = 'https://tatuajesnaty.com'
@@ -36,7 +36,7 @@ const Tienda: React.FC = () => {
     <>
       <SEOMeta
         title="Tienda de Arte — Natalia Heller | Prints, Stickers, Cerámicas y más"
-        description="Comprá obra original de Natalia Heller: láminas giclée, cerámicas, acuarelas, stickers y abanicos. Envíos a todo el país."
+        description="Comprá obra original de Natalia Heller: prints, cerámicas, acuarelas, stickers y abanicos. Envíos a todo el país."
         canonical={`${BASE_URL}/tienda`}
         ogImage={`${BASE_URL}/og-tienda.webp`}
         schema={tiendaSchema}
@@ -45,7 +45,6 @@ const Tienda: React.FC = () => {
       <main className="min-h-screen bg-cream-50">
         <TiendaHero productCount={filteredProducts.length} />
 
-
         <FilterBar
           categories={categories}
           active={activeCategory}
@@ -53,14 +52,8 @@ const Tienda: React.FC = () => {
           countForCategory={countForCategory}
         />
 
-
         <ProductGrid products={filteredProducts} activeCategory={activeCategory} />
 
-
-        {/* Próximamente */}
-        <div className="max-w-5xl mx-auto px-6 md:px-12 pb-20 md:pb-28">
-          <ComingSoonSection />
-        </div>
       </main>
     </>
   )

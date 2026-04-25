@@ -10,7 +10,7 @@ interface HeroEyebrowProps {
  * Basado en `.nh-eyebrow` del design handoff.
  */
 const HeroEyebrow: React.FC<HeroEyebrowProps> = ({ children, className = '' }) => (
-  <p className={`font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 ${className}`}>
+  <p className={`font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 mb-4 ${className}`}>
     {children}
   </p>
 )
