@@ -19,7 +19,9 @@
       "Bash(PYTHONUTF8=1 PYTHONIOENCODING=utf-8 python -m scripts \"C:\\\\Users\\\\lautaro.hudson\\\\Desktop\\\\Proyectos\\\\Nat\\\\CLAUDE.md\")",
       "Bash(python3 -m scripts \"C:\\\\Users\\\\lautaro.hudson\\\\Desktop\\\\Proyectos\\\\Nat\\\\design_handoff_nh\\\\README.md\")",
       "Bash(python -m scripts \"C:\\\\Users\\\\lautaro.hudson\\\\Desktop\\\\Proyectos\\\\Nat\\\\design_handoff_nh\\\\README.md\")",
-      "Bash(py -m scripts \"C:\\\\Users\\\\lautaro.hudson\\\\Desktop\\\\Proyectos\\\\Nat\\\\design_handoff_nh\\\\README.md\")"
+      "Bash(py -m scripts \"C:\\\\Users\\\\lautaro.hudson\\\\Desktop\\\\Proyectos\\\\Nat\\\\design_handoff_nh\\\\README.md\")",
+      "Bash(npm run *)",
+      "Bash(npx tsc *)"
     ]
   }
 }

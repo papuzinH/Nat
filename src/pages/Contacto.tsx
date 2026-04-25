@@ -4,29 +4,27 @@ import { SchemaMarkup } from '../components/shared';
 
 const Contacto: React.FC = () => {
   const contactPageSchema = {
-    name: 'Contacto - Natalia Heller Tattoo Studio',
+    name: 'Contacto - Natalia Heller',
     description: 'Agenda tu cita o consulta por diseños personalizados.',
     url: 'https://tatuajesnaty.com/contacto',
     mainEntity: {
       '@type': 'LocalBusiness',
       name: 'Natalia Heller Tattoo Studio',
       telephone: '+54 9 11 6619-1209',
-      email: 'contacto@tatuajesnaty.com', // Example email
+      email: 'hola@nataliaheller.ar',
       address: {
         '@type': 'PostalAddress',
         addressLocality: 'Buenos Aires',
         addressRegion: 'CABA',
-        addressCountry: 'AR'
-      }
-    }
+        addressCountry: 'AR',
+      },
+    },
   };
 
   return (
     <>
       <SchemaMarkup type="ContactPage" data={contactPageSchema} />
-      <div className="min-h-screen pt-24 pb-16 md:py-32 bg-cream-50">
-        <ContactHero />
-      </div>
+      <ContactHero />
     </>
   );
 };

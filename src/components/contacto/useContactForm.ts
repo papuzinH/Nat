@@ -4,9 +4,11 @@ interface FormData {
   name: string;
   email: string;
   phone: string;
-  consultType: string;
+  topic: string;
   message: string;
 }
+
+type FormErrors = Partial<Record<keyof FormData, string>>;
 
 interface UseContactFormProps {
   designId?: string;
@@ -14,8 +16,7 @@ interface UseContactFormProps {
 }
 
 export const useContactForm = ({ designId, designTitle }: UseContactFormProps = {}) => {
-  // Pre-llenar mensaje si viene desde un diseño específico
-  const initialMessage = designId && designTitle 
+  const initialMessage = designId && designTitle
     ? `Me inspiró el diseño: ${designTitle}. Mi idea es... `
     : '';
 
@@ -23,32 +24,52 @@ export const useContactForm = ({ designId, designTitle }: UseContactFormProps = 
     name: '',
     email: '',
     phone: '',
-    consultType: '',
-    message: initialMessage
+    topic: '',
+    message: initialMessage,
   });
 
+  const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [sent, setSent] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+  const validate = (): FormErrors => {
+    const e: FormErrors = {};
+    if (!formData.name.trim()) e.name = 'Nombre requerido.';
+    if (!formData.email.trim()) {
+      e.email = 'Email requerido.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      e.email = 'Email inválido.';
+    }
+    if (formData.message.trim().length < 10) e.message = 'Mínimo 10 caracteres.';
+    return e;
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name as keyof FormData]) {
+      setErrors(prev => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handleTopicChange = (value: string) => {
+    setFormData(prev => ({ ...prev, topic: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const validation = validate();
+    if (Object.keys(validation).length > 0) {
+      setErrors(validation);
+      return;
+    }
+
     setIsSubmitting(true);
-    
     try {
-      // Aquí iría la lógica para enviar el formulario
-      console.log('Formulario enviado:', formData);
-      
-      // Simular envío
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Push al DataLayer para GTM
+
       if ((window as any).dataLayer) {
         (window as any).dataLayer.push({
           event: 'form_submitted_success',
@@ -56,26 +77,11 @@ export const useContactForm = ({ designId, designTitle }: UseContactFormProps = 
           design_title: designTitle || undefined,
           conversion_value: 50,
           currency: 'USD',
-          lead_type: designId ? 'tattoo_inquiry' : 'general_contact'
+          lead_type: designId ? 'tattoo_inquiry' : 'general_contact',
         });
       }
 
-      // Mostrar modal de éxito
-      setShowSuccessModal(true);
-      
-      // Reset form después de mostrar el modal
-      const initialMessage = designId && designTitle 
-        ? `Me inspiró el diseño: ${designTitle}. Mi idea es... `
-        : '';
-      
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        consultType: '',
-        message: initialMessage
-      });
-      
+      setSent(true);
     } catch (error) {
       console.error('Error enviando formulario:', error);
     } finally {
@@ -83,32 +89,26 @@ export const useContactForm = ({ designId, designTitle }: UseContactFormProps = 
     }
   };
 
-  const closeSuccessModal = () => {
-    setShowSuccessModal(false);
-  };
-
-  const resetForm = () => {
-    const initialMessage = designId && designTitle 
-      ? `Me inspiró el diseño: ${designTitle}. Mi idea es... `
-      : '';
-    
+  const reset = () => {
     setFormData({
       name: '',
       email: '',
       phone: '',
-      consultType: '',
-      message: initialMessage
+      topic: '',
+      message: initialMessage,
     });
-    setShowSuccessModal(false);
+    setErrors({});
+    setSent(false);
   };
 
   return {
     formData,
+    errors,
     isSubmitting,
-    showSuccessModal,
+    sent,
     handleChange,
+    handleTopicChange,
     handleSubmit,
-    closeSuccessModal,
-    resetForm
+    reset,
   };
 };
