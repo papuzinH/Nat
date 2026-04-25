@@ -1,8 +1,7 @@
 import React from 'react'
-import { Helmet } from 'react-helmet-async'
+import { SEOMeta } from '@/components/shared'
 import { useTiendaLogic } from '@/hooks/useTiendaLogic'
 import { TiendaHero, FilterBar, ProductGrid, ComingSoonSection } from '@/components/tienda'
-import SchemaMarkup from '@/components/shared/SchemaMarkup'
 import { PRODUCTS } from '@/data/products'
 
 const BASE_URL = 'https://tatuajesnaty.com'
@@ -14,6 +13,7 @@ const Tienda: React.FC = () => {
   const activeProducts = PRODUCTS.filter((p) => p.status === 'active')
 
   const tiendaSchema = {
+    '@type': 'CollectionPage',
     name: 'Tienda de Arte — Natalia Heller',
     description:
       'Obra original de Natalia Heller: láminas giclée, cerámicas, acuarelas, stickers y abanicos.',
@@ -34,27 +34,13 @@ const Tienda: React.FC = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Tienda de Arte — Natalia Heller | Prints, Stickers, Cerámicas y más</title>
-        <meta
-          name="description"
-          content="Comprá obra original de Natalia Heller: láminas giclée, cerámicas, acuarelas, stickers y abanicos. Cada pieza sale del estudio con nota escrita a mano. Envíos a todo el país."
-        />
-        <meta
-          property="og:title"
-          content="Tienda de Arte — Natalia Heller | Prints, Stickers, Cerámicas y más"
-        />
-        <meta
-          property="og:description"
-          content="Comprá obra original de Natalia Heller: láminas giclée, cerámicas, acuarelas, stickers y abanicos. Cada pieza sale del estudio con nota escrita a mano. Envíos a todo el país."
-        />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={`${BASE_URL}/tienda`} />
-        <meta property="og:image" content={`${BASE_URL}/og-tienda.webp`} />
-        <link rel="canonical" href={`${BASE_URL}/tienda`} />
-      </Helmet>
-
-      <SchemaMarkup type="CollectionPage" data={tiendaSchema} />
+      <SEOMeta
+        title="Tienda de Arte — Natalia Heller | Prints, Stickers, Cerámicas y más"
+        description="Comprá obra original de Natalia Heller: láminas giclée, cerámicas, acuarelas, stickers y abanicos. Envíos a todo el país."
+        canonical={`${BASE_URL}/tienda`}
+        ogImage={`${BASE_URL}/og-tienda.webp`}
+        schema={tiendaSchema}
+      />
 
       <main className="min-h-screen bg-cream-50">
         <TiendaHero productCount={filteredProducts.length} />

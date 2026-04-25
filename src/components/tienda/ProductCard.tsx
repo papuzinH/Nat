@@ -8,7 +8,7 @@ interface ProductCardProps {
   priority?: boolean
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) => {
   return (
     <article
       className="product-card bg-cream-50 rounded-card overflow-hidden transition-all duration-300 hover:-translate-y-1"
@@ -30,7 +30,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             alt={`${product.title} — ${product.catLabel}, ${product.medium}`}
             width={400}
             height={Math.round(400 * product.tall)}
-            loading="lazy"
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : 'auto'}
+            decoding={priority ? 'sync' : 'async'}
             className="w-full object-cover"
             style={{ display: 'block' }}
           />

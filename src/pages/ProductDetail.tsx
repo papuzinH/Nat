@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { useParams, Navigate } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
 import { PRODUCTS } from '@/data/products'
 import {
   Breadcrumb,
@@ -9,7 +8,7 @@ import {
   AddedToast,
   RelatedProducts,
 } from '@/components/tienda'
-import SchemaMarkup from '@/components/shared/SchemaMarkup'
+import { SEOMeta } from '@/components/shared'
 
 const BASE_URL = 'https://tatuajesnaty.com'
 
@@ -59,12 +58,18 @@ const ProductDetail: React.FC = () => {
     },
   }
 
-  const breadcrumbSchema = {
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Inicio', item: BASE_URL },
-      { '@type': 'ListItem', position: 2, name: 'Tienda', item: `${BASE_URL}/tienda` },
-      { '@type': 'ListItem', position: 3, name: product.catLabel },
-      { '@type': 'ListItem', position: 4, name: product.title },
+  const combinedSchema = {
+    '@graph': [
+      { '@type': 'Product', ...productSchema },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Inicio', item: BASE_URL },
+          { '@type': 'ListItem', position: 2, name: 'Tienda', item: `${BASE_URL}/tienda` },
+          { '@type': 'ListItem', position: 3, name: product.catLabel },
+          { '@type': 'ListItem', position: 4, name: product.title },
+        ],
+      },
     ],
   }
 
@@ -72,25 +77,14 @@ const ProductDetail: React.FC = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{`${product.title} — ${product.catLabel} | Natalia Heller`}</title>
-        <meta name="description" content={metaDescription} />
-        <meta
-          property="og:title"
-          content={`${product.title} — ${product.catLabel} | Natalia Heller`}
-        />
-        <meta property="og:description" content={metaDescription} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={`${BASE_URL}/tienda/${product.slug}`} />
-        <meta
-          property="og:image"
-          content={product.images[0] ?? `${BASE_URL}/og-placeholder.webp`}
-        />
-        <link rel="canonical" href={`${BASE_URL}/tienda/${product.slug}`} />
-      </Helmet>
-
-      <SchemaMarkup type="Product" data={productSchema} />
-      <SchemaMarkup type="BreadcrumbList" data={breadcrumbSchema} />
+      <SEOMeta
+        title={`${product.title} — ${product.catLabel} | Natalia Heller`}
+        description={metaDescription}
+        canonical={`${BASE_URL}/tienda/${product.slug}`}
+        ogType="product"
+        ogImage={product.images[0] ?? `${BASE_URL}/og-placeholder.webp`}
+        schema={combinedSchema}
+      />
 
       <main className="min-h-screen bg-cream-50">
         {/* Breadcrumb */}
