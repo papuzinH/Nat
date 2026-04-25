@@ -1,0 +1,132 @@
+export type BodyBlock =
+  | { t: 'p'; c: string }
+  | { t: 'h2'; c: string }
+  | { t: 'ul'; c: string[] }
+
+export interface BlogPost {
+  slug: string
+  title: string
+  subtitle: string
+  category: string
+  date: string
+  reading: string
+  body: BodyBlock[]
+  related: string[]
+}
+
+export const BLOG_CATEGORIES = [
+  'Todos', 'Estudio', 'Botánica', 'Cerámica', 'Dibujo', 'Textiles',
+] as const
+
+export const BLOG_POSTS: BlogPost[] = [
+  {
+    slug: 'cicatrizar-despacio',
+    title: 'Cicatrizar despacio',
+    subtitle: 'Lo que aprendí sobre el cuidado del tatuaje después de mil sesiones.',
+    category: 'Estudio',
+    date: '18 abr 2026',
+    reading: '5 min',
+    body: [
+      { t: 'p', c: 'Hay una etapa del tatuaje que nadie fotografía: la semana después. La piel descama, el negro se ve apagado, y la persona que te confió su cuerpo empieza a mandar mensajes con fotos un poco alarmadas.' },
+      { t: 'p', c: 'Después de trabajar seis años, lo que más cambió en mi práctica no fue el trazo ni el equipo. Fue la manera en que hablo sobre la cicatrización antes de la sesión.' },
+      { t: 'h2', c: 'Lo que le digo a cada persona' },
+      { t: 'p', c: 'El tatuaje no termina cuando salís del estudio. Termina, si es que termina, unas cuatro semanas después, cuando la piel vuelve a ser suave y el color asienta. Ese proceso requiere paciencia, hidratación y la voluntad de no tocar.' },
+      { t: 'p', c: 'Trabajo con una crema de caléndula que preparamos en el barrio. Sin fragancias, sin alcohol, sin nada que compita con la piel. La aplico yo al terminar, y le doy un frasco pequeño para la casa.' },
+      { t: 'h2', c: 'El mito de la cocaína negra' },
+      { t: 'p', c: 'Un porcentaje altísimo de las personas llega con cicatrices de tatuajes anteriores mal cuidados: líneas que migraron, negros que se volvieron grises azulados, texturas irregulares. Casi siempre fue por ungüentos pesados que no dejan respirar la piel.' },
+      { t: 'p', c: 'La piel sana sola. Nuestro trabajo es no interferir.' },
+      { t: 'h2', c: 'Un protocolo simple' },
+      { t: 'ul', c: ['Lavado suave con jabón neutro, dos veces al día, los primeros 5 días.', 'Capa muy fina de crema hidratante (sin vaselina).', 'No cubrir con ropa ajustada si es posible.', 'No rascarse. Nunca.', 'Sol directo recién al mes, con filtro 50.'] },
+      { t: 'p', c: 'Eso es todo. Sin rituales. Sin productos especiales de tattooshop a $8.000 el tubo.' },
+    ],
+    related: ['plantas-que-tatuo', 'cuaderno-de-bocetos'],
+  },
+  {
+    slug: 'plantas-que-tatuo',
+    title: 'Las plantas que más tatúo y por qué',
+    subtitle: 'Un recorrido por el herbario del estudio y las historias detrás de cada motivo.',
+    category: 'Botánica',
+    date: '5 abr 2026',
+    reading: '6 min',
+    body: [
+      { t: 'p', c: 'El jazmín del país me lo pidió alguien que estaba atravesando un duelo. La madreselva, una chica que terminó una relación larga. El helecho, alguien que acababa de mudarse sola por primera vez.' },
+      { t: 'p', c: 'Las plantas que la gente elige para tatuar no son decoración. Son anclas.' },
+      { t: 'h2', c: 'Helecho: constancia sin flores' },
+      { t: 'p', c: 'El helecho es, por lejos, el motivo que más trabajo. No tiene flor, no tiene fruto. Solo hoja. Eso es exactamente lo que muchas personas buscan en un tatuaje: algo que no necesita llamar la atención para estar ahí.' },
+      { t: 'h2', c: 'Jazmín del país: lo que vuelve siempre' },
+      { t: 'p', c: 'El jazmín del país huele a Buenos Aires en diciembre. Es invasivo, trepa paredes ajenas, florece cuando no lo esperás. Mucha gente lo elige como metáfora de algo que regresa, de algo que creció aunque nadie lo cuidara.' },
+      { t: 'h2', c: 'Rama de olivo: la que más transforma' },
+      { t: 'p', c: 'El olivo en línea fina bien ejecutado es, para mí, el mejor tatuaje que existe. Cada hoja diferente, el tallo irregular. Se puede hacer pequeño en la clavícula o grande en la espalda y funciona igual.' },
+    ],
+    related: ['cicatrizar-despacio', 'ceramica-en-el-estudio'],
+  },
+  {
+    slug: 'ceramica-en-el-estudio',
+    title: 'Cerámica en el estudio: notas de proceso',
+    subtitle: 'Por qué empecé a tornear y cómo cambió mi relación con el tiempo.',
+    category: 'Cerámica',
+    date: '20 mar 2026',
+    reading: '4 min',
+    body: [
+      { t: 'p', c: 'Empecé a tornear en pandemia, como todo el mundo. Pero a diferencia de mucha gente, no lo dejé cuando volvió la vida. Pasó algo raro: la cerámica me enseñó a tatuar mejor.' },
+      { t: 'p', c: 'Suena abstracto. Lo que quiero decir es esto: la arcilla no perdona la prisa. Si apretás de más, si querés que el cuenco suba más rápido de lo que la arcilla permite, se colapsa. Empieza de nuevo.' },
+      { t: 'h2', c: 'Tiempo real vs. tiempo de pantalla' },
+      { t: 'p', c: 'En la cerámica no existe el undo. No existe el zoom. Existe la mano sobre la arcilla y la arcilla empujando de vuelta.' },
+      { t: 'p', c: 'En el tatuaje pasa algo parecido. La piel responde. Tiene su propio tempo. Después de dos años de tornear, mi mano sobre la piel cambió.' },
+      { t: 'h2', c: 'Lo que hago ahora' },
+      { t: 'p', c: 'Los lunes no tatúo. Tornear. Preparar engobes. Amasar. Ese es mi tiempo de no-producir que en realidad me hace producir mejor.' },
+    ],
+    related: ['plantas-que-tatuo', 'cuaderno-de-bocetos'],
+  },
+  {
+    slug: 'cuaderno-de-bocetos',
+    title: 'Qué hay en mi cuaderno de bocetos',
+    subtitle: 'Una vuelta por las páginas de enero: referencias, manchas y preguntas sin respuesta.',
+    category: 'Dibujo',
+    date: '8 mar 2026',
+    reading: '3 min',
+    body: [
+      { t: 'p', c: 'Tengo un cuaderno nuevo por mes, a veces menos. No soy ordenada con los cuadernos. No pego fechas, no uso tinta de colores diferentes para diferentes días. Lo que hay adentro es una mezcla: bocetos de tatuajes, apuntes de plantas, manchas de café, frases copiadas de libros, listas de compras.' },
+      { t: 'h2', c: 'El boceto que se convierte en tatuaje' },
+      { t: 'p', c: 'De cada cuaderno, un porcentaje pequeño de bocetos llega a ser tatuaje. La mayoría son exploraciones. Pruebo una forma de hacer una hoja, la abandono, vuelvo tres semanas después con otra idea.' },
+      { t: 'p', c: 'El boceto que se convierte en tatuaje generalmente no es el más elaborado. Es el más honesto.' },
+      { t: 'h2', c: 'Enero: lo que había' },
+      { t: 'ul', c: ['Estudios de musgo en tinta seca.', 'Una serie de anémonas muy pequeñas, casi microscópicas.', 'Intentos fallidos de dibujar manos.', 'La misma rama de roble cinco veces, cada vez más simple.', 'Un mandala que empecé y no terminé.'] },
+    ],
+    related: ['plantas-que-tatuo', 'cicatrizar-despacio'],
+  },
+  {
+    slug: 'tintes-naturales',
+    title: 'Primeras pruebas con tintes naturales',
+    subtitle: 'Cebolla, yerba, cúrcuma y lo que aprendí tiñendo lana en el patio.',
+    category: 'Textiles',
+    date: '22 feb 2026',
+    reading: '7 min',
+    body: [
+      { t: 'p', c: 'La primera vez que teñí lana con cáscaras de cebolla me quedé mirando el resultado unos diez minutos sin decir nada. Era un amarillo que yo no hubiera podido mezclar nunca en pintura.' },
+      { t: 'p', c: 'Ese color existe porque existió esa cebolla, en ese momento, con esa agua.' },
+      { t: 'h2', c: 'El proceso básico' },
+      { t: 'ul', c: ['Mordiente (alumbre) la noche anterior para fijar el color.', 'Baño de tinte: material vegetal en agua fría, llevar a hervor lento.', 'Colar y agregar la lana húmeda.', 'Una hora suave, sin hervir fuerte.', 'Enjuagar en agua de la misma temperatura para no enfieltar.'] },
+      { t: 'h2', c: 'Los colores que encontré' },
+      { t: 'p', c: 'Cebolla amarilla: ocres brillantes. Cebolla morada: tonos grisáceos curiosos. Yerba mate usada: beige cálido muy estable. Cúrcuma: amarillo intenso (pero fugaz, se va con el sol). Nogal: marrones profundos, los más estables de todos.' },
+    ],
+    related: ['ceramica-en-el-estudio', 'cuaderno-de-bocetos'],
+  },
+  {
+    slug: 'sobre-los-encargos',
+    title: 'Sobre los encargos y decir que no',
+    subtitle: 'Por qué rechazo algunos proyectos y qué aprendí sobre mis propios límites.',
+    category: 'Estudio',
+    date: '10 feb 2026',
+    reading: '5 min',
+    body: [
+      { t: 'p', c: 'Hay una pregunta que me hacen mucho en talleres: ¿cómo aprendiste a decir que no? La respuesta honesta es que no aprendí. Todavía me cuesta. Pero aprendí a reconocer las señales.' },
+      { t: 'h2', c: 'Las señales de que algo no va a funcionar' },
+      { t: 'ul', c: ['La persona quiere exactamente el tatuaje que vio en Pinterest, sin margen.', 'El primer mensaje empieza con el presupuesto.', 'La historia detrás de la pieza cambia en cada conversación.', 'Me piden algo que no va con mi línea y presionan cuando lo digo.'] },
+      { t: 'h2', c: 'Lo que perdés y lo que ganás' },
+      { t: 'p', c: 'Decir que no a un encargo siempre tiene un costo. Económico, sí, pero también emocional. Hay culpa, hay duda.' },
+      { t: 'p', c: 'Lo que gané es tiempo y energía para los proyectos que sí me importan. Y, raramente, la persona agradece la honestidad y vuelve después con otra idea.' },
+    ],
+    related: ['cuaderno-de-bocetos', 'cicatrizar-despacio'],
+  },
+]

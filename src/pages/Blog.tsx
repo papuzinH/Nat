@@ -1,155 +1,188 @@
-import React from 'react';
-import { Layout, HeroSection, Title, Subtitle } from '@/components/shared';
-import { PostCard } from '@/components/blog';
-import { useBlogLogic } from '@/hooks/useBlogLogic';
-import heroBlogImage from '@/assets/hero_room_image.webp';
+import React, { useRef, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { Layout, NHLeafMark, NHDivider, SchemaMarkup } from '@/components/shared'
+import BlogCard from '@/components/blog/BlogCard'
+import BlogPlaceholder from '@/components/blog/BlogPlaceholder'
+import { useBlogLogic, BLOG_CATEGORIES } from '@/hooks/useBlogLogic'
+import { gsap, ScrollTrigger, shouldAnimate } from '@/lib/gsap'
 
 const Blog: React.FC = () => {
-  const { posts, loading, error } = useBlogLogic();
+  const { featured, rest, activeCategory, setActiveCategory } = useBlogLogic()
+  const headerRef = useRef<HTMLElement>(null)
+  const featuredRef = useRef<HTMLDivElement>(null)
+  const gridRef = useRef<HTMLDivElement>(null)
 
-  // Hero Content
-  const heroContent = (
-    <div className="max-w-5xl mx-auto text-center px-4">
-      {/* Decorative Icon */}
-      <div className="mb-8 animate-fade-in">
-        <div className="w-20 h-20 mx-auto bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl border border-white/30">
-          <svg 
-            className="w-10 h-10 text-white" 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth={1.5} 
-              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" 
-            />
-          </svg>
-        </div>
-      </div>
+  // Header entrance animation
+  useEffect(() => {
+    if (!shouldAnimate() || !headerRef.current) return
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        ['.blog-eyebrow', '.blog-h1', '.blog-subtitle'],
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.55, stagger: 0.09, ease: 'power2.out', delay: 0.1 }
+      )
+    }, headerRef)
+    return () => ctx.revert()
+  }, [])
 
-      {/* Title */}
-      <h1 className="font-title text-4xl md:text-5xl lg:text-6xl text-white mb-6 animate-fade-in animation-delay-150">
-        Blog: Guías, Reflexiones y el Universo del Tatuaje
-      </h1>
-      
-      {/* Subtitle */}
-      <p className="font-body text-lg md:text-xl text-white/90 mb-8 leading-relaxed max-w-3xl mx-auto animate-fade-in animation-delay-300">
-        Comparto mi proceso creativo, técnicas profesionales y las inspiraciones que guían mi arte. 
-        Descubre consejos, tutoriales y reflexiones sobre el mundo del tatuaje.
-      </p>
+  // Featured post scroll entrance
+  useEffect(() => {
+    if (!shouldAnimate() || !featuredRef.current || !featured) return
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        featuredRef.current,
+        { opacity: 0, y: 28 },
+        {
+          opacity: 1, y: 0, duration: 0.7, ease: 'power2.out',
+          scrollTrigger: { trigger: featuredRef.current, start: 'top 82%' },
+        }
+      )
+    })
+    return () => ctx.revert()
+  }, [featured])
 
-      {/* Stats */}
-      <div className="flex justify-center gap-8 md:gap-12 mt-10 animate-fade-in animation-delay-450">
-        <div className="text-center">
-          <div className="font-title text-3xl md:text-4xl text-white font-bold">10+</div>
-          <div className="font-body text-sm md:text-base text-white/80 mt-1">Artículos</div>
-        </div>
-        <div className="text-center">
-          <div className="font-title text-3xl md:text-4xl text-white font-bold">5</div>
-          <div className="font-body text-sm md:text-base text-white/80 mt-1">Categorías</div>
-        </div>
-        <div className="text-center">
-          <div className="font-title text-3xl md:text-4xl text-white font-bold">8 min</div>
-          <div className="font-body text-sm md:text-base text-white/80 mt-1">Lectura Promedio</div>
-        </div>
-      </div>
-    </div>
-  );
+  // Cards stagger — re-trigger on category change
+  useEffect(() => {
+    if (!shouldAnimate() || !gridRef.current || rest.length === 0) return
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        '.blog-card-item',
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1, y: 0, duration: 0.45, stagger: 0.07, ease: 'power2.out',
+          scrollTrigger: { trigger: gridRef.current, start: 'top 86%' },
+        }
+      )
+    }, gridRef)
+    return () => ctx.revert()
+  }, [activeCategory, rest.length])
+
+  const collectionSchema = {
+    name: 'Diario del estudio — Natalia Heller',
+    description: 'Notas sobre proceso, plantas y oficio. Escritas una vez al mes desde el taller.',
+    url: 'https://tatuajesnaty.com/blog',
+  }
 
   return (
     <Layout>
-      {/* Hero Section */}
-      <HeroSection image={heroBlogImage} content={heroContent} />
+      <SchemaMarkup type="CollectionPage" data={collectionSchema} />
 
-      {/* Blog Posts Section */}
-      <section className="py-16 px-4 bg-gradient-to-b from-cream-50 to-nude-50">
-        <div className="max-w-7xl mx-auto">
-          {/* Section Header */}
-          <div className="text-center mb-12">
-            <Title variant="titleSection" as="h2">
-              Últimos Artículos
-            </Title>
-            <Subtitle variant="medium">
-              Explora contenido exclusivo sobre arte, técnicas y mi universo creativo
-            </Subtitle>
+      {/* ── Header ── */}
+      <header ref={headerRef} className="relative px-[22px] md:px-12 pt-7 md:pt-[60px] pb-8 md:pb-12">
+        <div
+          className="absolute top-5 md:top-11 right-[22px] md:right-12 text-sage-500 pointer-events-none"
+          aria-hidden="true"
+        >
+          <NHLeafMark size={40} className="md:hidden" />
+          <NHLeafMark size={56} className="hidden md:block" />
+        </div>
+
+        <p className="blog-eyebrow font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 mb-3.5">
+          Diario del estudio
+        </p>
+        <h1 className="blog-h1 font-display font-normal text-[38px] md:text-[72px] leading-[1.02] tracking-[-0.02em] text-ink max-w-[800px] m-0">
+          Notas sobre proceso, plantas y oficio.
+        </h1>
+        <p className="blog-subtitle text-[15px] md:text-[17px] text-ink-soft mt-4 max-w-[540px] leading-[1.65]">
+          Una vez al mes escribo sobre lo que estoy aprendiendo. Sin agenda,
+          sin newsletter de lunes. Sólo notas del taller.
+        </p>
+      </header>
+
+      {/* ── Filter bar ── */}
+      <div
+        className="sticky z-10 bg-cream-100/95 backdrop-blur-md border-b border-cream-300 px-[22px] md:px-12 py-2.5"
+        style={{ top: '57px' }}
+      >
+        <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {BLOG_CATEGORIES.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={[
+                'flex-shrink-0 px-3 py-1.5 rounded-pill border font-mono text-[12px] tracking-[0.08em] transition-colors duration-200 cursor-pointer',
+                activeCategory === cat
+                  ? 'bg-sage-700 border-sage-700 text-cream-50'
+                  : 'bg-transparent border-sage-400 text-sage-700 hover:border-sage-700',
+              ].join(' ')}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Content ── */}
+      <section className="px-[22px] md:px-12">
+        {/* Empty state */}
+        {!featured && (
+          <div className="py-20 text-center">
+            <p className="font-display italic text-[22px] text-ink-soft">Nada por acá todavía</p>
           </div>
+        )}
 
-          {/* Loading State */}
-          {loading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {[1, 2, 3, 4].map((skeleton) => (
-                <div 
-                  key={skeleton}
-                  className="bg-white rounded-lg shadow-sm border border-cream-200 overflow-hidden animate-pulse"
-                >
-                  <div className="aspect-[16/10] bg-cream-200" />
-                  <div className="p-5">
-                    <div className="h-4 bg-cream-200 rounded w-1/4 mb-3" />
-                    <div className="h-6 bg-cream-200 rounded w-3/4 mb-3" />
-                    <div className="h-4 bg-cream-200 rounded w-full mb-2" />
-                    <div className="h-4 bg-cream-200 rounded w-5/6" />
+        {/* Featured post */}
+        {featured && (
+          <div ref={featuredRef} className="mt-8 md:mt-14 mb-10 md:mb-[72px]">
+            <Link to={`/blog/${featured.slug}`} className="group block no-underline text-inherit">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-14 items-center">
+                {/* Image */}
+                <div className="overflow-hidden rounded-card">
+                  <div className="overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
+                    <BlogPlaceholder
+                      aspect="4/5"
+                      label={`${featured.category} · ${featured.date}`}
+                    />
                   </div>
+                </div>
+
+                {/* Text */}
+                <div>
+                  <div className="flex items-center gap-2.5 mb-4">
+                    <span className="px-2.5 py-1 rounded-pill border border-sage-700 text-sage-700 font-mono text-[11px] tracking-[0.08em] pointer-events-none">
+                      {featured.category}
+                    </span>
+                    <span className="font-mono text-[10px] text-ink-soft tracking-[0.12em]">
+                      {featured.date} · {featured.reading} lectura
+                    </span>
+                  </div>
+
+                  <h2 className="font-display font-normal text-[28px] md:text-[48px] leading-[1.08] tracking-[-0.02em] text-ink m-0 mb-4">
+                    {featured.title}
+                  </h2>
+
+                  <p className="text-[15px] md:text-[17px] text-ink-soft leading-[1.65] max-w-[480px]">
+                    {featured.subtitle}
+                  </p>
+
+                  <div className="mt-7 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 border-b border-sage-700 pb-0.5">
+                    Leer nota →
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </div>
+        )}
+
+        {/* More posts */}
+        {rest.length > 0 && (
+          <>
+            <NHDivider label="más notas" className="my-8 md:my-[52px]" />
+            <div
+              ref={gridRef}
+              className="grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-10 mb-20"
+            >
+              {rest.map(post => (
+                <div key={post.slug} className="blog-card-item">
+                  <BlogCard post={post} />
                 </div>
               ))}
             </div>
-          )}
-
-          {/* Error State */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
-              <svg 
-                className="w-12 h-12 text-red-500 mx-auto mb-4" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
-                />
-              </svg>
-              <p className="font-body text-red-700 text-lg">{error}</p>
-              <p className="font-body text-red-600 text-sm mt-2">Por favor, intenta recargar la página.</p>
-            </div>
-          )}
-
-          {/* Posts Grid */}
-          {!loading && !error && posts.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {posts.map((post, index) => (
-                <PostCard key={post.id} post={post} index={index} />
-              ))}
-            </div>
-          )}
-
-          {/* Empty State */}
-          {!loading && !error && posts.length === 0 && (
-            <div className="bg-cream-100 border border-cream-200 rounded-lg p-12 text-center">
-              <svg 
-                className="w-16 h-16 text-cream-400 mx-auto mb-4" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={1.5} 
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" 
-                />
-              </svg>
-              <p className="font-body text-cream-700 text-lg">No hay artículos disponibles en este momento.</p>
-              <p className="font-body text-cream-600 text-sm mt-2">¡Pronto compartiré nuevo contenido!</p>
-            </div>
-          )}
-        </div>
+          </>
+        )}
       </section>
     </Layout>
-  );
-};
+  )
+}
 
-export default Blog;
+export default Blog

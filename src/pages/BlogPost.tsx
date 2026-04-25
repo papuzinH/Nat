@@ -1,242 +1,232 @@
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Layout, Title, Subtitle, Button, SchemaMarkup } from '@/components/shared';
-import ContenidoText from '@/components/tattoo/ContenidoText';
-import { useBlogPostLogic } from '@/hooks/useBlogPostLogic';
+import React, { useRef, useEffect } from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { Layout, NHLeafMark, NHDivider, SchemaMarkup, NHFlower } from '@/components/shared'
+import BlogCard from '@/components/blog/BlogCard'
+import BlogPlaceholder from '@/components/blog/BlogPlaceholder'
+import { useBlogPostLogic } from '@/hooks/useBlogPostLogic'
+import { type BodyBlock } from '@/data/blog-posts'
+import { gsap, shouldAnimate } from '@/lib/gsap'
+
+// ── Renderiza los bloques estructurados del body ──
+const BodyRenderer: React.FC<{ blocks: BodyBlock[] }> = ({ blocks }) => (
+  <>
+    {blocks.map((block, i) => {
+      if (block.t === 'p')
+        return (
+          <p key={i} className="body-block text-[16px] md:text-[18px] leading-[1.75] text-ink mb-[22px]">
+            {block.c}
+          </p>
+        )
+      if (block.t === 'h2')
+        return (
+          <h2
+            key={i}
+            className="body-block font-display font-normal text-[24px] md:text-[32px] leading-[1.15] tracking-[-0.01em] text-ink mt-12 mb-[18px]"
+          >
+            {block.c}
+          </h2>
+        )
+      if (block.t === 'ul')
+        return (
+          <ul key={i} className="body-block list-none m-0 p-0 mb-6">
+            {block.c.map((item, j) => (
+              <li
+                key={j}
+                className="flex gap-3.5 py-2.5 border-b border-cream-200 text-[15px] md:text-[17px] leading-[1.6] text-ink"
+              >
+                <span className="text-sage-500 flex-shrink-0 mt-1" aria-hidden="true">
+                  <svg width="10" height="10" viewBox="0 0 10 10">
+                    <circle cx="5" cy="5" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.2" />
+                    <circle cx="5" cy="5" r="1.2" fill="currentColor" />
+                  </svg>
+                </span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        )
+      return null
+    })}
+  </>
+)
 
 const BlogPost: React.FC = () => {
-  const { slug } = useParams<{ slug: string }>();
-  const { post, loading, error } = useBlogPostLogic(slug);
+  const { slug } = useParams<{ slug: string }>()
+  const { post, related } = useBlogPostLogic(slug)
+  const heroRef = useRef<HTMLDivElement>(null)
+  const bodyRef = useRef<HTMLElement>(null)
 
-  // Loading State
-  if (loading) {
+  // Hero entrance
+  useEffect(() => {
+    if (!shouldAnimate() || !heroRef.current) return
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        ['.post-meta', '.post-h1', '.post-lead'],
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.55, stagger: 0.1, ease: 'power2.out', delay: 0.05 }
+      )
+    }, heroRef)
+    return () => ctx.revert()
+  }, [slug])
+
+  // Body blocks stagger on scroll
+  useEffect(() => {
+    if (!shouldAnimate() || !bodyRef.current) return
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        '.body-block',
+        { opacity: 0, y: 10 },
+        {
+          opacity: 1, y: 0, duration: 0.4, stagger: 0.04, ease: 'power1.out',
+          scrollTrigger: { trigger: bodyRef.current, start: 'top 80%' },
+        }
+      )
+    }, bodyRef)
+    return () => ctx.revert()
+  }, [slug])
+
+  // 404
+  if (!post) {
     return (
       <Layout>
-        <div className="min-h-screen flex items-center justify-center bg-cream-50">
-          <div className="text-center px-4">
-            <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-            <p className="text-gray-600 font-body text-lg">Cargando artículo...</p>
+        <div className="min-h-[60vh] flex items-center justify-center px-[22px] md:px-12">
+          <div className="text-center max-w-md">
+            <p className="font-display font-normal text-[68px] leading-[1] tracking-[-0.02em] text-sage-200 mb-4">
+              404
+            </p>
+            <h1 className="font-display font-normal text-[28px] text-ink mb-4">
+              Nota no encontrada
+            </h1>
+            <p className="text-[15px] text-ink-soft mb-8">
+              La nota que buscás no existe o fue movida.
+            </p>
+            <Link
+              to="/blog"
+              className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 border-b border-sage-700 pb-0.5 no-underline"
+            >
+              ← volver al diario
+            </Link>
           </div>
         </div>
       </Layout>
-    );
-  }
-
-  // Error or Post Not Found
-  if (error || !post) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center bg-cream-50">
-          <div className="text-center px-4 max-w-2xl mx-auto">
-            {/* Error Icon */}
-            <div className="mb-8">
-              <div className="w-24 h-24 mx-auto bg-red-100 rounded-full flex items-center justify-center">
-                <svg 
-                  className="w-12 h-12 text-red-500" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
-                  />
-                </svg>
-              </div>
-            </div>
-
-            <Title as="h1" variant="titlePage" className="text-gray-800 mb-4">
-              404 - Artículo no encontrado
-            </Title>
-            
-            <Subtitle variant="medium" className="text-gray-600 mb-8">
-              {error || 'El artículo que buscas no existe o ha sido movido. Por favor, verifica la URL o explora otros contenidos.'}
-            </Subtitle>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/blog">
-                <Button variant="primary" size="large">
-                  Ver todos los artículos
-                </Button>
-              </Link>
-              <Link to="/contacto">
-                <Button variant="outline" size="large">
-                  Contáctame
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </Layout>
-    );
+    )
   }
 
   const articleSchema = {
     headline: post.title,
-    image: post.image ? [post.image] : [],
+    description: post.subtitle,
     datePublished: post.date,
     dateModified: post.date,
-    author: [{
-      '@type': 'Person',
-      name: post.author || 'Natalia Heller',
-      url: 'https://tatuajesnaty.com/sobre-mi'
-    }],
+    author: [{ '@type': 'Person', name: 'Natalia Heller', url: 'https://tatuajesnaty.com/sobre-mi' }],
     publisher: {
       '@type': 'Organization',
       name: 'Natalia Heller Tattoo Studio',
-      logo: {
-        '@type': 'ImageObject',
-        url: 'https://tatuajesnaty.com/logo.png'
-      }
+      logo: { '@type': 'ImageObject', url: 'https://tatuajesnaty.com/logo.png' },
     },
-    description: post.excerpt,
-    articleBody: Array.isArray(post.content) ? post.content.join(' ') : post.content
-  };
+  }
 
   return (
     <Layout>
       <SchemaMarkup type="Article" data={articleSchema} />
-      <div className="min-h-screen bg-gradient-to-b from-white via-cream-50 to-nude-50">
-        {/* Breadcrumb Navigation */}
-        <div className="bg-white border-b border-cream-200">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <nav className="flex items-center space-x-2 text-sm font-body">
-              <Link 
-                to="/blog" 
-                className="text-cream-600 hover:text-green-600 transition-colors"
-              >
-                Blog
-              </Link>
-              <span className="text-cream-400">/</span>
-              <span className="text-cream-800 font-medium line-clamp-1">{post.title}</span>
-            </nav>
+
+      {/* ── Breadcrumb ── */}
+      <nav
+        className="px-[22px] md:px-12 pt-[18px] font-mono text-[11px] text-ink-soft tracking-[0.08em]"
+        aria-label="Migas de pan"
+      >
+        <Link to="/blog" className="text-inherit no-underline hover:text-sage-700 transition-colors">
+          diario
+        </Link>
+        {' / '}
+        <span className="text-sage-700">{post.slug}</span>
+      </nav>
+
+      {/* ── Hero ── */}
+      <div ref={heroRef} className="px-[22px] md:px-12 pt-[22px] md:pt-9">
+        <div className="max-w-[760px]">
+          <div className="post-meta flex items-center gap-2.5 mb-5">
+            <span className="px-2.5 py-1 rounded-pill border border-sage-700 text-sage-700 font-mono text-[11px] tracking-[0.08em] pointer-events-none">
+              {post.category}
+            </span>
+            <time
+              dateTime={post.date}
+              className="font-mono text-[10px] text-ink-soft tracking-[0.12em]"
+            >
+              {post.date} · {post.reading} lectura
+            </time>
+          </div>
+
+          <h1 className="post-h1 font-display font-normal text-[36px] md:text-[68px] leading-[1.04] tracking-[-0.02em] text-ink m-0">
+            {post.title}
+          </h1>
+
+          <p className="post-lead font-display italic text-[18px] md:text-[22px] text-ink-soft mt-[18px] leading-[1.5] max-w-[600px]">
+            {post.subtitle}
+          </p>
+        </div>
+      </div>
+
+      {/* ── Cover image ── */}
+      <div className="px-[22px] md:px-12 mt-6 max-w-[860px]">
+        <BlogPlaceholder
+          aspect="16/9"
+          label={`Imagen · ${post.title}`}
+          className="rounded-card"
+          style={{ boxShadow: '0 12px 40px rgba(74,124,89,0.08)' }}
+        />
+      </div>
+
+      {/* ── Article body ── */}
+      <article
+        ref={bodyRef}
+        className="px-[22px] md:px-12 pt-11 md:pt-16 pb-5 max-w-[720px]"
+      >
+        {/* Author strip */}
+        <div className="flex items-center gap-3.5 py-[18px] border-b border-cream-300 mb-10">
+          <div className="w-10 h-10 rounded-full bg-sage-500 flex items-center justify-center flex-shrink-0">
+            <NHLeafMark size={22} color="#fdfcfb" />
+          </div>
+          <div>
+            <div className="font-display text-[15px] font-medium text-ink leading-tight">
+              Natalia Heller
+            </div>
+            <div className="font-mono text-[10px] text-ink-soft tracking-[0.1em] uppercase mt-0.5">
+              Villa Crespo · {post.date}
+            </div>
           </div>
         </div>
 
-        {/* Article Header */}
-        <article className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-          <div className="max-w-4xl mx-auto">
-            {/* Category Badge */}
-            <div className="mb-6 animate-fade-in">
-              <span className="inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-body uppercase tracking-wide">
-                {post.category}
-              </span>
-            </div>
+        {/* Body blocks */}
+        <BodyRenderer blocks={post.body} />
 
-            {/* Title - H1 for SEO */}
-            <h1 className="font-title text-4xl md:text-5xl lg:text-6xl text-gray-900 mb-6 leading-tight animate-fade-in animation-delay-150">
-              {post.title}
-            </h1>
+        {/* Signature */}
+        <div className="mt-14 pt-8 border-t border-cream-300 flex items-center gap-3.5">
+          <span className="text-sage-500" aria-hidden="true">
+            <NHFlower size={32} />
+          </span>
+          <p className="font-display italic text-[14px] text-ink-soft m-0">
+            Natalia Heller — escrito desde el estudio, Villa Crespo.
+          </p>
+        </div>
+      </article>
 
-            {/* Post Meta */}
-            <div className="flex flex-wrap items-center gap-4 mb-8 pb-8 border-b border-cream-200 animate-fade-in animation-delay-300">
-              {/* Author */}
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-title text-lg shadow-md">
-                  {post.author?.charAt(0) || 'N'}
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-gray-900 font-body font-semibold">{post.author || 'Natalia Heller'}</span>
-                  <span className="text-gray-500 font-body text-sm">Artista & Tatuadora</span>
-                </div>
-              </div>
-
-              <span className="text-gray-300">•</span>
-
-              {/* Date */}
-              <div className="flex items-center gap-2 text-gray-600 font-body text-sm">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <time dateTime={post.date}>{post.date}</time>
-              </div>
-
-              <span className="text-gray-300">•</span>
-
-              {/* Read Time */}
-              <div className="flex items-center gap-2 text-gray-600 font-body text-sm">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{post.readTime} de lectura</span>
-              </div>
-            </div>
-
-            {/* Featured Image (if exists) */}
-            {post.image && (
-              <div className="mb-12 rounded-xl overflow-hidden shadow-2xl animate-fade-in animation-delay-450">
-                <img 
-                  src={post.image} 
-                  alt={post.title}
-                  className="w-full h-auto object-cover"
-                />
-              </div>
-            )}
-
-            {/* Article Content - SEO Critical */}
-            <div className="prose prose-lg max-w-none mb-12 animate-fade-in animation-delay-600">
-              <ContenidoText content={post.content} />
-            </div>
-
-            {/* Tags */}
-            {post.tags && post.tags.length > 0 && (
-              <div className="mb-12 pb-8 border-b border-cream-200">
-                <div className="flex flex-wrap gap-2">
-                  <span className="text-gray-600 font-body text-sm font-medium mr-2">Etiquetas:</span>
-                  {post.tags.map((tag: string, index: number) => (
-                    <span 
-                      key={index}
-                      className="inline-flex items-center px-3 py-1 bg-cream-100 text-cream-700 rounded-md text-sm font-body hover:bg-cream-200 transition-colors cursor-pointer"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* CTA de Conversión */}
-            <div className="bg-gradient-to-br from-green-50 to-cream-50 rounded-2xl p-8 md:p-12 border border-green-100 shadow-lg text-center">
-              {/* Icon */}
-              <div className="mb-6">
-                <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center">
-                  <svg 
-                    className="w-8 h-8 text-green-600" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" 
-                    />
-                  </svg>
-                </div>
-              </div>
-
-              <h2 className="font-title text-2xl md:text-3xl text-gray-900 mb-4">
-                ¿Te inspiraste? Charlemos sobre tu tatuaje
-              </h2>
-              
-              <p className="font-body text-gray-600 text-lg mb-8 max-w-2xl mx-auto">
-                Cada diseño cuenta una historia única. Si este artículo te inspiró y estás listo para crear tu próximo tatuaje, me encantaría escuchar tu idea y trabajar juntas en algo especial.
-              </p>
-
-              <Link to="/contacto">
-                <Button variant="primary" size="large" className="shadow-xl hover:shadow-2xl">
-                  Agenda tu consulta gratuita
-                </Button>
-              </Link>
-            </div>
+      {/* ── Related posts ── */}
+      {related.length > 0 && (
+        <section className="px-[22px] md:px-12 pt-[60px] md:pt-[100px] pb-10 md:pb-[60px]">
+          <NHDivider label="seguir leyendo" className="mb-9" />
+          <div
+            className={`grid gap-6 md:gap-9 mt-9 ${
+              related.length === 1 ? 'grid-cols-1 max-w-xs' : 'grid-cols-1 md:grid-cols-2'
+            }`}
+          >
+            {related.map(p => (
+              <BlogCard key={p.slug} post={p} />
+            ))}
           </div>
-        </article>
-      </div>
+        </section>
+      )}
     </Layout>
-  );
-};
+  )
+}
 
-export default BlogPost;
+export default BlogPost

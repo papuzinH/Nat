@@ -21,3 +21,4 @@ export { default as HeroTitle } from './HeroTitle';
 export { default as HeroSubtitle } from './HeroSubtitle';
 export { default as ButtonPrimary } from './ButtonPrimary';
 export { default as ButtonGhost } from './ButtonGhost';
+export { default as NHFlower } from './NHFlower';
