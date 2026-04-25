@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useMemo, useCallback } from 'react'
 import { SchemaMarkup } from '@/components/shared'
-import BlogEmptyState from '@/components/blog/BlogEmptyState'
 import BlogFeaturedPost from '@/components/blog/BlogFeaturedPost'
 import BlogHeroSection from '@/components/blog/BlogHeroSection'
 import BlogPostsGrid from '@/components/blog/BlogPostsGrid'
@@ -118,12 +117,9 @@ const Blog: React.FC = () => {
         countForCategory={countForCategory}
       />
 
-      {/* ── Content ── */}
-      <section className="px-[22px] md:px-12">
-        {!featured && <BlogEmptyState />}
-        {featured && <BlogFeaturedPost post={featured} containerRef={featuredRef} />}
-        <BlogPostsGrid posts={rest} containerRef={gridRef} />
-      </section>
+      {featured && <BlogFeaturedPost post={featured} containerRef={featuredRef} />}
+      <BlogPostsGrid posts={rest} containerRef={gridRef} />
+
     </>
   )
 }

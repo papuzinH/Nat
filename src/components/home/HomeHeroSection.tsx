@@ -219,6 +219,22 @@ const HomeHeroSection: React.FC = () => {
               style={{
                 boxShadow: '0 20px 60px rgba(74,124,89,0.1), 0 2px 6px rgba(44,44,44,0.06)',
               }}
+              onMouseEnter={() => { if (intervalRef.current) clearInterval(intervalRef.current) }}
+              onMouseLeave={() => {
+                intervalRef.current = setInterval(() => {
+                  setCurrentSlide((prev) => {
+                    const next = (prev + 1) % SLIDES.length
+                    const prevEl = slideRefs.current[prev]
+                    const nextEl = slideRefs.current[next]
+                    if (prevEl && nextEl && shouldAnimate()) {
+                      gsap.to(prevEl, { opacity: 0, duration: 0.7, ease: 'power2.inOut' })
+                      gsap.fromTo(nextEl, { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.9, ease: 'power2.inOut' })
+                    }
+                    return next
+                  })
+                }, 4500)
+              }}
+              onFocus={() => { if (intervalRef.current) clearInterval(intervalRef.current) }}
             >
               {/* Slides */}
               {SLIDES.map((slide, i) => (

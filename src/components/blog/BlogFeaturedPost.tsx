@@ -11,7 +11,7 @@ const BlogFeaturedPost: React.FC<BlogFeaturedPostProps> = ({ post, containerRef 
   const featuredImage = post.image ?? '/imgPrueba.webp'
 
   return (
-    <section ref={containerRef} className="mt-8 md:mt-10 mb-10 md:mb-14">
+    <section ref={containerRef} className="mt-8 md:mt-10 mb-10 md:mb-14 max-w-7xl mx-auto ">
       <Link to={`/blog/${post.slug}`} className="group block no-underline text-inherit">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-10 items-stretch">
           <div className="overflow-hidden rounded-card h-[240px] md:h-auto md:min-h-0 md:self-stretch">
