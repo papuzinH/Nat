@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Layout, NHLeafMark, NHDivider, SchemaMarkup, NHFlower } from '@/components/shared'
+import { NHLeafMark, NHDivider, SchemaMarkup, NHFlower } from '@/components/shared'
 import BlogCard from '@/components/blog/BlogCard'
 import BlogPlaceholder from '@/components/blog/BlogPlaceholder'
 import { useBlogPostLogic } from '@/hooks/useBlogPostLogic'
@@ -88,7 +88,7 @@ const BlogPost: React.FC = () => {
   // 404
   if (!post) {
     return (
-      <Layout>
+      <>
         <div className="min-h-[60vh] flex items-center justify-center px-[22px] md:px-12">
           <div className="text-center max-w-md">
             <p className="font-display font-normal text-[68px] leading-[1] tracking-[-0.02em] text-sage-200 mb-4">
@@ -108,7 +108,7 @@ const BlogPost: React.FC = () => {
             </Link>
           </div>
         </div>
-      </Layout>
+      </>
     )
   }
 
@@ -126,7 +126,7 @@ const BlogPost: React.FC = () => {
   }
 
   return (
-    <Layout>
+    <>
       <SchemaMarkup type="Article" data={articleSchema} />
 
       {/* ── Breadcrumb ── */}
@@ -225,7 +225,7 @@ const BlogPost: React.FC = () => {
           </div>
         </section>
       )}
-    </Layout>
+    </>
   )
 }
 

@@ -1,31 +1,13 @@
-export type BodyBlock =
-  | { t: 'p'; c: string }
-  | { t: 'h2'; c: string }
-  | { t: 'ul'; c: string[] }
+// Natalia Heller — Blog pages
 
-export interface BlogPost {
-  slug: string
-  title: string
-  subtitle: string
-  category: string
-  date: string
-  reading: string
-  image?: string
-  body: BodyBlock[]
-  related: string[]
-}
-
-export const BLOG_CATEGORIES = [
-  'Todos', 'Estudio', 'Botánica', 'Cerámica', 'Dibujo', 'Textiles',
-] as const
-
-export const BLOG_POSTS: BlogPost[] = [
+const NH_POSTS = [
   {
     slug: 'cicatrizar-despacio',
     title: 'Cicatrizar despacio',
     subtitle: 'Lo que aprendí sobre el cuidado del tatuaje después de mil sesiones.',
     category: 'Estudio',
     date: '18 abr 2026',
+    tone: 'a', tall: 0.65,
     reading: '5 min',
     body: [
       { t: 'p', c: 'Hay una etapa del tatuaje que nadie fotografía: la semana después. La piel descama, el negro se ve apagado, y la persona que te confió su cuerpo empieza a mandar mensajes con fotos un poco alarmadas.' },
@@ -48,6 +30,7 @@ export const BLOG_POSTS: BlogPost[] = [
     subtitle: 'Un recorrido por el herbario del estudio y las historias detrás de cada motivo.',
     category: 'Botánica',
     date: '5 abr 2026',
+    tone: 'b', tall: 0.65,
     reading: '6 min',
     body: [
       { t: 'p', c: 'El jazmín del país me lo pidió alguien que estaba atravesando un duelo. La madreselva, una chica que terminó una relación larga. El helecho, alguien que acababa de mudarse sola por primera vez.' },
@@ -67,6 +50,7 @@ export const BLOG_POSTS: BlogPost[] = [
     subtitle: 'Por qué empecé a tornear y cómo cambió mi relación con el tiempo.',
     category: 'Cerámica',
     date: '20 mar 2026',
+    tone: 'c', tall: 0.65,
     reading: '4 min',
     body: [
       { t: 'p', c: 'Empecé a tornear en pandemia, como todo el mundo. Pero a diferencia de mucha gente, no lo dejé cuando volvió la vida. Pasó algo raro: la cerámica me enseñó a tatuar mejor.' },
@@ -85,6 +69,7 @@ export const BLOG_POSTS: BlogPost[] = [
     subtitle: 'Una vuelta por las páginas de enero: referencias, manchas y preguntas sin respuesta.',
     category: 'Dibujo',
     date: '8 mar 2026',
+    tone: 'd', tall: 0.65,
     reading: '3 min',
     body: [
       { t: 'p', c: 'Tengo un cuaderno nuevo por mes, a veces menos. No soy ordenada con los cuadernos. No pego fechas, no uso tinta de colores diferentes para diferentes días. Lo que hay adentro es una mezcla: bocetos de tatuajes, apuntes de plantas, manchas de café, frases copiadas de libros, listas de compras.' },
@@ -102,6 +87,7 @@ export const BLOG_POSTS: BlogPost[] = [
     subtitle: 'Cebolla, yerba, cúrcuma y lo que aprendí tiñendo lana en el patio.',
     category: 'Textiles',
     date: '22 feb 2026',
+    tone: 'e', tall: 0.65,
     reading: '7 min',
     body: [
       { t: 'p', c: 'La primera vez que teñí lana con cáscaras de cebolla me quedé mirando el resultado unos diez minutos sin decir nada. Era un amarillo que yo no hubiera podido mezclar nunca en pintura.' },
@@ -119,6 +105,7 @@ export const BLOG_POSTS: BlogPost[] = [
     subtitle: 'Por qué rechazo algunos proyectos y qué aprendí sobre mis propios límites.',
     category: 'Estudio',
     date: '10 feb 2026',
+    tone: 'f', tall: 0.65,
     reading: '5 min',
     body: [
       { t: 'p', c: 'Hay una pregunta que me hacen mucho en talleres: ¿cómo aprendiste a decir que no? La respuesta honesta es que no aprendí. Todavía me cuesta. Pero aprendí a reconocer las señales.' },
@@ -130,4 +117,6 @@ export const BLOG_POSTS: BlogPost[] = [
     ],
     related: ['cuaderno-de-bocetos', 'cicatrizar-despacio'],
   },
-]
+];
+
+Object.assign(window, { NH_POSTS });

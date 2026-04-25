@@ -96,6 +96,7 @@ function NHHeader({ route, go, cartCount, openCart, variant = 'desktop' }) {
   const items = [
     { slug: 'tienda', label: 'Tienda' },
     { slug: 'estudio', label: 'Estudio' },
+    { slug: 'blog', label: 'Diario' },
     { slug: 'contacto', label: 'Contacto' },
   ];
   const isActive = (slug) => route.page === slug;

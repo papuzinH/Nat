@@ -191,7 +191,7 @@ const HomeHeroSection: React.FC = () => {
         </div>
 
         {/* Right column — Carousel (desktop) / Static image (mobile) */}
-        <div className="relative order-1 md:order-2" style={{ minHeight: isMobile ? 320 : undefined }}>
+        <div className="relative order-1 md:order-2 px-6 py-16 md:px-16 md:py-24" style={{ minHeight: isMobile ? 320 : undefined }}>
           {isMobile ? (
             /* Mobile: first slide static */
             <div
@@ -217,7 +217,6 @@ const HomeHeroSection: React.FC = () => {
             <div
               className="relative w-full h-full"
               style={{
-                aspectRatio: '4 / 5',
                 boxShadow: '0 20px 60px rgba(74,124,89,0.1), 0 2px 6px rgba(44,44,44,0.06)',
               }}
             >

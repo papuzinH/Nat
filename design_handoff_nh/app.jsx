@@ -50,6 +50,8 @@ function NHApp({ variant }) {
     case 'tienda':   page = <NHTienda go={go} onAdd={onAdd} isMobile={isMobile} />; break;
     case 'product':  page = <NHProduct slug={route.slug} go={go} onAdd={onAdd} isMobile={isMobile} />; break;
     case 'estudio':  page = <NHEstudio go={go} isMobile={isMobile} />; break;
+    case 'blog':     page = <NHBlog go={go} isMobile={isMobile} />; break;
+    case 'post':     page = <NHPost slug={route.slug} go={go} isMobile={isMobile} />; break;
     case 'contacto': page = <NHContacto isMobile={isMobile} />; break;
     default:         page = <NHHome go={go} onAdd={onAdd} isMobile={isMobile} />;
   }

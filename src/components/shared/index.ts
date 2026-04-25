@@ -1,17 +1,10 @@
 export { default as Header } from './Header';
 export { default as Footer } from './Footer';
 export { default as Layout } from './Layout';
-export { default as Title } from './Title';
-export { default as Subtitle } from './Subtitle';
-export { default as Button } from './Button';
-export { default as Section } from './Section';
-export { default as HeroSection } from './HeroSection';
 export { default as ScrollToTop } from './ScrollToTop';
-export { default as ImageGallery } from './ImageGallery';
 export { default as SchemaMarkup } from './SchemaMarkup';
 export { default as GTMTag } from './GTMTag';
 export { default as NoscriptGTM } from './NoscriptGTM';
-export type { GalleryImage } from './ImageGallery';
 export { default as NHLeafMark } from './NHLeafMark';
 export { default as NHDivider } from './NHDivider';
 export { default as NHSprig } from './NHSprig';
