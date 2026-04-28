@@ -1,12 +1,13 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { PRODUCTS } from '@/data/products'
+import { useProducts } from '@/hooks/useProducts'
 import { ProductGrid } from '@/components/tienda'
 import { SectionContainer, SectionTitle } from '@/components/shared'
 
-const FEATURED_PRODUCTS = PRODUCTS.filter((p) => p.status === 'active').slice(0, 6)
-
 const FeaturedProductsSection: React.FC = () => {
+  const { products } = useProducts()
+  const featuredProducts = products.filter((p) => p.status === 'active').slice(0, 6)
+
   return (
     <SectionContainer
       aria-labelledby="featured-products-heading"
@@ -31,7 +32,7 @@ const FeaturedProductsSection: React.FC = () => {
       </div>
 
       <ProductGrid
-        products={FEATURED_PRODUCTS}
+        products={featuredProducts}
         activeCategory="featured"
         withSection={false}
         gridId="featured-product-grid"

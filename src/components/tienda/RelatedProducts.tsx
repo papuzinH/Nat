@@ -1,25 +1,26 @@
 import React, { useLayoutEffect, useRef, useMemo } from 'react'
 import { gsap, ScrollTrigger, shouldAnimate } from '@/lib/gsap'
-import { PRODUCTS, type ProductCategory } from '@/data/products'
+import type { Product, ProductCategory } from '@/data/products'
 import ProductCard from './ProductCard'
 
 interface RelatedProductsProps {
   currentSlug: string
   category: ProductCategory
+  products: Product[]
 }
 
-const RelatedProducts: React.FC<RelatedProductsProps> = ({ currentSlug, category }) => {
+const RelatedProducts: React.FC<RelatedProductsProps> = ({ currentSlug, category, products }) => {
   const gridRef = useRef<HTMLDivElement>(null)
 
   const related = useMemo(
     () =>
-      PRODUCTS.filter(
+      products.filter(
         (p) =>
           p.slug !== currentSlug &&
           p.status === 'active' &&
           p.category === category
       ).slice(0, 3),
-    [currentSlug, category]
+    [currentSlug, category, products]
   )
 
   useLayoutEffect(() => {

@@ -1,16 +1,17 @@
 import React from 'react'
 import { SEOMeta } from '@/components/shared'
 import { useTiendaLogic } from '@/hooks/useTiendaLogic'
+import { useProducts } from '@/hooks/useProducts'
 import { TiendaHero, FilterBar, ProductGrid } from '@/components/tienda'
-import { PRODUCTS } from '@/data/products'
 
 const BASE_URL = 'https://tatuajesnaty.com'
 
 const Tienda: React.FC = () => {
+  const { products, loading } = useProducts()
   const { filteredProducts, activeCategory, setActiveCategory, categories, countForCategory } =
-    useTiendaLogic()
+    useTiendaLogic(products)
 
-  const activeProducts = PRODUCTS.filter((p) => p.status === 'active')
+  const activeProducts = products.filter((p) => p.status === 'active')
 
   const tiendaSchema = {
     '@type': 'CollectionPage',
@@ -45,15 +46,21 @@ const Tienda: React.FC = () => {
       <main className="min-h-screen bg-cream-50">
         <TiendaHero productCount={filteredProducts.length} />
 
-        <FilterBar
-          categories={categories}
-          active={activeCategory}
-          onSelect={(slug) => setActiveCategory(slug as Parameters<typeof setActiveCategory>[0])}
-          countForCategory={countForCategory}
-        />
-
-        <ProductGrid products={filteredProducts} activeCategory={activeCategory} />
-
+        {loading ? (
+          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft text-center py-20">
+            Cargando productos…
+          </p>
+        ) : (
+          <>
+            <FilterBar
+              categories={categories}
+              active={activeCategory}
+              onSelect={(slug) => setActiveCategory(slug as Parameters<typeof setActiveCategory>[0])}
+              countForCategory={countForCategory}
+            />
+            <ProductGrid products={filteredProducts} activeCategory={activeCategory} />
+          </>
+        )}
       </main>
     </>
   )

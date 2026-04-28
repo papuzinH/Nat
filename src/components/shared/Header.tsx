@@ -2,6 +2,7 @@ import React, { useState, useLayoutEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import NHLogo from './NHLogo'
+import { useCart } from '@/context/CartContext'
 
 const navigationItems = [
   { path: '/tienda', label: 'Tienda' },
@@ -13,6 +14,7 @@ const navigationItems = [
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const location = useLocation()
+  const { itemCount, openCart } = useCart()
   const menuPanelRef = useRef<HTMLDivElement>(null)
   const bar1Ref = useRef<SVGLineElement>(null)
   const bar2Ref = useRef<SVGLineElement>(null)
@@ -107,10 +109,10 @@ const Header: React.FC = () => {
             </Link>
           ))}
 
-          {/* Cart button — visual only (Wave 4 adds functionality) */}
           <button
+            onClick={openCart}
             aria-label="Abrir carrito"
-            className="inline-flex items-center gap-2 font-body text-[13px] font-semibold rounded-pill border px-4 py-[10px] transition-all duration-[220ms] hover:bg-ink hover:text-cream-50"
+            className="relative inline-flex items-center gap-2 font-body text-[13px] font-semibold rounded-pill border px-4 py-[10px] transition-all duration-[220ms] hover:bg-ink hover:text-cream-50"
             style={{
               background: 'transparent',
               color: 'var(--ink, #2c2c2c)',
@@ -126,6 +128,19 @@ const Header: React.FC = () => {
               />
             </svg>
             Carrito
+            {itemCount > 0 && (
+              <span
+                className="absolute -top-1.5 -right-1.5 font-mono text-[10px] text-cream-50 flex items-center justify-center rounded-full"
+                style={{
+                  background: 'var(--sage-700, #4a7c59)',
+                  width: 18,
+                  height: 18,
+                  lineHeight: 1,
+                }}
+              >
+                {itemCount > 9 ? '9+' : itemCount}
+              </span>
+            )}
           </button>
         </nav>
       </div>
@@ -137,8 +152,9 @@ const Header: React.FC = () => {
         <div className="flex items-center gap-1">
           {/* Cart icon mobile */}
           <button
+            onClick={openCart}
             aria-label="Abrir carrito"
-            className="p-2 rounded-full transition-colors hover:bg-cream-200"
+            className="relative p-2 rounded-full transition-colors hover:bg-cream-200"
             style={{ color: 'var(--ink, #2c2c2c)' }}
           >
             <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -149,6 +165,19 @@ const Header: React.FC = () => {
                 strokeLinecap="round"
               />
             </svg>
+            {itemCount > 0 && (
+              <span
+                className="absolute top-0.5 right-0.5 font-mono text-[9px] text-cream-50 flex items-center justify-center rounded-full"
+                style={{
+                  background: 'var(--sage-700, #4a7c59)',
+                  width: 15,
+                  height: 15,
+                  lineHeight: 1,
+                }}
+              >
+                {itemCount > 9 ? '9+' : itemCount}
+              </span>
+            )}
           </button>
 
           {/* Hamburger */}

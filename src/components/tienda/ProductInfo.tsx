@@ -6,7 +6,7 @@ import AddonSelector from './AddonSelector'
 
 interface ProductInfoProps {
   product: Product
-  onAddToCart: () => void
+  onAddToCart: (selectedSize: string | null, hasFrame: boolean) => void
 }
 
 const WHATSAPP_NUMBER = '5491166191209'
@@ -96,7 +96,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
       {/* CTAs */}
       <div className="flex gap-[10px] mt-7">
         <button
-          onClick={onAddToCart}
+          onClick={() => onAddToCart(selectedSize, frameSelected)}
           className="flex-1 bg-sage-700 hover:bg-sage-900 text-cream-50 font-body font-semibold text-[14px] py-[14px] px-[22px] rounded-pill transition-all duration-[220ms] hover:-translate-y-px"
           style={{ cursor: 'pointer', border: 'none' }}
         >

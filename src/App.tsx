@@ -1,14 +1,22 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Layout, ScrollToTop, GTMTag, NoscriptGTM, Header, Footer } from './components/shared';
+import { CartProvider } from './context/CartContext';
+import { CartDrawer } from './components/cart';
 import Home from './pages/Home';
 import Tienda from './pages/Tienda';
 
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
+const Checkout      = lazy(() => import('./pages/Checkout'));
 const Estudio       = lazy(() => import('./pages/Estudio'));
 const Blog          = lazy(() => import('./pages/Blog'));
 const BlogPost      = lazy(() => import('./pages/BlogPost'));
 const Contacto      = lazy(() => import('./pages/Contacto'));
+const AdminLogin    = lazy(() => import('./pages/admin/AdminLogin'));
+const AdminLayout   = lazy(() => import('./pages/admin/AdminLayout'));
+const AdminOrders   = lazy(() => import('./pages/admin/AdminOrders'));
+const AdminStock    = lazy(() => import('./pages/admin/AdminStock'));
+const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
 
 const PageFallback = () => (
   <div className="min-h-[60vh] flex items-center justify-center bg-cream-50" aria-live="polite">
@@ -18,7 +26,7 @@ const PageFallback = () => (
 
 function App() {
   return (
-    <>
+    <CartProvider>
       <GTMTag gtmId="GTM-WXL45DSC" />
 
       <Router>
@@ -40,6 +48,7 @@ function App() {
                 <Routes>
                   <Route path="/tienda"       element={<Tienda />} />
                   <Route path="/tienda/:slug" element={<ProductDetail />} />
+                  <Route path="/checkout"     element={<Checkout />} />
                   <Route path="/estudio"      element={<Estudio />} />
                   <Route path="/blog"         element={<Blog />} />
                   <Route path="/blog/:slug"   element={<BlogPost />} />
@@ -48,9 +57,26 @@ function App() {
               </Suspense>
             </Layout>
           } />
+
+          {/* Admin — sin Layout público */}
+          <Route path="/admin/login" element={
+            <Suspense fallback={<PageFallback />}>
+              <AdminLogin />
+            </Suspense>
+          } />
+          <Route path="/admin/*" element={
+            <Suspense fallback={<PageFallback />}>
+              <AdminLayout />
+            </Suspense>
+          }>
+            <Route index             element={<AdminOrders />} />
+            <Route path="stock"      element={<AdminStock />} />
+            <Route path="productos"  element={<AdminProducts />} />
+          </Route>
         </Routes>
+        <CartDrawer />
       </Router>
-    </>
+    </CartProvider>
   );
 }
 
