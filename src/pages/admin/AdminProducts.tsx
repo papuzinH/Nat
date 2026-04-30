@@ -24,6 +24,7 @@ interface ProductRow {
   description: string
   images: string[]
   tags: string[]
+  tagsInput: string
   variants: VariantRow[]
   has_frame: boolean
   frame_price: number
@@ -299,7 +300,7 @@ function emptyRow(): ProductRow {
     slug: '', title: '', category: 'laminas', cat_label: '',
     base_price: 0, size: '', tone: 'a', tall: 1.3,
     medium: '', edition: '', description: '',
-    images: [], tags: [], variants: [],
+    images: [], tags: [], tagsInput: '', variants: [],
     has_frame: false, frame_price: 0, on_demand: false, sort_order: 0,
     isNew: true, dirty: true, saving: false, confirmDelete: false,
   }
@@ -326,6 +327,7 @@ function rawToRow(p: Record<string, unknown>): ProductRow {
     description: p.description as string,
     images: (p.images as string[]) ?? [],
     tags: (p.tags as string[]) ?? [],
+    tagsInput: ((p.tags as string[]) ?? []).join(', '),
     variants,
     has_frame: p.has_frame as boolean,
     frame_price: p.frame_price as number,
@@ -607,11 +609,14 @@ const AdminProducts: React.FC = () => {
                       </div>
                       <Field label="Tags" tooltip="Palabras clave separadas por coma, usadas internamente para búsqueda y filtros. Ejemplo: botanica, tinta, papel, serie-2025">
                         <input type="text"
-                          value={row.tags.join(', ')}
+                          value={row.tagsInput}
                           placeholder="botanica, tinta, papel"
-                          onChange={(e) =>
-                            patch(key, 'tags', e.target.value.split(',').map((t) => t.trim()).filter(Boolean))
-                          }
+                          onChange={(e) => patch(key, 'tagsInput', e.target.value)}
+                          onBlur={(e) => {
+                            const parsed = e.target.value.split(',').map((t) => t.trim()).filter(Boolean)
+                            patch(key, 'tags', parsed)
+                            patch(key, 'tagsInput', parsed.join(', '))
+                          }}
                           className={inputCls} style={inputStyle} />
                       </Field>
                     </div>
