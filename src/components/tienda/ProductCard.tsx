@@ -48,14 +48,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
         {/* Info */}
         <div className="p-[18px_18px_22px]">
           <div className="flex justify-between items-baseline gap-2">
-            <h3 className="font-display text-[20px] font-normal text-ink leading-tight group-hover:text-sage-700 transition-colors duration-200">
+            <h3 className="font-display text-xl font-normal text-ink leading-tight group-hover:text-sage-700 transition-colors duration-200">
               {product.title}
             </h3>
-            <span className="font-mono text-[12px] text-sage-700 shrink-0">
+            <span className="font-mono text-xl text-sage-700 shrink-0">
               {formatARS(product.basePrice)}
             </span>
           </div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft mt-[6px]">
+          <div className="font-mono text-xs uppercase tracking-[0.14em] text-ink-soft mt-[6px]">
             {product.catLabel}
           </div>
         </div>

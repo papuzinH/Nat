@@ -4,6 +4,7 @@ import { useCart } from '@/context/CartContext'
 import { formatARS } from '@/data/products'
 import InputField from '@/components/contacto/InputField'
 import { useCheckoutForm } from '@/hooks/useCheckoutForm'
+import { useShippingConfig } from '@/hooks/useShippingConfig'
 import { supabase } from '@/lib/supabase'
 
 const STUDIO_ADDRESS = 'Ciudad Autónoma de Buenos Aires · Coordinar punto de encuentro'
@@ -24,6 +25,9 @@ const Checkout: React.FC = () => {
   const [submitting, setSubmitting] = useState(false)
   const [stockError, setStockError] = useState<string | null>(null)
   const firstErrorRef = useRef<HTMLDivElement>(null)
+  const { config: shippingConfig, loading: shippingLoading } = useShippingConfig()
+  const shippingCost = fields.deliveryMode === 'envio' ? shippingConfig.price : 0
+  const grandTotal   = subtotal + shippingCost
 
   if (items.length === 0 && !confirmed) return <Navigate to="/tienda" replace />
 
@@ -38,14 +42,50 @@ const Checkout: React.FC = () => {
     setStockError(null)
 
     const p_items = items.map((item) => ({
-      slug: item.slug,
-      title: item.title,
-      size: item.selectedSize ?? '',
-      has_frame: item.hasFrame,
-      unit_price: item.unitPrice,
-      qty: item.quantity,
+      slug:        item.slug,
+      title:       item.title,
+      size:        item.selectedSize ?? '',
+      has_frame:   item.hasFrame,
+      unit_price:  item.unitPrice,
+      qty:         item.quantity,
     }))
 
+    const basePayload = {
+      customer: { name: fields.name, email: fields.email, phone: fields.phone },
+      delivery: {
+        mode:       fields.deliveryMode,
+        street:     fields.street,
+        city:       fields.city,
+        postalCode: fields.postalCode,
+      },
+      items:        p_items,
+      shippingCost: shippingCost,
+      total:        grandTotal,
+    }
+
+    // ── Mercado Pago ────────────────────────────────────────────────
+    if (fields.paymentMethod === 'mercadopago') {
+      const { data, error } = await supabase.functions.invoke('create-mp-preference', {
+        body: basePayload,
+      })
+
+      setSubmitting(false)
+
+      if (error || !data?.initPoint) {
+        setStockError(
+          error?.message?.includes('sin-stock')
+            ? 'Uno o más productos ya no tienen stock. Revisá tu carrito.'
+            : 'No pudimos iniciar el pago. Intentá de nuevo.'
+        )
+        return
+      }
+
+      clearCart()
+      window.location.href = data.initPoint
+      return
+    }
+
+    // ── Transferencia bancaria ──────────────────────────────────────
     const { error } = await supabase.rpc('create_order', {
       p_customer_name:  fields.name,
       p_customer_email: fields.email,
@@ -54,19 +94,20 @@ const Checkout: React.FC = () => {
       p_street:         fields.street,
       p_city:           fields.city,
       p_postal_code:    fields.postalCode,
-      p_payment_method: fields.paymentMethod,
-      p_total:          subtotal,
+      p_payment_method: 'transferencia',
+      p_shipping_cost:  shippingCost,
+      p_total:          grandTotal,
       p_items,
     })
 
     setSubmitting(false)
 
     if (error) {
-      if (error.message.includes('sin-stock')) {
-        setStockError('Uno o más productos ya no están disponibles. Revisá tu carrito.')
-      } else {
-        setStockError('Ocurrió un error al procesar el pedido. Intentá de nuevo.')
-      }
+      setStockError(
+        error.message.includes('sin-stock')
+          ? 'Uno o más productos ya no tienen stock. Revisá tu carrito.'
+          : 'Error al procesar el pedido. Intentá de nuevo.'
+      )
       return
     }
 
@@ -93,6 +134,27 @@ const Checkout: React.FC = () => {
             Natalia se va a comunicar con vos a la brevedad para coordinar el pago y el envío.
             Gracias por tu compra.
           </p>
+          <div
+            className="mt-8 p-6 rounded-sm text-left"
+            style={{ background: 'var(--cream-200, #f5efe6)', border: '1px solid var(--line-soft)' }}
+          >
+            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft mb-4">
+              Datos para la transferencia
+            </p>
+            {[
+              ['Alias',    'natalia.arte'],
+              ['CBU',      '0000003100062588008793'],
+              ['Titular',  'Natalia Heller'],
+            ].map(([label, value]) => (
+              <div key={label} className="flex justify-between py-2" style={{ borderBottom: '1px solid var(--line-soft)' }}>
+                <span className="font-mono text-[11px] text-ink-soft">{label}</span>
+                <span className="font-body text-[13px] text-ink font-semibold">{value}</span>
+              </div>
+            ))}
+            <p className="font-body text-[13px] text-ink-soft mt-4 leading-relaxed">
+              Una vez que realices la transferencia, te confirmamos el pedido por mail.
+            </p>
+          </div>
           <Link
             to="/tienda"
             className="inline-flex items-center justify-center font-body font-semibold text-[14px] px-[22px] py-[13px] rounded-pill border transition-all duration-200 hover:bg-ink hover:text-cream-50"
@@ -154,12 +216,25 @@ const Checkout: React.FC = () => {
                 </div>
               ))}
             </div>
-            <div
-              className="flex justify-between items-baseline mt-5 pt-5"
-              style={{ borderTop: '1px solid var(--line-soft)' }}
-            >
-              <span className="font-body text-[14px] text-ink-soft">Total</span>
-              <span className="font-display text-[22px] text-sage-900">{formatARS(subtotal)}</span>
+            <div className="flex flex-col gap-2 pt-4" style={{ borderTop: '1px solid var(--line-soft)' }}>
+              <div className="flex justify-between">
+                <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">Subtotal</span>
+                <span className="font-body text-[13px] text-ink">{formatARS(subtotal)}</span>
+              </div>
+              {fields.deliveryMode === 'envio' && (
+                <div className="flex justify-between">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">
+                    {shippingConfig.label}
+                  </span>
+                  <span className="font-body text-[13px] text-ink">
+                    {shippingConfig.price === 0 ? 'Gratis' : formatARS(shippingConfig.price)}
+                  </span>
+                </div>
+              )}
+              <div className="flex justify-between pt-2" style={{ borderTop: '1px solid var(--line-soft)' }}>
+                <span className="font-mono text-[12px] uppercase tracking-[0.12em] text-ink font-semibold">Total</span>
+                <span className="font-display text-[22px] text-sage-900">{formatARS(grandTotal)}</span>
+              </div>
             </div>
           </section>
 
@@ -316,7 +391,7 @@ const Checkout: React.FC = () => {
             )}
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || shippingLoading}
               className="w-full bg-sage-700 hover:bg-sage-900 text-cream-50 font-body font-semibold text-[14px] py-[14px] px-[22px] rounded-pill transition-all duration-[220ms] hover:-translate-y-px disabled:opacity-60 disabled:cursor-not-allowed"
               style={{ cursor: submitting ? 'not-allowed' : 'pointer', border: 'none' }}
             >

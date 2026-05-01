@@ -6,8 +6,10 @@ import { CartDrawer } from './components/cart';
 import Home from './pages/Home';
 import Tienda from './pages/Tienda';
 
-const ProductDetail = lazy(() => import('./pages/ProductDetail'));
-const Checkout      = lazy(() => import('./pages/Checkout'));
+const ProductDetail        = lazy(() => import('./pages/ProductDetail'));
+const Checkout             = lazy(() => import('./pages/Checkout'));
+const CheckoutConfirmacion = lazy(() => import('./pages/CheckoutConfirmacion'));
+const CheckoutError        = lazy(() => import('./pages/CheckoutError'));
 const Estudio       = lazy(() => import('./pages/Estudio'));
 const Blog          = lazy(() => import('./pages/Blog'));
 const BlogPost      = lazy(() => import('./pages/BlogPost'));
@@ -48,7 +50,9 @@ function App() {
                 <Routes>
                   <Route path="/tienda"       element={<Tienda />} />
                   <Route path="/tienda/:slug" element={<ProductDetail />} />
-                  <Route path="/checkout"     element={<Checkout />} />
+                  <Route path="/checkout"                  element={<Checkout />} />
+                  <Route path="/checkout/confirmacion" element={<CheckoutConfirmacion />} />
+                  <Route path="/checkout/error"        element={<CheckoutError />} />
                   <Route path="/estudio"      element={<Estudio />} />
                   <Route path="/blog"         element={<Blog />} />
                   <Route path="/blog/:slug"   element={<BlogPost />} />
