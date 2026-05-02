@@ -41,6 +41,7 @@ export interface Product {
   onDemand: boolean
   status: ProductStatus
   stock?: number | null    // de product_stock (null = ilimitado)
+  createdAt?: string | null
 }
 
 export interface ProductCategoryMeta {

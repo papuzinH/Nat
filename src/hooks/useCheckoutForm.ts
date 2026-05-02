@@ -8,6 +8,10 @@ export interface CheckoutFields {
   street: string
   city: string
   postalCode: string
+  zoneId: number | null
+  zoneName: string
+  zonePrice: number
+  deliveryDay: string
   paymentMethod: 'mercadopago' | 'transferencia' | ''
 }
 
@@ -19,6 +23,8 @@ export interface CheckoutErrors {
   street?: string
   city?: string
   postalCode?: string
+  zoneId?: string
+  deliveryDay?: string
   paymentMethod?: string
 }
 
@@ -32,6 +38,10 @@ const INITIAL: CheckoutFields = {
   street: '',
   city: '',
   postalCode: '',
+  zoneId: null,
+  zoneName: '',
+  zonePrice: 0,
+  deliveryDay: '',
   paymentMethod: '',
 }
 
@@ -46,6 +56,8 @@ function validate(fields: CheckoutFields): CheckoutErrors {
     if (!fields.street.trim()) e.street = 'La dirección es requerida'
     if (!fields.city.trim()) e.city = 'La localidad es requerida'
     if (!fields.postalCode.trim()) e.postalCode = 'El código postal es requerido'
+    if (!fields.zoneId) e.zoneId = 'Seleccioná el barrio de entrega'
+    if (!fields.deliveryDay) e.deliveryDay = 'Seleccioná el día de entrega preferido'
   }
   if (!fields.paymentMethod) e.paymentMethod = 'Seleccioná un método de pago'
   return e
@@ -56,7 +68,7 @@ export function useCheckoutForm() {
   const [errors, setErrors] = useState<CheckoutErrors>({})
   const [attempted, setAttempted] = useState(false)
 
-  const update = (key: keyof CheckoutFields, value: string) => {
+  const update = (key: keyof CheckoutFields, value: string | number | null) => {
     const next = { ...fields, [key]: value }
     setFields(next)
     if (attempted) setErrors(validate(next))

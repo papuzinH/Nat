@@ -167,20 +167,21 @@ const HomeHeroSection: React.FC = () => {
           </div>
 
           {/* Eyebrow */}
-          <HeroEyebrow className="mb-6 flex items-center gap-3">
-            <NHSprig size={40} color="var(--sage-500, #7a9e7e)" />
-            Estudio · Buenos Aires · desde 2019
+          <HeroEyebrow className="mb-6 flex items-center gap-3 text-amber-700">
+            <NHSprig size={40} color="var(--amber-700)" />
+            ARTE · BUENOS AIRES · DESDE 1997
           </HeroEyebrow>
 
           {/* H1 */}
-          <HeroTitle className="mb-6">
-            Botánica sensible,{' '}
-            <em>hecha con paciencia.</em>
+          <HeroTitle className="mb-3">
+            Te invito a mi{' '}
+            <em>universo creativo</em>
           </HeroTitle>
 
+      
           {/* Paragraph */}
           <HeroSubtitle className="mb-10 max-w-[480px]">
-            Obra en papel, cerámica, textiles y tatuaje de línea fina. Cada pieza nace despacio en el estudio del barrio Villa Crespo, rodeada de plantas.
+            Un universo de líneas, emociones y amor por los detalles. Creaciones únicas para la piel y el hogar.
           </HeroSubtitle>
 
           {/* CTAs */}

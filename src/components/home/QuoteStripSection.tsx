@@ -23,6 +23,12 @@ const QuoteStripSection: React.FC = () => (
           </cite>
         </footer>
       </blockquote>
+      <p
+        className="font-body text-ink-soft mt-8 max-w-2xl mx-auto text-center"
+        style={{ fontSize: 'clamp(15px, 1.8vw, 17px)', lineHeight: 1.7 }}
+      >
+        Mi intención es ofrecer una experiencia para el recuerdo, transmitiendo calma, seguridad y compromiso, no solo con el resultado, sino con todo el proceso.
+      </p>
     </div>
   </SectionContainer>
 )

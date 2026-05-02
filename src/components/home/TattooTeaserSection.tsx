@@ -45,12 +45,12 @@ const TattooTeaserSection: React.FC = () => (
       <div className="order-1 md:order-2">
 
         <SectionTitle id="tattoo-teaser-heading" className="mb-6">
-          Tatuajes de línea fina, pensados con vos.
+          Tatuajes pensados especialmente para vos.
         </SectionTitle>
         <p
           className="font-body text-ink-soft mb-8"
         >
-          Line art botánico, ornamental y minimalista. Cada tatuaje empieza con una conversación y termina siendo parte de tu historia.
+          Línea fina, botánica y ornamental con un amor especial por los detalles. Cada tatuaje empieza con una conversación y termina siendo parte de tu historia.
         </p>
 
 

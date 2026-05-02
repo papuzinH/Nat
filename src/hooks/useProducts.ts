@@ -21,6 +21,7 @@ type RawProduct = {
   frame_price: number
   on_demand: boolean
   sort_order: number
+  created_at: string | null
 }
 
 export function useProducts() {
@@ -61,6 +62,7 @@ export function useProducts() {
               onDemand: p.on_demand,
               status: (s?.status ?? 'active') as ProductStatus,
               stock: s?.stock ?? null,
+              createdAt: p.created_at ?? null,
             }
           })
         )

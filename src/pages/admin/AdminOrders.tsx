@@ -23,8 +23,11 @@ interface Order {
   street: string | null
   city: string | null
   postal_code: string | null
-  payment_method: string
-  total: number
+  payment_method:  string
+  shipping_cost:   number
+  tracking_number: string | null
+  mp_payment_id:   string | null
+  total:           number
   order_items?: OrderItem[]
 }
 
@@ -68,6 +71,13 @@ const AdminOrders: React.FC = () => {
     await supabase.from('orders').update({ status }).eq('id', orderId)
     setOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status } : o))
+    )
+  }
+
+  const updateTracking = async (orderId: string, trackingNumber: string) => {
+    await supabase.from('orders').update({ tracking_number: trackingNumber }).eq('id', orderId)
+    setOrders((prev) =>
+      prev.map((o) => (o.id === orderId ? { ...o, tracking_number: trackingNumber } : o))
     )
   }
 
@@ -185,6 +195,11 @@ const AdminOrders: React.FC = () => {
                         {order.street}, {order.city} {order.postal_code}
                       </p>
                     )}
+                    {order.shipping_cost > 0 && (
+                      <p className="font-body text-[12px] text-ink-soft mt-1">
+                        Envío: {formatARS(order.shipping_cost)}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -208,6 +223,58 @@ const AdminOrders: React.FC = () => {
                     ))}
                   </select>
                 </div>
+
+                {/* Confirm payment button — transferencia + pendiente only */}
+                {order.payment_method === 'transferencia' && order.status === 'pendiente' && (
+                  <div className="flex items-center gap-3 pt-4" style={{ borderTop: '1px solid var(--line-soft)' }}>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await updateStatus(order.id, 'pagado')
+                        await supabase.functions.invoke('send-confirmation-email', {
+                          body: { orderId: order.id },
+                          headers: {
+                            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+                          },
+                        })
+                      }}
+                      className="font-mono text-[11px] uppercase tracking-[0.1em] px-4 py-2 rounded-pill bg-sage-700 text-cream-50 hover:bg-sage-900 transition-all"
+                    >
+                      Confirmar pago
+                    </button>
+                    <span className="font-mono text-[10px] text-ink-soft">
+                      Confirmar solo cuando el dinero esté acreditado
+                    </span>
+                  </div>
+                )}
+
+                {/* Tracking number input — enviado or entregado */}
+                {(order.status === 'enviado' || order.status === 'entregado') && (
+                  <div className="pt-4" style={{ borderTop: '1px solid var(--line-soft)' }}>
+                    <label
+                      htmlFor={`tracking-${order.id}`}
+                      className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft block mb-2"
+                    >
+                      Número de seguimiento
+                    </label>
+                    <div className="flex gap-3">
+                      <input
+                        id={`tracking-${order.id}`}
+                        type="text"
+                        defaultValue={order.tracking_number ?? ''}
+                        placeholder="OCA-123456789"
+                        className="flex-1 font-body text-[13px] text-ink bg-transparent border-b outline-none focus:border-sage-700 transition-colors py-1"
+                        style={{ borderColor: 'var(--line)' }}
+                        onBlur={(e) => {
+                          if (e.target.value !== (order.tracking_number ?? '')) {
+                            updateTracking(order.id, e.target.value)
+                          }
+                        }}
+                      />
+                      <span className="font-mono text-[10px] text-ink-soft self-end pb-1">guarda al salir del campo</span>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

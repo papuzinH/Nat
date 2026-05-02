@@ -2,6 +2,7 @@ import React from 'react'
 import { SchemaMarkup } from '@/components/shared'
 import NHDivider from '@/components/shared/NHDivider'
 import EstudioHero from '@/components/estudio/EstudioHero'
+import StudioPhotosGallery from '@/components/estudio/StudioPhotosGallery'
 import MasonryGallery from '@/components/estudio/MasonryGallery'
 import ProcessSteps from '@/components/estudio/ProcessSteps'
 import ContactEstudioSection from '@/components/estudio/ContactEstudioSection'
@@ -17,6 +18,8 @@ const Estudio: React.FC = () => (
     <SchemaMarkup type="LocalBusiness" data={schemaData} />
 
     <EstudioHero />
+
+    <StudioPhotosGallery />
 
     <MasonryGallery />
 

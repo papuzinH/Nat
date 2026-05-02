@@ -33,7 +33,7 @@ const NHLogo: React.FC<NHLogoProps> = ({ size = 32, onClick }) => {
           whiteSpace: 'nowrap',
         }}
       >
-        NAT STUDIO
+        NAT.TATT
       </span>
     </Link>
   )

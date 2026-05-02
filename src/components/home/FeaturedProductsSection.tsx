@@ -6,7 +6,15 @@ import { SectionContainer, SectionTitle } from '@/components/shared'
 
 const FeaturedProductsSection: React.FC = () => {
   const { products } = useProducts()
-  const featuredProducts = products.filter((p) => p.status === 'active').slice(0, 6)
+  const featuredProducts = products
+    .filter((p) => p.status === 'active')
+    .sort((a, b) => {
+      if (!a.createdAt && !b.createdAt) return 0
+      if (!a.createdAt) return 1
+      if (!b.createdAt) return -1
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    })
+    .slice(0, 6)
 
   return (
     <SectionContainer

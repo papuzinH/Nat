@@ -4,10 +4,16 @@ import { useCart } from '@/context/CartContext'
 import { formatARS } from '@/data/products'
 import InputField from '@/components/contacto/InputField'
 import { useCheckoutForm } from '@/hooks/useCheckoutForm'
-import { useShippingConfig } from '@/hooks/useShippingConfig'
+import { usePublicShippingZones } from '@/hooks/useShippingZones'
 import { supabase } from '@/lib/supabase'
 
-const STUDIO_ADDRESS = 'Ciudad Autónoma de Buenos Aires · Coordinar punto de encuentro'
+const STUDIO_ADDRESS = 'Parque Chacabuco, CABA. Nos pondremos en contacto para coordinar una vez confirmada la compra!'
+
+const DELIVERY_DAYS = [
+  { value: 'martes', label: 'Martes 17–21hs' },
+  { value: 'viernes', label: 'Viernes 17–21hs' },
+  { value: 'coordinar', label: 'A coordinar' },
+]
 
 type DeliveryMode = 'envio' | 'retiro'
 type PaymentMethod = 'mercadopago' | 'transferencia'
@@ -25,8 +31,8 @@ const Checkout: React.FC = () => {
   const [submitting, setSubmitting] = useState(false)
   const [stockError, setStockError] = useState<string | null>(null)
   const firstErrorRef = useRef<HTMLDivElement>(null)
-  const { config: shippingConfig, loading: shippingLoading } = useShippingConfig()
-  const shippingCost = fields.deliveryMode === 'envio' ? shippingConfig.price : 0
+  const { zones, loading: zonesLoading } = usePublicShippingZones()
+  const shippingCost = fields.deliveryMode === 'envio' ? (fields.zonePrice ?? 0) : 0
   const grandTotal   = subtotal + shippingCost
 
   if (items.length === 0 && !confirmed) return <Navigate to="/tienda" replace />
@@ -53,10 +59,12 @@ const Checkout: React.FC = () => {
     const basePayload = {
       customer: { name: fields.name, email: fields.email, phone: fields.phone },
       delivery: {
-        mode:       fields.deliveryMode,
-        street:     fields.street,
-        city:       fields.city,
-        postalCode: fields.postalCode,
+        mode:        fields.deliveryMode,
+        street:      fields.street,
+        city:        fields.city,
+        postalCode:  fields.postalCode,
+        zoneName:    fields.zoneName,
+        deliveryDay: fields.deliveryDay,
       },
       items:        p_items,
       shippingCost: shippingCost,
@@ -224,10 +232,10 @@ const Checkout: React.FC = () => {
               {fields.deliveryMode === 'envio' && (
                 <div className="flex justify-between">
                   <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">
-                    {shippingConfig.label}
+                    Envío{fields.zoneName ? ` · ${fields.zoneName}` : ''}
                   </span>
                   <span className="font-body text-[13px] text-ink">
-                    {shippingConfig.price === 0 ? 'Gratis' : formatARS(shippingConfig.price)}
+                    {shippingCost === 0 ? 'Gratis' : formatARS(shippingCost)}
                   </span>
                 </div>
               )}
@@ -304,9 +312,9 @@ const Checkout: React.FC = () => {
             <div
               style={{
                 overflow: 'hidden',
-                maxHeight: fields.deliveryMode === 'envio' ? 300 : 0,
+                maxHeight: fields.deliveryMode === 'envio' ? 700 : 0,
                 opacity: fields.deliveryMode === 'envio' ? 1 : 0,
-                transition: 'max-height 0.3s ease, opacity 0.25s ease',
+                transition: 'max-height 0.4s ease, opacity 0.25s ease',
               }}
             >
               <div className="flex flex-col gap-6 pt-2">
@@ -345,13 +353,87 @@ const Checkout: React.FC = () => {
                     onChange={(e) => update('postalCode', e.target.value)}
                   />
                 </div>
+
+                {/* Selector de barrio / zona */}
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="zone" className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">
+                    Barrio de entrega <span aria-hidden="true">*</span>
+                  </label>
+                  <select
+                    id="zone"
+                    value={fields.zoneId ?? ''}
+                    onChange={(e) => {
+                      const id = Number(e.target.value)
+                      const zone = zones.find((z) => z.id === id)
+                      update('zoneId', id || null)
+                      update('zoneName', zone?.name ?? '')
+                      update('zonePrice', zone?.price ?? 0)
+                    }}
+                    className="font-body text-[14px] rounded-form border px-4 py-3 appearance-none"
+                    style={{
+                      border: errors.zoneId ? '1px solid #a8503f' : '1px solid var(--line)',
+                      background: 'var(--cream-50, #FEFAE0)',
+                      color: fields.zoneId ? 'var(--ink)' : 'var(--ink-soft)',
+                      outline: 'none',
+                    }}
+                    disabled={zonesLoading}
+                    required
+                  >
+                    <option value="">
+                      {zonesLoading ? 'Cargando zonas…' : zones.length === 0 ? 'Sin zonas configuradas' : 'Seleccioná tu barrio'}
+                    </option>
+                    {zones.map((z) => (
+                      <option key={z.id} value={z.id}>
+                        {z.name}{z.price > 0 ? ` — ${formatARS(z.price)}` : ' — Gratis'}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.zoneId && (
+                    <p className="text-[#a8503f] text-xs font-body">{errors.zoneId}</p>
+                  )}
+                  {fields.zoneId && fields.zonePrice === 0 && (
+                    <p className="font-body text-[13px] text-sage-700">Envío gratis en esta zona</p>
+                  )}
+                  {fields.zoneId && fields.zonePrice > 0 && (
+                    <p className="font-body text-[13px] text-ink-soft">
+                      Costo de envío: <strong>{formatARS(fields.zonePrice)}</strong>
+                    </p>
+                  )}
+                  {!fields.zoneId && !zonesLoading && zones.length > 0 && (
+                    <p className="font-body text-[12px] text-ink-soft">
+                      ¿No encontrás tu barrio? Seleccioná "A coordinar" y te contactamos.
+                    </p>
+                  )}
+                </div>
+
+                {/* Selector de día de entrega */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">
+                    Día de entrega preferido <span aria-hidden="true">*</span>
+                  </label>
+                  <div className="flex gap-3 flex-wrap">
+                    {DELIVERY_DAYS.map((day) => (
+                      <button
+                        key={day.value}
+                        type="button"
+                        onClick={() => update('deliveryDay', day.value)}
+                        className={`${pillBase} ${fields.deliveryDay === day.value ? pillActive : pillInactive}`}
+                      >
+                        {day.label}
+                      </button>
+                    ))}
+                  </div>
+                  {errors.deliveryDay && (
+                    <p className="text-[#a8503f] text-xs font-body">{errors.deliveryDay}</p>
+                  )}
+                </div>
               </div>
             </div>
 
             <div
               style={{
                 overflow: 'hidden',
-                maxHeight: fields.deliveryMode === 'retiro' ? 80 : 0,
+                maxHeight: fields.deliveryMode === 'retiro' ? 100 : 0,
                 opacity: fields.deliveryMode === 'retiro' ? 1 : 0,
                 transition: 'max-height 0.3s ease, opacity 0.25s ease',
               }}
@@ -391,7 +473,7 @@ const Checkout: React.FC = () => {
             )}
             <button
               type="submit"
-              disabled={submitting || shippingLoading}
+              disabled={submitting || zonesLoading}
               className="w-full bg-sage-700 hover:bg-sage-900 text-cream-50 font-body font-semibold text-[14px] py-[14px] px-[22px] rounded-pill transition-all duration-[220ms] hover:-translate-y-px disabled:opacity-60 disabled:cursor-not-allowed"
               style={{ cursor: submitting ? 'not-allowed' : 'pointer', border: 'none' }}
             >

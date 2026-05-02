@@ -60,31 +60,55 @@ const Footer: React.FC = () => {
             </nav>
           </div>
 
-          {/* Col 3 — Encontrame */}
+          {/* Col 3 — Contacto */}
           <div className="flex flex-col gap-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft mb-1">
-              Encontrame
+              Contacto
             </p>
             <ul className="flex flex-col gap-3 list-none p-0 m-0">
               <li>
                 <a
-                  href="https://instagram.com/nataliaceller_art"
+                  href="https://instagram.com/nat.tatt"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-body text-[15px] transition-colors duration-200 hover:text-sage-700"
                   style={{ color: 'var(--ink, #2c2c2c)', textDecoration: 'none' }}
-                  aria-label="Instagram de Natalia Heller (@nataliaceller_art)"
+                  aria-label="Instagram @nat.tatt"
                 >
-                  @nataliaceller_art
+                  @nat.tatt
                 </a>
               </li>
               <li>
                 <a
-                  href="#newsletter"
-                  className="font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 hover:text-sage-900 transition-colors duration-200"
-                  style={{ textDecoration: 'none' }}
+                  href="https://instagram.com/artexnat"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-body text-[15px] transition-colors duration-200 hover:text-sage-700"
+                  style={{ color: 'var(--ink, #2c2c2c)', textDecoration: 'none' }}
+                  aria-label="Instagram @artexnat"
                 >
-                  Newsletter mensual · Sumate
+                  @artexnat
+                </a>
+              </li>
+              <li>
+                <a
+                  href="mailto:agendanattatt@gmail.com"
+                  className="font-body text-[15px] transition-colors duration-200 hover:text-sage-700"
+                  style={{ color: 'var(--ink, #2c2c2c)', textDecoration: 'none' }}
+                >
+                  agendanattatt@gmail.com
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://wa.me/5491132722555"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-body text-[15px] transition-colors duration-200 hover:text-sage-700"
+                  style={{ color: 'var(--ink, #2c2c2c)', textDecoration: 'none' }}
+                  aria-label="WhatsApp +54 9 11 3272-2555"
+                >
+                  +54 9 11 3272-2555
                 </a>
               </li>
             </ul>
@@ -96,8 +120,17 @@ const Footer: React.FC = () => {
               Estudio
             </p>
             <ul className="flex flex-col gap-2 list-none p-0 m-0">
-              <li className="font-body text-[15px]" style={{ color: 'var(--ink, #2c2c2c)' }}>
-                Villa Crespo · Buenos Aires, AR
+              <li>
+                <a
+                  href="https://maps.app.goo.gl/j68uUh5BDTiYM8vL8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-body text-[15px] transition-colors duration-200 hover:text-sage-700"
+                  style={{ color: 'var(--ink, #2c2c2c)', textDecoration: 'none' }}
+                  aria-label="Ver ubicación en Google Maps"
+                >
+                  Parque Chacabuco · Buenos Aires, AR
+                </a>
               </li>
               <li className="font-body text-[15px] text-sage-700">
                 Con turno previo

@@ -9,14 +9,14 @@ interface NHDividerProps {
 const NHDivider: React.FC<NHDividerProps> = ({ label, className = '' }) => (
   <div
     className={`flex items-center justify-center gap-4 my-6 md:mt-8 md:mb-0 ${className}`}
-    style={{ color: 'var(--sage-500, #7a9e7e)' }}
+    style={{ color: 'var(--amber-700, #BC6C25)' }}
     aria-hidden="true"
   >
     <NHSprig size={56} />
     {label && (
       <span
         className="font-mono text-sm uppercase tracking-[0.18em]"
-        style={{ color: 'var(--sage-700, #4a7c59)' }}
+        style={{ color: 'var(--amber-700, #BC6C25)' }}
       >
         {label}
       </span>
