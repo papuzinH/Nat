@@ -26,6 +26,20 @@ interface Order {
   order_items?: OrderItem[]
 }
 
+function getBodyMessage(paymentMethod: string, deliveryMode: string, firstName: string): string {
+  if (paymentMethod === 'mercadopago') {
+    if (deliveryMode === 'retiro') {
+      return `Hola ${firstName}, tu pago fue acreditado. Nos comunicaremos a la brevedad por email o WhatsApp para coordinar el retiro.`
+    }
+    return `Hola ${firstName}, tu pago fue acreditado. Nos comunicaremos a la brevedad por email o WhatsApp para informarte el estado del envío.`
+  }
+  // transferencia
+  if (deliveryMode === 'retiro') {
+    return `Hola ${firstName}, recibimos tu pedido. Nos comunicaremos a la brevedad para confirmar el pago y coordinar el retiro.`
+  }
+  return `Hola ${firstName}, recibimos tu pedido. Nos comunicaremos a la brevedad para confirmar el pago e informarte sobre el envío.`
+}
+
 const CheckoutConfirmacion: React.FC = () => {
   const [params]  = useSearchParams()
   const orderId   = params.get('order')
@@ -100,7 +114,10 @@ const CheckoutConfirmacion: React.FC = () => {
           <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-sage-700 mb-3">Pedido · {shortId}</p>
           <h1 className="font-display text-[32px] font-normal text-ink mb-4">Tu pago está siendo procesado</h1>
           <p className="font-body text-[15px] text-ink-soft leading-relaxed mb-8">
-            Mercado Pago está verificando el pago. Te avisamos por mail cuando se acredite.
+            {order!.delivery_mode === 'retiro'
+              ? 'Mercado Pago está verificando el pago. Recibirás la confirmación del pedido y nos comunicaremos para coordinar el retiro.'
+              : 'Mercado Pago está verificando el pago. Recibirás la confirmación del pedido y nos comunicaremos para informarte el estado del envío.'
+            }
           </p>
           <Link to="/tienda" className="font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 hover:text-sage-900 transition-colors">
             Seguir comprando →
@@ -123,10 +140,7 @@ const CheckoutConfirmacion: React.FC = () => {
             {order!.payment_method === 'transferencia' ? '¡Pedido recibido!' : '¡Pago confirmado!'}
           </h1>
           <p className="confirm-body font-body text-[15px] text-ink-soft leading-relaxed mb-10">
-            {order!.payment_method === 'transferencia'
-              ? `Hola ${order!.customer_name.split(' ')[0]}, recibimos tu pedido. Realizá la transferencia y te confirmamos por mail.`
-              : `Hola ${order!.customer_name.split(' ')[0]}, tu pago fue acreditado. ¡Gracias!`
-            }
+            {getBodyMessage(order!.payment_method, order!.delivery_mode, order!.customer_name.split(' ')[0])}
           </p>
 
           {/* Order items */}
@@ -168,7 +182,8 @@ const CheckoutConfirmacion: React.FC = () => {
                 </div>
               ))}
               <p className="font-body text-[13px] text-ink-soft mt-4 leading-relaxed">
-                Transferí el monto exacto y envianos el comprobante a <strong>hola@tatuajesnaty.com</strong>.
+                Una vez que acreditemos tu pago, te confirmaremos el pedido y coordinaremos{' '}
+                {order!.delivery_mode === 'retiro' ? 'el retiro.' : 'el envío.'}
               </p>
             </div>
           )}
