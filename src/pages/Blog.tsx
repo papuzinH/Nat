@@ -53,19 +53,6 @@ const Blog: React.FC = () => {
     [slugifyCategory]
   )
 
-  // Header entrance animation
-  useEffect(() => {
-    if (!shouldAnimate() || !headerRef.current) return
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        ['.blog-eyebrow', '.blog-h1', '.blog-subtitle'],
-        { opacity: 0, y: 14 },
-        { opacity: 1, y: 0, duration: 0.55, stagger: 0.09, ease: 'power2.out', delay: 0.1 }
-      )
-    }, headerRef)
-    return () => ctx.revert()
-  }, [])
-
   // Featured post scroll entrance
   useEffect(() => {
     if (!shouldAnimate() || !featuredRef.current || !featured) return

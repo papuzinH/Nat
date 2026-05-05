@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 import { Navigate, Link } from 'react-router-dom'
 import { useCart } from '@/context/CartContext'
 import { formatARS } from '@/data/products'
@@ -6,6 +6,7 @@ import InputField from '@/components/contacto/InputField'
 import { useCheckoutForm } from '@/hooks/useCheckoutForm'
 import { usePublicShippingZones } from '@/hooks/useShippingZones'
 import { supabase } from '@/lib/supabase'
+import { gsap, shouldAnimate } from '@/lib/gsap'
 
 const STUDIO_ADDRESS = 'Parque Chacabuco, CABA. Nos pondremos en contacto para coordinar una vez confirmada la compra!'
 
@@ -31,9 +32,50 @@ const Checkout: React.FC = () => {
   const [submitting, setSubmitting] = useState(false)
   const [stockError, setStockError] = useState<string | null>(null)
   const firstErrorRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const successRef = useRef<HTMLDivElement>(null)
   const { zones, loading: zonesLoading } = usePublicShippingZones()
   const shippingCost = fields.deliveryMode === 'envio' ? (fields.zonePrice ?? 0) : 0
   const grandTotal   = subtotal + shippingCost
+
+  useLayoutEffect(() => {
+    const container = containerRef.current
+    if (!container || confirmed || !shouldAnimate()) return
+    const ctx = gsap.context(() => {
+      const heading = container.querySelector('.checkout-heading')
+      const sections = gsap.utils.toArray<HTMLElement>('.checkout-section')
+      const cta = container.querySelector('.checkout-cta')
+      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } })
+      if (heading) tl.fromTo(heading, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.55 })
+      if (sections.length)
+        tl.fromTo(
+          sections,
+          { opacity: 0, y: 18 },
+          { opacity: 1, y: 0, duration: 0.5, stagger: 0.1 },
+          '-=0.25'
+        )
+      if (cta) tl.fromTo(cta, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.45 }, '-=0.3')
+    }, container)
+    return () => ctx.revert()
+  }, [confirmed])
+
+  useLayoutEffect(() => {
+    const success = successRef.current
+    if (!confirmed || !success || !shouldAnimate()) return
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        success,
+        { opacity: 0, y: 20, scale: 0.98 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'power3.out' }
+      )
+      gsap.fromTo(
+        success.children,
+        { opacity: 0, y: 12 },
+        { opacity: 1, y: 0, duration: 0.45, stagger: 0.08, ease: 'power2.out', delay: 0.15 }
+      )
+    }, success)
+    return () => ctx.revert()
+  }, [confirmed])
 
   if (items.length === 0 && !confirmed) return <Navigate to="/tienda" replace />
 
@@ -126,7 +168,7 @@ const Checkout: React.FC = () => {
   if (confirmed) {
     return (
       <main className="min-h-screen bg-cream-50 flex items-center justify-center px-6">
-        <div className="max-w-md text-center">
+        <div ref={successRef} className="max-w-md text-center">
           <div
             className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-6"
             style={{ background: 'var(--sage-200, #c8dcd0)' }}
@@ -181,9 +223,9 @@ const Checkout: React.FC = () => {
 
   return (
     <main className="min-h-screen bg-cream-50">
-      <div className="max-w-2xl mx-auto px-6 md:px-12 py-12">
+      <div ref={containerRef} className="max-w-2xl mx-auto px-6 md:px-12 py-12">
         <h1
-          className="font-display font-normal text-ink mb-10"
+          className="checkout-heading font-display font-normal text-ink mb-10"
           style={{ fontSize: 'clamp(26px, 4vw, 40px)', lineHeight: 1.1, letterSpacing: '-0.02em' }}
         >
           Finalizar pedido
@@ -192,7 +234,7 @@ const Checkout: React.FC = () => {
         <form onSubmit={handleSubmit} noValidate>
 
           {/* Resumen */}
-          <section className="mb-10">
+          <section className="checkout-section mb-10">
             <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft mb-5">
               Resumen del pedido
             </h2>
@@ -247,7 +289,7 @@ const Checkout: React.FC = () => {
           </section>
 
           {/* Datos de contacto */}
-          <section className="mb-10 pt-10" style={{ borderTop: '1px solid var(--line-soft)' }}>
+          <section className="checkout-section mb-10 pt-10" style={{ borderTop: '1px solid var(--line-soft)' }}>
             <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft mb-5">
               Datos de contacto
             </h2>
@@ -289,7 +331,7 @@ const Checkout: React.FC = () => {
           </section>
 
           {/* Modalidad de entrega */}
-          <section className="mb-10 pt-10" style={{ borderTop: '1px solid var(--line-soft)' }}>
+          <section className="checkout-section mb-10 pt-10" style={{ borderTop: '1px solid var(--line-soft)' }}>
             <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft mb-5">
               Modalidad de entrega
             </h2>
@@ -445,7 +487,7 @@ const Checkout: React.FC = () => {
           </section>
 
           {/* Método de pago */}
-          <section className="mb-10 pt-10" style={{ borderTop: '1px solid var(--line-soft)' }}>
+          <section className="checkout-section mb-10 pt-10" style={{ borderTop: '1px solid var(--line-soft)' }}>
             <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft mb-5">
               Método de pago
             </h2>
@@ -467,7 +509,7 @@ const Checkout: React.FC = () => {
           </section>
 
           {/* CTA */}
-          <div className="pt-2">
+          <div className="checkout-cta pt-2">
             {stockError && (
               <p className="text-[#a8503f] text-sm font-body mb-4 text-center">{stockError}</p>
             )}

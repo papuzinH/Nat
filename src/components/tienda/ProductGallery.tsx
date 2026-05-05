@@ -61,6 +61,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product }) => {
             fetchPriority="high"
             className="w-full object-cover"
             style={{ display: 'block' }}
+            data-product-main-image
           />
         ) : (
           <ProductImagePlaceholder

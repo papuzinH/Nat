@@ -25,10 +25,18 @@ const NHSprig: React.FC<NHSprigProps> = ({
       className={className}
       aria-hidden="true"
     >
-      <path d="M2 16 Q 20 14, 40 14 T 78 14" stroke="currentColor" strokeWidth="1" fill="none" strokeLinecap="round" />
+      <path
+        className="nh-sprig-path"
+        d="M2 16 Q 20 14, 40 14 T 78 14"
+        stroke="currentColor"
+        strokeWidth="1"
+        fill="none"
+        strokeLinecap="round"
+      />
       {LEAF_X.map((x, i) => (
         <ellipse
           key={i}
+          className="nh-sprig-leaf"
           cx={x}
           cy={i % 2 === 0 ? 8 : 20}
           rx="5"
@@ -36,9 +44,10 @@ const NHSprig: React.FC<NHSprigProps> = ({
           fill="currentColor"
           opacity="0.85"
           transform={`rotate(${i % 2 === 0 ? -22 : 22} ${x} ${i % 2 === 0 ? 8 : 20})`}
+          style={{ transformOrigin: `${x}px ${i % 2 === 0 ? 8 : 20}px` }}
         />
       ))}
-      <circle cx="78" cy="14" r="1.6" fill="currentColor" />
+      <circle className="nh-sprig-tip" cx="78" cy="14" r="1.6" fill="currentColor" />
     </svg>
   )
 }

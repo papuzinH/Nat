@@ -1,29 +1,51 @@
-import React from 'react'
+import React, { useLayoutEffect, useRef } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
+import { gsap, shouldAnimate } from '@/lib/gsap'
 
 const CheckoutError: React.FC = () => {
   const [params] = useSearchParams()
-  const orderId  = params.get('order')
-  const shortId  = orderId ? orderId.slice(0, 8).toUpperCase() : null
+  const orderId = params.get('order')
+  const shortId = orderId ? orderId.slice(0, 8).toUpperCase() : null
+  const wrapperRef = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    const wrapper = wrapperRef.current
+    if (!wrapper || !shouldAnimate()) return
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        wrapper,
+        { opacity: 0, y: 16, scale: 0.98 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'power3.out' }
+      )
+      gsap.fromTo(
+        wrapper.querySelectorAll<HTMLElement>('.error-block'),
+        { opacity: 0, y: 12 },
+        { opacity: 1, y: 0, duration: 0.45, stagger: 0.08, ease: 'power2.out', delay: 0.15 }
+      )
+    }, wrapper)
+    return () => ctx.revert()
+  }, [])
 
   return (
     <>
-      <Helmet><title>Pago no completado · Natalia Heller</title></Helmet>
+      <Helmet>
+        <title>Pago no completado · Natalia Heller</title>
+      </Helmet>
       <main className="min-h-[60vh] flex items-center justify-center px-6">
-        <div className="text-center max-w-sm">
+        <div ref={wrapperRef} className="text-center max-w-sm">
           {shortId && (
-            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft mb-3">
+            <p className="error-block font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft mb-3">
               Pedido · {shortId}
             </p>
           )}
-          <h1 className="font-display text-[32px] font-normal text-ink mb-4">
+          <h1 className="error-block font-display text-[32px] font-normal text-ink mb-4">
             El pago no se completó
           </h1>
-          <p className="font-body text-[15px] text-ink-soft leading-relaxed mb-8">
+          <p className="error-block font-body text-[15px] text-ink-soft leading-relaxed mb-8">
             Tu pedido fue cancelado y el stock liberado. Podés intentarlo de nuevo o elegir transferencia bancaria.
           </p>
-          <div className="flex flex-col items-center gap-4">
+          <div className="error-block flex flex-col items-center gap-4">
             <Link
               to="/tienda"
               className="bg-sage-700 hover:bg-sage-900 text-cream-50 font-body font-semibold text-[14px] py-[14px] px-[22px] rounded-pill transition-all duration-[220ms] hover:-translate-y-px"

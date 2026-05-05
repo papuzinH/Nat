@@ -14,7 +14,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-gsap': ['gsap'],
+          'vendor-gsap': ['gsap', 'gsap/ScrollTrigger', 'gsap/MotionPathPlugin'],
           'vendor-helmet': ['react-helmet-async'],
         },
       },

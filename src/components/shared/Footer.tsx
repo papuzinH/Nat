@@ -145,11 +145,9 @@ const Footer: React.FC = () => {
           style={{ borderTop: '1px solid var(--line-soft)' }}
         >
           <p className="font-mono text-[12px] text-ink-soft">
-            © 2026 · Natalia Heller · Hecho con paciencia
+            © 2026 · Nat.tatt · Hecho por <a href="https://lhstudio.com.ar" target="_blank" rel="noopener noreferrer" className="text-sage-700 hover:underline">LHStudio.com.ar</a>
           </p>
-          <p className="font-mono text-[12px] text-ink-soft">
-            Envíos a todo el país · Retiro en CABA
-          </p>
+          
         </div>
       </div>
     </footer>

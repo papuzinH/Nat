@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useLayoutEffect, useRef } from 'react'
+import { gsap, shouldAnimate } from '@/lib/gsap'
 import { formatARS } from '@/data/products'
 import type { CartItem } from '@/context/CartContext'
 import { TONE_COLORS } from '@/data/products'
@@ -11,20 +12,57 @@ interface CartItemRowProps {
 
 const CartItemRow: React.FC<CartItemRowProps> = ({ item, onUpdateQty, onRemove }) => {
   const rowTotal = item.unitPrice * item.quantity
+  const rootRef = useRef<HTMLDivElement>(null)
+  const totalRef = useRef<HTMLSpanElement>(null)
+  const prevTotalRef = useRef(rowTotal)
+
+  useLayoutEffect(() => {
+    const total = totalRef.current
+    if (!total || !shouldAnimate()) {
+      prevTotalRef.current = rowTotal
+      return
+    }
+    if (prevTotalRef.current === rowTotal) return
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        total,
+        { scale: 1.12 },
+        { scale: 1, duration: 0.3, ease: 'power2.out' }
+      )
+    })
+    prevTotalRef.current = rowTotal
+    return () => ctx.revert()
+  }, [rowTotal])
+
+  function handleRemove() {
+    const root = rootRef.current
+    if (!root || !shouldAnimate()) {
+      onRemove(item.id)
+      return
+    }
+    gsap.to(root, {
+      x: 30,
+      opacity: 0,
+      height: 0,
+      paddingTop: 0,
+      paddingBottom: 0,
+      marginTop: 0,
+      marginBottom: 0,
+      duration: 0.3,
+      ease: 'power2.in',
+      onComplete: () => onRemove(item.id),
+    })
+  }
 
   return (
     <div
-      className="flex gap-3 py-4"
-      style={{ borderBottom: '1px solid var(--line-soft)' }}
+      ref={rootRef}
+      className="cart-item-row flex gap-3 py-4"
+      style={{ borderBottom: '1px solid var(--line-soft)', willChange: 'transform, opacity' }}
     >
-      {/* Imagen / placeholder */}
       <div
         className="flex-shrink-0 rounded-md overflow-hidden"
-        style={{
-          width: 64,
-          height: 64,
-          background: TONE_COLORS['a'],
-        }}
+        style={{ width: 64, height: 64, background: TONE_COLORS['a'] }}
       >
         {item.image ? (
           <img
@@ -37,7 +75,6 @@ const CartItemRow: React.FC<CartItemRowProps> = ({ item, onUpdateQty, onRemove }
         )}
       </div>
 
-      {/* Info + controles */}
       <div className="flex-1 min-w-0">
         <p className="font-body text-[13px] font-semibold text-ink truncate">{item.title}</p>
         <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mt-0.5">
@@ -48,7 +85,6 @@ const CartItemRow: React.FC<CartItemRowProps> = ({ item, onUpdateQty, onRemove }
         <p className="font-body text-[12px] text-ink-soft mt-0.5">{formatARS(item.unitPrice)} c/u</p>
 
         <div className="flex items-center justify-between mt-2">
-          {/* Cantidad */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => onUpdateQty(item.id, item.quantity - 1)}
@@ -74,11 +110,16 @@ const CartItemRow: React.FC<CartItemRowProps> = ({ item, onUpdateQty, onRemove }
             </button>
           </div>
 
-          {/* Subtotal + eliminar */}
           <div className="flex items-center gap-3">
-            <span className="font-body text-[13px] font-semibold text-sage-900">{formatARS(rowTotal)}</span>
+            <span
+              ref={totalRef}
+              className="font-body text-[13px] font-semibold text-sage-900 inline-block"
+              style={{ transformOrigin: 'right center' }}
+            >
+              {formatARS(rowTotal)}
+            </span>
             <button
-              onClick={() => onRemove(item.id)}
+              onClick={handleRemove}
               aria-label={`Eliminar ${item.title}`}
               className="text-ink-soft hover:text-ink transition-colors"
             >

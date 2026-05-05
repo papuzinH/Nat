@@ -1,16 +1,18 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '@/context/CartContext'
 import { formatARS } from '@/data/products'
+import { gsap, shouldAnimate } from '@/lib/gsap'
 import CartItemRow from './CartItemRow'
-
 
 const CartDrawer: React.FC = () => {
   const { items, isOpen, itemCount, subtotal, removeItem, updateQty, closeCart } = useCart()
   const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const overlayRef = useRef<HTMLDivElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const itemsContainerRef = useRef<HTMLDivElement>(null)
+  const footerRef = useRef<HTMLDivElement>(null)
 
-
-  // Foco al abrir, scroll lock
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
@@ -23,7 +25,6 @@ const CartDrawer: React.FC = () => {
     }
   }, [isOpen])
 
-  // Cerrar con Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) closeCart()
@@ -32,10 +33,57 @@ const CartDrawer: React.FC = () => {
     return () => document.removeEventListener('keydown', handler)
   }, [isOpen, closeCart])
 
+  useLayoutEffect(() => {
+    const overlay = overlayRef.current
+    const panel = panelRef.current
+    if (!overlay || !panel) return
+
+    if (!shouldAnimate()) {
+      gsap.set(overlay, { autoAlpha: isOpen ? 1 : 0 })
+      gsap.set(panel, { x: isOpen ? 0 : '100%' })
+      return
+    }
+
+    const ctx = gsap.context(() => {
+      if (isOpen) {
+        const itemRows = itemsContainerRef.current?.querySelectorAll('.cart-item-row') ?? []
+        const tl = gsap.timeline()
+        tl.to(overlay, { autoAlpha: 1, duration: 0.25, ease: 'power2.out' })
+          .fromTo(
+            panel,
+            { x: '100%' },
+            { x: 0, duration: 0.45, ease: 'power3.out' },
+            '<'
+          )
+        if (itemRows.length) {
+          tl.fromTo(
+            itemRows,
+            { opacity: 0, x: 16 },
+            { opacity: 1, x: 0, duration: 0.35, stagger: 0.06, ease: 'power2.out' },
+            '-=0.2'
+          )
+        }
+        if (footerRef.current) {
+          tl.fromTo(
+            footerRef.current,
+            { opacity: 0, y: 10 },
+            { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' },
+            '-=0.15'
+          )
+        }
+      } else {
+        gsap.to(panel, { x: '100%', duration: 0.3, ease: 'power3.in' })
+        gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power2.in', delay: 0.05 })
+      }
+    })
+
+    return () => ctx.revert()
+  }, [isOpen, items.length])
+
   return (
     <>
-      {/* Overlay */}
       <div
+        ref={overlayRef}
         onClick={closeCart}
         aria-hidden="true"
         style={{
@@ -43,14 +91,13 @@ const CartDrawer: React.FC = () => {
           inset: 0,
           background: 'rgba(0,0,0,0.3)',
           zIndex: 60,
-          opacity: isOpen ? 1 : 0,
-          pointerEvents: isOpen ? 'auto' : 'none',
-          transition: 'opacity 0.25s ease',
+          opacity: 0,
+          visibility: 'hidden',
         }}
       />
 
-      {/* Panel */}
       <div
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-label="Carrito de compras"
@@ -65,12 +112,11 @@ const CartDrawer: React.FC = () => {
           zIndex: 61,
           display: 'flex',
           flexDirection: 'column',
-          transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
-          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          transform: 'translateX(100%)',
           boxShadow: '-4px 0 24px rgba(44,44,44,0.08)',
+          willChange: 'transform',
         }}
       >
-        {/* Header */}
         <div
           className="flex items-center justify-between px-6 py-5 flex-shrink-0"
           style={{ borderBottom: '1px solid var(--line-soft)' }}
@@ -104,7 +150,6 @@ const CartDrawer: React.FC = () => {
           </button>
         </div>
 
-        {/* Contenido */}
         {items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center px-6 gap-4">
             <svg width="40" height="40" viewBox="0 0 20 20" fill="none" aria-hidden="true" style={{ opacity: 0.25 }}>
@@ -126,8 +171,7 @@ const CartDrawer: React.FC = () => {
           </div>
         ) : (
           <>
-            {/* Lista con scroll */}
-            <div className="flex-1 overflow-y-auto px-6">
+            <div ref={itemsContainerRef} className="flex-1 overflow-y-auto px-6">
               {items.map((item) => (
                 <CartItemRow
                   key={item.id}
@@ -138,8 +182,8 @@ const CartDrawer: React.FC = () => {
               ))}
             </div>
 
-            {/* Footer */}
             <div
+              ref={footerRef}
               className="flex-shrink-0 px-6 py-5"
               style={{ borderTop: '1px solid var(--line-soft)' }}
             >

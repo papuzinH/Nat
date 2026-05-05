@@ -39,7 +39,7 @@ const AddedToast: React.FC<AddedToastProps> = ({ visible, productTitle, onDismis
             onDismiss()
           }
         }
-      }, 2200)
+      }, 1800)
 
       return () => {
         ctx.revert()

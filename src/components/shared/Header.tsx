@@ -20,11 +20,46 @@ const Header: React.FC = () => {
   const bar2Ref = useRef<SVGLineElement>(null)
   const bar3Ref = useRef<SVGLineElement>(null)
   const gsapCtxRef = useRef<{ revert: () => void } | null>(null)
+  const badgeDesktopRef = useRef<HTMLSpanElement>(null)
+  const badgeMobileRef = useRef<HTMLSpanElement>(null)
+  const prevCountRef = useRef(itemCount)
 
   const isActive = (path: string) => location.pathname === path
 
   // Close menu on route change
   const handleNavClick = () => setIsMenuOpen(false)
+
+  // Badge bump al sumar items
+  useLayoutEffect(() => {
+    const prev = prevCountRef.current
+    prevCountRef.current = itemCount
+    if (itemCount <= prev || !shouldAnimate()) return
+
+    const targets = [badgeDesktopRef.current, badgeMobileRef.current].filter(
+      (el): el is HTMLSpanElement => Boolean(el)
+    )
+    if (targets.length === 0) return
+
+    const ctx = gsap.context(() => {
+      targets.forEach((badge) => {
+        const isFirst = prev === 0
+        if (isFirst) {
+          gsap.fromTo(
+            badge,
+            { scale: 0, opacity: 0 },
+            { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(2.5)' }
+          )
+        } else {
+          gsap.fromTo(
+            badge,
+            { scale: 0.6 },
+            { scale: 1, duration: 0.45, ease: 'back.out(2.4)' }
+          )
+        }
+      })
+    })
+    return () => ctx.revert()
+  }, [itemCount])
 
   useLayoutEffect(() => {
     const panel = menuPanelRef.current
@@ -112,6 +147,7 @@ const Header: React.FC = () => {
           <button
             onClick={openCart}
             aria-label="Abrir carrito"
+            data-cart-icon
             className="relative inline-flex items-center gap-2 font-body text-[13px] font-semibold rounded-pill border px-4 py-[10px] transition-all duration-[220ms] hover:bg-ink hover:text-cream-50"
             style={{
               background: 'transparent',
@@ -130,6 +166,7 @@ const Header: React.FC = () => {
             Carrito
             {itemCount > 0 && (
               <span
+                ref={badgeDesktopRef}
                 className="absolute -top-1.5 -right-1.5 font-mono text-[10px] text-cream-50 flex items-center justify-center rounded-full"
                 style={{
                   background: 'var(--sage-700, #4a7c59)',
@@ -154,6 +191,7 @@ const Header: React.FC = () => {
           <button
             onClick={openCart}
             aria-label="Abrir carrito"
+            data-cart-icon
             className="relative p-2 rounded-full transition-colors hover:bg-cream-200"
             style={{ color: 'var(--ink, #2c2c2c)' }}
           >
@@ -167,6 +205,7 @@ const Header: React.FC = () => {
             </svg>
             {itemCount > 0 && (
               <span
+                ref={badgeMobileRef}
                 className="absolute top-0.5 right-0.5 font-mono text-[9px] text-cream-50 flex items-center justify-center rounded-full"
                 style={{
                   background: 'var(--sage-700, #4a7c59)',

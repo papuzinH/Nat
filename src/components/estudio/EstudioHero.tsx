@@ -1,26 +1,20 @@
-import React from 'react'
+import React, { useLayoutEffect, useRef } from 'react'
 import NHLeafMark from '@/components/shared/NHLeafMark'
 import HeroEyebrow from '@/components/shared/HeroEyebrow'
 import HeroTitle from '@/components/shared/HeroTitle'
 import HeroSubtitle from '@/components/shared/HeroSubtitle'
-import { useLayoutEffect, useRef } from 'react'
-import { gsap, shouldAnimate } from '@/lib/gsap'
 import { SectionContainer } from '../shared'
+import { animateHero, splitWords } from '@/lib/animations'
+
+const TITLE_PRE = 'Línea fina, botánica '
+const TITLE_EM = 'y una conversación lenta.'
 
 const EstudioHero: React.FC = () => {
-
   const containerRef = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
-    if (!shouldAnimate()) return
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        Array.from(containerRef.current?.children ?? []),
-        { opacity: 0, y: 8 },
-        { opacity: 1, y: 0, duration: 0.4, stagger: 0.1, ease: 'power2.out' }
-      )
-    })
-    return () => ctx.revert()
+    if (!containerRef.current) return
+    return animateHero(containerRef.current)
   }, [])
 
   return (
@@ -36,15 +30,43 @@ const EstudioHero: React.FC = () => {
         className="absolute top-6 right-6 md:hidden"
       />
 
-      <div className="max-w-7xl mx-auto" ref={containerRef} >
-        <HeroEyebrow className="mb-6">Estudio de tatuaje</HeroEyebrow>
+      <div className="max-w-7xl mx-auto" ref={containerRef}>
+        <HeroEyebrow className="hero-eyebrow mb-6">Estudio de tatuaje</HeroEyebrow>
 
         <HeroTitle className="mb-6">
-          Línea fina, botánica{' '}
-          <em>y una conversación lenta.</em>
+          <span>
+            {splitWords(TITLE_PRE).map((token, i) =>
+              /^\s+$/.test(token) ? (
+                <span key={`pre-${i}`}>{token}</span>
+              ) : (
+                <span
+                  key={`pre-${i}`}
+                  data-split-word
+                  style={{ display: 'inline-block', willChange: 'transform, opacity, filter' }}
+                >
+                  {token}
+                </span>
+              )
+            )}
+            <em>
+              {splitWords(TITLE_EM).map((token, i) =>
+                /^\s+$/.test(token) ? (
+                  <span key={`em-${i}`}>{token}</span>
+                ) : (
+                  <span
+                    key={`em-${i}`}
+                    data-split-word
+                    style={{ display: 'inline-block', willChange: 'transform, opacity, filter' }}
+                  >
+                    {token}
+                  </span>
+                )
+              )}
+            </em>
+          </span>
         </HeroTitle>
 
-        <HeroSubtitle className="max-w-2xl">
+        <HeroSubtitle className="hero-subtitle max-w-2xl">
           Diseño tatuajes únicos basados en botánica, línea fina y formas orgánicas.
           Cada sesión empieza con una charla larga y termina con algo que realmente
           tiene sentido en tu piel.

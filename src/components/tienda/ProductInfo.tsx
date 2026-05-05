@@ -1,5 +1,6 @@
 import React, { useState, useRef, useLayoutEffect } from 'react'
 import { gsap, shouldAnimate } from '@/lib/gsap'
+import { flyToCart } from '@/lib/animations'
 import { type Product, getVariantPrice, formatARS } from '@/data/products'
 import VariantSelector from './VariantSelector'
 import AddonSelector from './AddonSelector'
@@ -13,15 +14,15 @@ const WHATSAPP_NUMBER = '5491166191209'
 
 const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
   const [selectedSize, setSelectedSize] = useState<string | null>(
-    product.variants?.[2]?.size ?? null // default A4 (index 2) si tiene variantes
+    product.variants?.[2]?.size ?? null
   )
   const [frameSelected, setFrameSelected] = useState(false)
   const priceRef = useRef<HTMLParagraphElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
   const variantPrice = getVariantPrice(product, selectedSize)
   const displayPrice = variantPrice + (frameSelected ? product.framePrice : 0)
 
-  // Animación de precio al cambiar variante o addon
   useLayoutEffect(() => {
     if (!shouldAnimate() || !priceRef.current) return
     const ctx = gsap.context(() => {
@@ -34,18 +35,34 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
     return () => ctx.revert()
   }, [displayPrice])
 
+  function handleAddToCart() {
+    if (shouldAnimate()) {
+      const sourceImage = document.querySelector<HTMLImageElement>('img[data-product-main-image]')
+      const cartIcon = findVisibleCartIcon()
+      if (sourceImage && cartIcon && product.images[0]) {
+        const fromRect = sourceImage.getBoundingClientRect()
+        const toRect = cartIcon.getBoundingClientRect()
+        flyToCart({
+          fromRect,
+          toRect,
+          imageSrc: sourceImage.src,
+          imageAlt: product.title,
+        })
+      }
+    }
+    onAddToCart(selectedSize, frameSelected)
+  }
+
   const waMessage = encodeURIComponent(
     `Hola Natalia! Me interesa "${product.title}" (${product.catLabel}). ¿Está disponible?`
   )
 
   return (
     <div className="md:sticky md:top-[100px]">
-      {/* Eyebrow */}
       <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 mb-3">
         {product.catLabel}
       </p>
 
-      {/* Título */}
       <h1
         className="font-display font-normal text-ink"
         style={{
@@ -57,7 +74,6 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
         {product.title}
       </h1>
 
-      {/* Precio */}
       <div className="flex items-baseline gap-3 mt-5">
         <p
           ref={priceRef}
@@ -71,7 +87,6 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
         </span>
       </div>
 
-      {/* Descripción */}
       <p
         className="font-body text-ink-soft mt-5"
         style={{ fontSize: '15px', lineHeight: 1.7 }}
@@ -79,24 +94,22 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
         {product.description}
       </p>
 
-      {/* Selector de variante */}
       <VariantSelector
         product={product}
         selectedSize={selectedSize}
         onSelect={setSelectedSize}
       />
 
-      {/* Addon de marco */}
       <AddonSelector
         product={product}
         frameSelected={frameSelected}
         onToggle={() => setFrameSelected((prev) => !prev)}
       />
 
-      {/* CTAs */}
       <div className="flex gap-[10px] mt-7">
         <button
-          onClick={() => onAddToCart(selectedSize, frameSelected)}
+          ref={buttonRef}
+          onClick={handleAddToCart}
           className="flex-1 bg-sage-700 hover:bg-sage-900 text-cream-50 font-body font-semibold text-[14px] py-[14px] px-[22px] rounded-pill transition-all duration-[220ms] hover:-translate-y-px"
           style={{ cursor: 'pointer', border: 'none' }}
         >
@@ -126,7 +139,6 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
         </a>
       </div>
 
-      {/* Specs table */}
       <div
         className="mt-9 pt-6"
         style={{ borderTop: '1px solid var(--line)' }}
@@ -159,6 +171,15 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
       </div>
     </div>
   )
+}
+
+function findVisibleCartIcon(): HTMLElement | null {
+  const icons = document.querySelectorAll<HTMLElement>('[data-cart-icon]')
+  for (const icon of icons) {
+    const rect = icon.getBoundingClientRect()
+    if (rect.width > 0 && rect.height > 0) return icon
+  }
+  return null
 }
 
 export default ProductInfo

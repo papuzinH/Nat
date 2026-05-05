@@ -244,8 +244,7 @@ function NHFooter({ go, variant = 'desktop' }) {
         paddingTop: 22, borderTop: '1px solid var(--line)',
         fontSize: 12, color: 'var(--ink-soft)', fontFamily: 'var(--font-mono)',
       }}>
-        <span>© 2026 · Natalia Heller · Hecho con paciencia</span>
-        <span>Envíos a todo el país · Retiro en CABA</span>
+        <span>© 2026 · Nat.tatt · Hecho por LHStudio.com.ar</span>
       </div>
     </footer>
   );

@@ -18,7 +18,7 @@ const Estudio: React.FC = () => (
     <SchemaMarkup type="LocalBusiness" data={schemaData} />
 
     <EstudioHero />
-
+    <NHDivider label="el espacio" />
     <StudioPhotosGallery />
 
     <MasonryGallery />
@@ -30,7 +30,7 @@ const Estudio: React.FC = () => (
     <NHDivider label="contacto" />
 
     <ContactEstudioSection />
-    
+
   </div>
 )
 

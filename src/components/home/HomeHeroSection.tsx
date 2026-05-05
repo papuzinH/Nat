@@ -1,5 +1,6 @@
 import React, { useState, useLayoutEffect, useRef, useEffect } from 'react'
 import { gsap, shouldAnimate } from '@/lib/gsap'
+import { animateHero, splitWords } from '@/lib/animations'
 import NHLeafMark from '@/components/shared/NHLeafMark'
 import NHFlower from '@/components/shared/NHFlower'
 import NHSprig from '@/components/shared/NHSprig'
@@ -24,6 +25,9 @@ const TONE_COLORS: Record<string, string> = {
   d: '#d5ddcf',
   e: '#e8dfd0',
 }
+
+const TITLE_PRE = 'Te invito a mi '
+const TITLE_EM = 'universo creativo'
 
 interface SlideProps {
   label: string
@@ -65,6 +69,7 @@ const HomeHeroSection: React.FC = () => {
   const slideRefs = useRef<(HTMLDivElement | null)[]>([])
   const gsapCtxRef = useRef<{ revert: () => void } | null>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const textRef = useRef<HTMLDivElement>(null)
 
   // Detect mobile
   useEffect(() => {
@@ -73,6 +78,12 @@ const HomeHeroSection: React.FC = () => {
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
     mq.addEventListener('change', handler)
     return () => mq.removeEventListener('change', handler)
+  }, [])
+
+  // Hero text entrance animation
+  useLayoutEffect(() => {
+    if (!textRef.current) return
+    return animateHero(textRef.current)
   }, [])
 
   // GSAP crossfade
@@ -156,7 +167,7 @@ const HomeHeroSection: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] min-h-[90vh] md:min-h-[85vh]">
 
         {/* Left column — Text */}
-        <div className="relative flex flex-col justify-center px-6 py-16 md:px-16 md:py-24 order-2 md:order-1">
+        <div ref={textRef} className="relative flex flex-col justify-center px-6 py-16 md:px-16 md:py-24 order-2 md:order-1">
 
           {/* Decorative motifs */}
           <div className="absolute top-8 right-8 md:top-12 md:right-12 pointer-events-none" aria-hidden="true">
@@ -167,25 +178,52 @@ const HomeHeroSection: React.FC = () => {
           </div>
 
           {/* Eyebrow */}
-          <HeroEyebrow className="mb-6 flex items-center gap-3 text-amber-700">
+          <HeroEyebrow className="hero-eyebrow mb-6 flex items-center gap-3 text-amber-700">
             <NHSprig size={40} color="var(--amber-700)" />
             ARTE · BUENOS AIRES · DESDE 1997
           </HeroEyebrow>
 
           {/* H1 */}
           <HeroTitle className="mb-3">
-            Te invito a mi{' '}
-            <em>universo creativo</em>
+            <span>
+              {splitWords(TITLE_PRE).map((token, i) =>
+                /^\s+$/.test(token) ? (
+                  <span key={`pre-${i}`}>{token}</span>
+                ) : (
+                  <span
+                    key={`pre-${i}`}
+                    data-split-word
+                    style={{ display: 'inline-block', willChange: 'transform, opacity, filter' }}
+                  >
+                    {token}
+                  </span>
+                )
+              )}
+              <em>
+                {splitWords(TITLE_EM).map((token, i) =>
+                  /^\s+$/.test(token) ? (
+                    <span key={`em-${i}`}>{token}</span>
+                  ) : (
+                    <span
+                      key={`em-${i}`}
+                      data-split-word
+                      style={{ display: 'inline-block', willChange: 'transform, opacity, filter' }}
+                    >
+                      {token}
+                    </span>
+                  )
+                )}
+              </em>
+            </span>
           </HeroTitle>
 
-      
           {/* Paragraph */}
-          <HeroSubtitle className="mb-10 max-w-[480px]">
+          <HeroSubtitle className="hero-subtitle mb-10 max-w-[480px]">
             Un universo de líneas, emociones y amor por los detalles. Creaciones únicas para la piel y el hogar.
           </HeroSubtitle>
 
           {/* CTAs */}
-          <div className="flex flex-wrap gap-3">
+          <div className="hero-extra flex flex-wrap gap-3">
             <ButtonPrimary to="/tienda">Explorar la tienda →</ButtonPrimary>
             <ButtonGhost to="/estudio">Reservar tatuaje</ButtonGhost>
           </div>

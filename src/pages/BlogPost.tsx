@@ -55,6 +55,7 @@ const BlogPost: React.FC = () => {
   const { post, related } = useBlogPostLogic(slug)
   const heroRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLElement>(null)
+  const progressRef = useRef<HTMLDivElement>(null)
 
   // Hero entrance
   useEffect(() => {
@@ -82,6 +83,28 @@ const BlogPost: React.FC = () => {
         }
       )
     }, bodyRef)
+    return () => ctx.revert()
+  }, [slug])
+
+  // Scroll progress bar (escaneando el cuerpo del artículo)
+  useEffect(() => {
+    if (!shouldAnimate() || !bodyRef.current || !progressRef.current) return
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        progressRef.current,
+        { scaleX: 0 },
+        {
+          scaleX: 1,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: bodyRef.current,
+            start: 'top 80%',
+            end: 'bottom bottom',
+            scrub: 0.3,
+          },
+        }
+      )
+    })
     return () => ctx.revert()
   }, [slug])
 
@@ -128,6 +151,32 @@ const BlogPost: React.FC = () => {
   return (
     <>
       <SchemaMarkup type="Article" data={articleSchema} />
+
+      {/* Scroll progress bar */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 2,
+          zIndex: 70,
+          pointerEvents: 'none',
+          background: 'transparent',
+        }}
+      >
+        <div
+          ref={progressRef}
+          style={{
+            height: '100%',
+            background: 'var(--sage-700, #4a7c59)',
+            transformOrigin: 'left center',
+            transform: 'scaleX(0)',
+          }}
+        />
+      </div>
+
 
       {/* ── Breadcrumb ── */}
       <nav

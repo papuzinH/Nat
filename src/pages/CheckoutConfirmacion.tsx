@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { formatARS } from '@/data/products'
 import { Helmet } from 'react-helmet-async'
+import { gsap, shouldAnimate } from '@/lib/gsap'
 
 interface OrderItem {
   id: string
@@ -33,6 +34,30 @@ const CheckoutConfirmacion: React.FC = () => {
   const [order,    setOrder]    = useState<Order | null>(null)
   const [loading,  setLoading]  = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    const wrapper = wrapperRef.current
+    if (!wrapper || loading || notFound || !shouldAnimate()) return
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+      const meta = wrapper.querySelector('.confirm-meta')
+      const heading = wrapper.querySelector('.confirm-heading')
+      const body = wrapper.querySelector('.confirm-body')
+      const summary = wrapper.querySelector('.confirm-summary')
+      const transferDetails = wrapper.querySelector('.confirm-transfer')
+      const cta = wrapper.querySelector('.confirm-cta')
+
+      if (meta) tl.fromTo(meta, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4 })
+      if (heading) tl.fromTo(heading, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.55 }, '-=0.2')
+      if (body) tl.fromTo(body, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.45 }, '-=0.3')
+      if (summary) tl.fromTo(summary, { opacity: 0, y: 16, scale: 0.99 }, { opacity: 1, y: 0, scale: 1, duration: 0.5 }, '-=0.25')
+      if (transferDetails)
+        tl.fromTo(transferDetails, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5 }, '-=0.3')
+      if (cta) tl.fromTo(cta, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4 }, '-=0.25')
+    }, wrapper)
+    return () => ctx.revert()
+  }, [loading, notFound])
 
   useEffect(() => {
     if (!orderId) { setNotFound(true); setLoading(false); return }
@@ -89,15 +114,15 @@ const CheckoutConfirmacion: React.FC = () => {
     <>
       <Helmet><title>¡Pedido confirmado! · Natalia Heller</title></Helmet>
       <main className="min-h-screen bg-cream-50 px-6 py-12">
-        <div className="max-w-[560px] mx-auto">
+        <div ref={wrapperRef} className="max-w-[560px] mx-auto">
 
-          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-sage-700 mb-3">
+          <p className="confirm-meta font-mono text-[10px] uppercase tracking-[0.14em] text-sage-700 mb-3">
             Pedido · {shortId}
           </p>
-          <h1 className="font-display text-[40px] font-normal text-ink mb-3 leading-tight">
+          <h1 className="confirm-heading font-display text-[40px] font-normal text-ink mb-3 leading-tight">
             {order!.payment_method === 'transferencia' ? '¡Pedido recibido!' : '¡Pago confirmado!'}
           </h1>
-          <p className="font-body text-[15px] text-ink-soft leading-relaxed mb-10">
+          <p className="confirm-body font-body text-[15px] text-ink-soft leading-relaxed mb-10">
             {order!.payment_method === 'transferencia'
               ? `Hola ${order!.customer_name.split(' ')[0]}, recibimos tu pedido. Realizá la transferencia y te confirmamos por mail.`
               : `Hola ${order!.customer_name.split(' ')[0]}, tu pago fue acreditado. ¡Gracias!`
@@ -105,7 +130,7 @@ const CheckoutConfirmacion: React.FC = () => {
           </p>
 
           {/* Order items */}
-          <div className="mb-8 rounded-sm overflow-hidden" style={{ border: '1px solid var(--line-soft)' }}>
+          <div className="confirm-summary mb-8 rounded-sm overflow-hidden" style={{ border: '1px solid var(--line-soft)' }}>
             <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft px-5 py-3 bg-cream-100">
               Resumen del pedido
             </p>
@@ -132,7 +157,7 @@ const CheckoutConfirmacion: React.FC = () => {
 
           {/* Transfer details (transferencia only) */}
           {order!.payment_method === 'transferencia' && (
-            <div className="mb-8 rounded-sm p-6" style={{ border: '1px solid var(--line-soft)', background: 'var(--cream-200, #f5efe6)' }}>
+            <div className="confirm-transfer mb-8 rounded-sm p-6" style={{ border: '1px solid var(--line-soft)', background: 'var(--cream-200, #f5efe6)' }}>
               <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft mb-4">
                 Datos para transferir
               </p>
@@ -150,7 +175,7 @@ const CheckoutConfirmacion: React.FC = () => {
 
           <Link
             to="/tienda"
-            className="inline-block bg-sage-700 hover:bg-sage-900 text-cream-50 font-body font-semibold text-[14px] py-[14px] px-[22px] rounded-pill transition-all duration-[220ms] hover:-translate-y-px"
+            className="confirm-cta inline-block bg-sage-700 hover:bg-sage-900 text-cream-50 font-body font-semibold text-[14px] py-[14px] px-[22px] rounded-pill transition-all duration-[220ms] hover:-translate-y-px"
           >
             Seguir explorando la tienda →
           </Link>
