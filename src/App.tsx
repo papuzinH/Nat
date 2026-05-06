@@ -19,6 +19,7 @@ const AdminLayout   = lazy(() => import('./pages/admin/AdminLayout'));
 const AdminOrders   = lazy(() => import('./pages/admin/AdminOrders'));
 const AdminStock    = lazy(() => import('./pages/admin/AdminStock'));
 const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
+const AdminEnvios   = lazy(() => import('./pages/admin/AdminEnvios'));
 
 const PageFallback = () => (
   <div className="min-h-[60vh] flex items-center justify-center bg-cream-50" aria-live="polite">
@@ -75,6 +76,7 @@ function App() {
           }>
             <Route index             element={<AdminOrders />} />
             <Route path="stock"      element={<AdminStock />} />
+            <Route path="envios"     element={<AdminEnvios />} />
             <Route path="productos"  element={<AdminProducts />} />
           </Route>
         </Routes>
