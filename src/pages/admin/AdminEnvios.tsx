@@ -26,7 +26,8 @@ const AdminEnvios: React.FC = () => {
   }
 
   const handleRemoveCP = async (zoneId: number, code: string) => {
-    await removePostalCode(zoneId, code)
+    const ok = await removePostalCode(zoneId, code)
+    if (!ok) setCpError((p) => ({ ...p, [zoneId]: 'Error al eliminar CP' }))
   }
 
   if (loading) {
@@ -54,8 +55,8 @@ const AdminEnvios: React.FC = () => {
             className="grid grid-cols-[1fr_100px_80px_80px_80px] gap-3 px-4 py-2 bg-cream-100"
             style={{ borderBottom: '1px solid var(--line-soft)' }}
           >
-            {['Zona', 'Precio', 'Activa', 'CPs', ''].map((h) => (
-              <span key={h} className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">{h}</span>
+            {['Zona', 'Precio', 'Activa', 'CPs', ''].map((h, i) => (
+              <span key={i} className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">{h}</span>
             ))}
           </div>
 
@@ -112,6 +113,7 @@ const AdminEnvios: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setExpandedZone(expandedZone === zone.id ? null : zone.id)}
+                    aria-expanded={expandedZone === zone.id}
                     className="font-mono text-[10px] uppercase tracking-[0.1em] px-2 py-1 rounded-pill border transition-all"
                     style={{
                       borderColor: expandedZone === zone.id ? 'var(--sage-700)' : 'var(--line)',
