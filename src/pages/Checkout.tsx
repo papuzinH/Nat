@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Navigate, Link } from 'react-router-dom'
 import { useCart } from '@/context/CartContext'
 import { formatARS } from '@/data/products'
@@ -7,6 +7,17 @@ import { useCheckoutForm } from '@/hooks/useCheckoutForm'
 import { usePublicShippingZones } from '@/hooks/useShippingZones'
 import { supabase } from '@/lib/supabase'
 import { gsap, shouldAnimate } from '@/lib/gsap'
+
+function normalizeCP(cp: string): string {
+  return cp.trim().toUpperCase()
+}
+
+function isCABA(cp: string): boolean {
+  const s = normalizeCP(cp)
+  if (/^C\d{4}/.test(s)) return true  // CPA format: C1414, C1425AEZ...
+  const n = parseInt(s, 10)
+  return /^\d{4}$/.test(s) && n >= 1000 && n <= 1499  // old 4-digit format
+}
 
 const STUDIO_ADDRESS = 'Parque Chacabuco, CABA. Nos pondremos en contacto para coordinar una vez confirmada la compra!'
 
@@ -35,6 +46,36 @@ const Checkout: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null)
   const successRef = useRef<HTMLDivElement>(null)
   const { zones, loading: zonesLoading } = usePublicShippingZones()
+
+  useEffect(() => {
+    if (fields.deliveryMode !== 'envio' || !fields.postalCode) {
+      if (fields.deliveryMode !== 'envio') {
+        update('zoneId', null)
+        update('zoneName', '')
+        update('zonePrice', 0)
+      }
+      return
+    }
+    const cp = normalizeCP(fields.postalCode)
+    const matched = zones.find(
+      (z) => z.active && z.postal_codes.some((pc) => normalizeCP(pc) === cp)
+    )
+    update('zoneId', matched?.id ?? null)
+    update('zoneName', matched?.name ?? '')
+    update('zonePrice', matched?.price ?? 0)
+  }, [fields.postalCode, fields.deliveryMode, zones])  // eslint-disable-line react-hooks/exhaustive-deps
+
+  const cpStatus: 'empty' | 'not-caba' | 'no-zone' | 'matched' = (() => {
+    if (fields.deliveryMode !== 'envio') return 'empty'
+    const cp = fields.postalCode ?? ''
+    if (cp.length < 4) return 'empty'
+    if (!isCABA(cp)) return 'not-caba'
+    const matched = zones.find(
+      (z) => z.active && z.postal_codes.some((pc) => normalizeCP(pc) === normalizeCP(cp))
+    )
+    return matched ? 'matched' : 'no-zone'
+  })()
+
   const shippingCost = fields.deliveryMode === 'envio' ? (fields.zonePrice ?? 0) : 0
   const grandTotal   = subtotal + shippingCost
 
@@ -396,55 +437,52 @@ const Checkout: React.FC = () => {
                   />
                 </div>
 
-                {/* Selector de barrio / zona */}
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="zone" className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">
-                    Barrio de entrega <span aria-hidden="true">*</span>
+                {/* Zona de envío — auto-detección por código postal */}
+                <div>
+                  <label className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft block mb-1.5">
+                    Zona de envío
                   </label>
-                  <select
-                    id="zone"
-                    value={fields.zoneId ?? ''}
-                    onChange={(e) => {
-                      const id = Number(e.target.value)
-                      const zone = zones.find((z) => z.id === id)
-                      update('zoneId', id || null)
-                      update('zoneName', zone?.name ?? '')
-                      update('zonePrice', zone?.price ?? 0)
-                    }}
-                    className="font-body text-[14px] rounded-form border px-4 py-3 appearance-none"
-                    style={{
-                      border: errors.zoneId ? '1px solid #a8503f' : '1px solid var(--line)',
-                      background: 'var(--cream-50, #FEFAE0)',
-                      color: fields.zoneId ? 'var(--ink)' : 'var(--ink-soft)',
-                      outline: 'none',
-                    }}
-                    disabled={zonesLoading}
-                    required
-                  >
-                    <option value="">
-                      {zonesLoading ? 'Cargando zonas…' : zones.length === 0 ? 'Sin zonas configuradas' : 'Seleccioná tu barrio'}
-                    </option>
-                    {zones.map((z) => (
-                      <option key={z.id} value={z.id}>
-                        {z.name}{z.price > 0 ? ` — ${formatARS(z.price)}` : ' — Gratis'}
-                      </option>
-                    ))}
-                  </select>
+
+                  {cpStatus === 'matched' && (
+                    <div
+                      className="flex items-center justify-between px-3 py-2 rounded-sm bg-cream-100"
+                      style={{ border: '1px solid var(--line-soft)' }}
+                    >
+                      <span className="font-body text-[13px] text-ink">{fields.zoneName}</span>
+                      <span className="font-mono text-[11px] text-ink-soft">
+                        {(fields.zonePrice ?? 0) > 0 ? formatARS(fields.zonePrice ?? 0) : 'Gratis'}
+                      </span>
+                    </div>
+                  )}
+
+                  {cpStatus === 'not-caba' && (
+                    <p
+                      className="font-body text-[13px] px-3 py-2 rounded-sm"
+                      style={{ background: 'var(--cream-100)', border: '1px solid var(--line-soft)', color: 'var(--ink-soft)' }}
+                    >
+                      El envío a domicilio es solo dentro de CABA. Si estás fuera, elegí{' '}
+                      <strong className="text-ink">Retiro en persona</strong> — luego coordinamos el envío.
+                    </p>
+                  )}
+
+                  {cpStatus === 'no-zone' && (
+                    <p
+                      className="font-body text-[13px] px-3 py-2 rounded-sm"
+                      style={{ background: 'var(--cream-100)', border: '1px solid var(--line-soft)', color: 'var(--ink-soft)' }}
+                    >
+                      Tu código postal aún no está en nuestras zonas. Podés elegir{' '}
+                      <strong className="text-ink">Retiro en persona</strong> y coordinamos el envío.
+                    </p>
+                  )}
+
+                  {cpStatus === 'empty' && (
+                    <p className="font-mono text-[10px] text-ink-soft uppercase tracking-[0.1em]">
+                      Ingresá tu código postal para ver el costo
+                    </p>
+                  )}
+
                   {errors.zoneId && (
-                    <p className="text-[#a8503f] text-xs font-body">{errors.zoneId}</p>
-                  )}
-                  {fields.zoneId && fields.zonePrice === 0 && (
-                    <p className="font-body text-[13px] text-sage-700">Envío gratis en esta zona</p>
-                  )}
-                  {fields.zoneId && fields.zonePrice > 0 && (
-                    <p className="font-body text-[13px] text-ink-soft">
-                      Costo de envío: <strong>{formatARS(fields.zonePrice)}</strong>
-                    </p>
-                  )}
-                  {!fields.zoneId && !zonesLoading && zones.length > 0 && (
-                    <p className="font-body text-[12px] text-ink-soft">
-                      ¿No encontrás tu barrio? Seleccioná "A coordinar" y te contactamos.
-                    </p>
+                    <p className="text-[#a8503f] text-xs font-body mt-1">{errors.zoneId}</p>
                   )}
                 </div>
 
