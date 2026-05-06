@@ -38,7 +38,7 @@ const pillInactive =
 
 const Checkout: React.FC = () => {
   const { items, subtotal, clearCart } = useCart()
-  const { fields, errors, update, submit } = useCheckoutForm()
+  const { fields, errors, update, updateMany, submit } = useCheckoutForm()
   const [confirmed, setConfirmed] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [stockError, setStockError] = useState<string | null>(null)
@@ -50,9 +50,7 @@ const Checkout: React.FC = () => {
   useEffect(() => {
     if (fields.deliveryMode !== 'envio' || !fields.postalCode) {
       if (fields.deliveryMode !== 'envio') {
-        update('zoneId', null)
-        update('zoneName', '')
-        update('zonePrice', 0)
+        updateMany({ zoneId: null, zoneName: '', zonePrice: 0 })
       }
       return
     }
@@ -60,15 +58,18 @@ const Checkout: React.FC = () => {
     const matched = zones.find(
       (z) => z.active && z.postal_codes.some((pc) => normalizeCP(pc) === cp)
     )
-    update('zoneId', matched?.id ?? null)
-    update('zoneName', matched?.name ?? '')
-    update('zonePrice', matched?.price ?? 0)
+    updateMany({
+      zoneId: matched?.id ?? null,
+      zoneName: matched?.name ?? '',
+      zonePrice: matched?.price ?? 0,
+    })
   }, [fields.postalCode, fields.deliveryMode, zones])  // eslint-disable-line react-hooks/exhaustive-deps
 
-  const cpStatus: 'empty' | 'not-caba' | 'no-zone' | 'matched' = (() => {
+  const cpStatus: 'empty' | 'loading' | 'not-caba' | 'no-zone' | 'matched' = (() => {
     if (fields.deliveryMode !== 'envio') return 'empty'
     const cp = fields.postalCode ?? ''
     if (cp.length < 4) return 'empty'
+    if (zonesLoading) return 'loading'
     if (!isCABA(cp)) return 'not-caba'
     const matched = zones.find(
       (z) => z.active && z.postal_codes.some((pc) => normalizeCP(pc) === normalizeCP(cp))
@@ -442,6 +443,12 @@ const Checkout: React.FC = () => {
                   <label className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft block mb-1.5">
                     Zona de envío
                   </label>
+
+                  {cpStatus === 'loading' && (
+                    <p className="font-mono text-[10px] text-ink-soft uppercase tracking-[0.1em]">
+                      Calculando zona…
+                    </p>
+                  )}
 
                   {cpStatus === 'matched' && (
                     <div

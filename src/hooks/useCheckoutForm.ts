@@ -74,6 +74,14 @@ export function useCheckoutForm() {
     if (attempted) setErrors(validate(next))
   }
 
+  const updateMany = (patch: Partial<CheckoutFields>) => {
+    setFields((prev) => {
+      const next = { ...prev, ...patch }
+      if (attempted) setErrors(validate(next))
+      return next
+    })
+  }
+
   const submit = (): boolean => {
     setAttempted(true)
     const errs = validate(fields)
@@ -81,5 +89,5 @@ export function useCheckoutForm() {
     return Object.keys(errs).length === 0
   }
 
-  return { fields, errors, update, submit }
+  return { fields, errors, update, updateMany, submit }
 }
