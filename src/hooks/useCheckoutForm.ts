@@ -56,7 +56,7 @@ function validate(fields: CheckoutFields): CheckoutErrors {
     if (!fields.street.trim()) e.street = 'La dirección es requerida'
     if (!fields.city.trim()) e.city = 'La localidad es requerida'
     if (!fields.postalCode.trim()) e.postalCode = 'El código postal es requerido'
-    if (!fields.zoneId) e.zoneId = 'Seleccioná el barrio de entrega'
+    if (!fields.zoneId) e.zoneId = 'Seleccioná Retiro en persona o ingresá un código postal de CABA'
     if (!fields.deliveryDay) e.deliveryDay = 'Seleccioná el día de entrega preferido'
   }
   if (!fields.paymentMethod) e.paymentMethod = 'Seleccioná un método de pago'
