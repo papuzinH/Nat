@@ -19,7 +19,9 @@ const AdminLayout   = lazy(() => import('./pages/admin/AdminLayout'));
 const AdminOrders   = lazy(() => import('./pages/admin/AdminOrders'));
 const AdminStock    = lazy(() => import('./pages/admin/AdminStock'));
 const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
-const AdminEnvios   = lazy(() => import('./pages/admin/AdminEnvios'));
+const AdminEnvios   = lazy(() => import('./pages/admin/AdminEnvios'))
+const AdminBlog       = lazy(() => import('./pages/admin/AdminBlog'))
+const AdminBlogEditor = lazy(() => import('./pages/admin/AdminBlogEditor'));
 
 const PageFallback = () => (
   <div className="min-h-[60vh] flex items-center justify-center bg-cream-50" aria-live="polite">
@@ -78,6 +80,9 @@ function App() {
             <Route path="stock"      element={<AdminStock />} />
             <Route path="envios"     element={<AdminEnvios />} />
             <Route path="productos"  element={<AdminProducts />} />
+            <Route path="blog"       element={<AdminBlog />} />
+            <Route path="blog/nuevo" element={<AdminBlogEditor />} />
+            <Route path="blog/:id"   element={<AdminBlogEditor />} />
           </Route>
         </Routes>
         <CartDrawer />

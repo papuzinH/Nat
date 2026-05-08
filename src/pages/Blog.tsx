@@ -4,12 +4,11 @@ import BlogFeaturedPost from '@/components/blog/BlogFeaturedPost'
 import BlogHeroSection from '@/components/blog/BlogHeroSection'
 import BlogPostsGrid from '@/components/blog/BlogPostsGrid'
 import { useBlogLogic, BLOG_CATEGORIES } from '@/hooks/useBlogLogic'
-import { BLOG_POSTS } from '@/data/blog-posts'
 import FilterBar from '@/components/tienda/FilterBar'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 
 const Blog: React.FC = () => {
-  const { featured, rest, activeCategory, setActiveCategory } = useBlogLogic()
+  const { featured, rest, allPosts, activeCategory, setActiveCategory } = useBlogLogic()
   const headerRef = useRef<HTMLElement>(null)
   const featuredRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
@@ -47,10 +46,10 @@ const Blog: React.FC = () => {
 
   const countForCategory = useCallback(
     (slug: string) => {
-      if (slug === 'todos') return BLOG_POSTS.length
-      return BLOG_POSTS.filter((post) => slugifyCategory(post.category) === slug).length
+      if (slug === 'todos') return allPosts.length
+      return allPosts.filter((post) => slugifyCategory(post.category) === slug).length
     },
-    [slugifyCategory]
+    [allPosts, slugifyCategory]
   )
 
   // Featured post scroll entrance

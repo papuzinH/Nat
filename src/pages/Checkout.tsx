@@ -265,7 +265,7 @@ const Checkout: React.FC = () => {
 
   return (
     <main className="min-h-screen bg-cream-50">
-      <div ref={containerRef} className="max-w-2xl mx-auto px-6 md:px-12 py-12">
+      <div ref={containerRef} className="max-w-6xl mx-auto px-6 md:px-12 py-12">
         <h1
           className="checkout-heading font-display font-normal text-ink mb-10"
           style={{ fontSize: 'clamp(26px, 4vw, 40px)', lineHeight: 1.1, letterSpacing: '-0.02em' }}
@@ -273,10 +273,10 @@ const Checkout: React.FC = () => {
           Finalizar pedido
         </h1>
 
-        <form onSubmit={handleSubmit} noValidate>
+        <div className="lg:grid lg:grid-cols-[380px_1fr] lg:gap-16 lg:items-start">
 
-          {/* Resumen */}
-          <section className="checkout-section mb-10">
+          {/* Resumen — sticky sidebar */}
+          <aside className="checkout-section mb-10 lg:mb-0 lg:sticky lg:top-24">
             <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft mb-5">
               Resumen del pedido
             </h2>
@@ -316,7 +316,7 @@ const Checkout: React.FC = () => {
               {fields.deliveryMode === 'envio' && (
                 <div className="flex justify-between">
                   <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">
-                    Envío{fields.zoneName ? ` · ${fields.zoneName}` : ''}
+                    Envío
                   </span>
                   <span className="font-body text-[13px] text-ink">
                     {shippingCost === 0 ? 'Gratis' : formatARS(shippingCost)}
@@ -328,10 +328,12 @@ const Checkout: React.FC = () => {
                 <span className="font-display text-[22px] text-sage-900">{formatARS(grandTotal)}</span>
               </div>
             </div>
-          </section>
+          </aside>
+
+        <form onSubmit={handleSubmit} noValidate>
 
           {/* Datos de contacto */}
-          <section className="checkout-section mb-10 pt-10" style={{ borderTop: '1px solid var(--line-soft)' }}>
+          <section className="checkout-section mb-10">
             <h2 className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft mb-5">
               Datos de contacto
             </h2>
@@ -438,66 +440,21 @@ const Checkout: React.FC = () => {
                   />
                 </div>
 
-                {/* Zona de envío — auto-detección por código postal */}
-                <div>
-                  <label className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft block mb-1.5">
-                    Zona de envío
-                  </label>
-
-                  {cpStatus === 'loading' && (
-                    <p className="font-mono text-[10px] text-ink-soft uppercase tracking-[0.1em]">
-                      Calculando zona…
-                    </p>
-                  )}
-
-                  {cpStatus === 'matched' && (
-                    <div
-                      className="flex items-center justify-between px-3 py-2 rounded-sm bg-cream-100"
-                      style={{ border: '1px solid var(--line-soft)' }}
-                    >
-                      <span className="font-body text-[13px] text-ink">{fields.zoneName}</span>
-                      <span className="font-mono text-[11px] text-ink-soft">
-                        {(fields.zonePrice ?? 0) > 0 ? formatARS(fields.zonePrice ?? 0) : 'Gratis'}
-                      </span>
-                    </div>
-                  )}
-
-                  {cpStatus === 'not-caba' && (
-                    <p
-                      className="font-body text-[13px] px-3 py-2 rounded-sm"
-                      style={{ background: 'var(--cream-100)', border: '1px solid var(--line-soft)', color: 'var(--ink-soft)' }}
-                    >
-                      El envío a domicilio es solo dentro de CABA. Si estás fuera, elegí{' '}
-                      <strong className="text-ink">Retiro en persona</strong> — luego coordinamos el envío.
-                    </p>
-                  )}
-
-                  {cpStatus === 'no-zone' && (
-                    <p
-                      className="font-body text-[13px] px-3 py-2 rounded-sm"
-                      style={{ background: 'var(--cream-100)', border: '1px solid var(--line-soft)', color: 'var(--ink-soft)' }}
-                    >
-                      Tu código postal aún no está en nuestras zonas. Podés elegir{' '}
-                      <strong className="text-ink">Retiro en persona</strong> y coordinamos el envío.
-                    </p>
-                  )}
-
-                  {cpStatus === 'empty' && (
-                    <p className="font-mono text-[10px] text-ink-soft uppercase tracking-[0.1em]">
-                      Ingresá tu código postal para ver el costo
-                    </p>
-                  )}
-
-                  {errors.zoneId && (
-                    <p className="text-[#a8503f] text-xs font-body mt-1">{errors.zoneId}</p>
-                  )}
-                </div>
-
                 {/* Selector de día de entrega */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">
-                    Día de entrega preferido <span aria-hidden="true">*</span>
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">
+                      Día de entrega preferido <span aria-hidden="true">*</span>
+                    </label>
+                    {cpStatus === 'loading' && (
+                      <span className="font-mono text-[10px] text-ink-soft uppercase tracking-[0.1em]">Calculando…</span>
+                    )}
+                    {cpStatus === 'matched' && (
+                      <span className="font-body text-[13px] text-ink">
+                        {(fields.zonePrice ?? 0) > 0 ? `Envío: ${formatARS(fields.zonePrice ?? 0)}` : 'Envío gratis'}
+                      </span>
+                    )}
+                  </div>
                   <div className="flex gap-3 flex-wrap">
                     {DELIVERY_DAYS.map((day) => (
                       <button
@@ -510,6 +467,21 @@ const Checkout: React.FC = () => {
                       </button>
                     ))}
                   </div>
+                  {cpStatus === 'not-caba' && (
+                    <p className="font-body text-[12px] text-ink-soft mt-1">
+                      El envío a domicilio es solo dentro de CABA. Si estás fuera, elegí{' '}
+                      <strong className="text-ink">Retiro en persona</strong>.
+                    </p>
+                  )}
+                  {cpStatus === 'no-zone' && (
+                    <p className="font-body text-[12px] text-ink-soft mt-1">
+                      Tu código postal aún no está en nuestras zonas. Podés elegir{' '}
+                      <strong className="text-ink">Retiro en persona</strong>.
+                    </p>
+                  )}
+                  {errors.zoneId && (
+                    <p className="text-[#a8503f] text-xs font-body">{errors.zoneId}</p>
+                  )}
                   {errors.deliveryDay && (
                     <p className="text-[#a8503f] text-xs font-body">{errors.deliveryDay}</p>
                   )}
@@ -569,6 +541,7 @@ const Checkout: React.FC = () => {
           </div>
 
         </form>
+        </div>
       </div>
     </main>
   )

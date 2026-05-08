@@ -1,58 +1,51 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useMemo } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { NHLeafMark, NHDivider, SchemaMarkup, NHFlower } from '@/components/shared'
 import BlogCard from '@/components/blog/BlogCard'
 import BlogPlaceholder from '@/components/blog/BlogPlaceholder'
 import { useBlogPostLogic } from '@/hooks/useBlogPostLogic'
-import { type BodyBlock } from '@/data/blog-posts'
 import { gsap, shouldAnimate } from '@/lib/gsap'
+import { generateHTML } from '@tiptap/html'
+import StarterKit from '@tiptap/starter-kit'
+import LinkExt from '@tiptap/extension-link'
+import ImageExt from '@tiptap/extension-image'
+import TextAlign from '@tiptap/extension-text-align'
+import Underline from '@tiptap/extension-underline'
+import Highlight from '@tiptap/extension-highlight'
+import Typography from '@tiptap/extension-typography'
+import type { JSONContent } from '@tiptap/core'
 
-// ── Renderiza los bloques estructurados del body ──
-const BodyRenderer: React.FC<{ blocks: BodyBlock[] }> = ({ blocks }) => (
-  <>
-    {blocks.map((block, i) => {
-      if (block.t === 'p')
-        return (
-          <p key={i} className="body-block text-[16px] md:text-[18px] leading-[1.75] text-ink mb-[22px]">
-            {block.c}
-          </p>
-        )
-      if (block.t === 'h2')
-        return (
-          <h2
-            key={i}
-            className="body-block font-display font-normal text-[24px] md:text-[32px] leading-[1.15] tracking-[-0.01em] text-ink mt-12 mb-[18px]"
-          >
-            {block.c}
-          </h2>
-        )
-      if (block.t === 'ul')
-        return (
-          <ul key={i} className="body-block list-none m-0 p-0 mb-6">
-            {block.c.map((item, j) => (
-              <li
-                key={j}
-                className="flex gap-3.5 py-2.5 border-b border-cream-200 text-[15px] md:text-[17px] leading-[1.6] text-ink"
-              >
-                <span className="text-sage-500 flex-shrink-0 mt-1" aria-hidden="true">
-                  <svg width="10" height="10" viewBox="0 0 10 10">
-                    <circle cx="5" cy="5" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.2" />
-                    <circle cx="5" cy="5" r="1.2" fill="currentColor" />
-                  </svg>
-                </span>
-                {item}
-              </li>
-            ))}
-          </ul>
-        )
-      return null
-    })}
-  </>
-)
+// ── Renderiza contenido TipTap como HTML ──
+const RENDERER_EXTENSIONS = [
+  StarterKit,
+  LinkExt,
+  ImageExt,
+  TextAlign.configure({ types: ['heading', 'paragraph'] }),
+  Underline,
+  Highlight,
+  Typography,
+]
+
+const TipTapRenderer: React.FC<{ content: JSONContent }> = ({ content }) => {
+  const html = useMemo(() => {
+    try {
+      return generateHTML(content, RENDERER_EXTENSIONS)
+    } catch {
+      return ''
+    }
+  }, [content])
+
+  return (
+    <div
+      className="tiptap-content body-block"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  )
+}
 
 const BlogPost: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
-  const { post, related } = useBlogPostLogic(slug)
+  const { post, related, loading } = useBlogPostLogic(slug)
   const heroRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLElement>(null)
   const progressRef = useRef<HTMLDivElement>(null)
@@ -107,6 +100,15 @@ const BlogPost: React.FC = () => {
     })
     return () => ctx.revert()
   }, [slug])
+
+  // Loading
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <p className="font-mono text-[12px] text-ink-soft uppercase tracking-[0.14em]">Cargando…</p>
+      </div>
+    )
+  }
 
   // 404
   if (!post) {
@@ -198,7 +200,7 @@ const BlogPost: React.FC = () => {
               {post.category}
             </span>
             <time
-              dateTime={post.date}
+              dateTime={post.isoDate}
               className="font-mono text-[10px] text-ink-soft tracking-[0.12em]"
             >
               {post.date} · {post.reading} lectura
@@ -217,12 +219,21 @@ const BlogPost: React.FC = () => {
 
       {/* ── Cover image ── */}
       <div className="px-[22px] md:px-12 mt-6 max-w-[860px]">
-        <BlogPlaceholder
-          aspect="16/9"
-          label={`Imagen · ${post.title}`}
-          className="rounded-card"
-          style={{ boxShadow: '0 12px 40px rgba(74,124,89,0.08)' }}
-        />
+        {post.image ? (
+          <img
+            src={post.image}
+            alt={post.title}
+            className="w-full rounded-card object-cover"
+            style={{ aspectRatio: '16/9', boxShadow: '0 12px 40px rgba(74,124,89,0.08)' }}
+          />
+        ) : (
+          <BlogPlaceholder
+            aspect="16/9"
+            label={`Imagen · ${post.title}`}
+            className="rounded-card"
+            style={{ boxShadow: '0 12px 40px rgba(74,124,89,0.08)' }}
+          />
+        )}
       </div>
 
       {/* ── Article body ── */}
@@ -240,13 +251,13 @@ const BlogPost: React.FC = () => {
               Natalia Heller
             </div>
             <div className="font-mono text-[10px] text-ink-soft tracking-[0.1em] uppercase mt-0.5">
-              Villa Crespo · {post.date}
+              Villa Crespo · <time dateTime={post.isoDate}>{post.date}</time>
             </div>
           </div>
         </div>
 
-        {/* Body blocks */}
-        <BodyRenderer blocks={post.body} />
+        {/* Body */}
+        {post.bodyJson && <TipTapRenderer content={post.bodyJson} />}
 
         {/* Signature */}
         <div className="mt-14 pt-8 border-t border-cream-300 flex items-center gap-3.5">
