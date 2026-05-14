@@ -51,7 +51,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
             <h3 className="font-display text-xl font-normal text-ink leading-tight group-hover:text-sage-700 transition-colors duration-200">
               {product.title}
             </h3>
-            <span className="font-mono text-xl text-sage-700 shrink-0">
+            <span className="font-display text-xl text-sage-700 shrink-0">
               {formatARS(product.basePrice)}
             </span>
           </div>

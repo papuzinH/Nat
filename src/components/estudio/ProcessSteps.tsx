@@ -6,22 +6,22 @@ const STEPS = [
   {
     num: '01',
     title: 'Conversamos',
-    desc: 'Mandame tu idea por el formulario. Te respondo en 3 a 5 días con preguntas para entender bien qué querés.',
+    desc: 'Contame tu idea desde el formulario para poder enviarte un presupuesto y la fecha estimada para la sesión.',
   },
   {
     num: '02',
     title: 'Diseño',
-    desc: 'Preparo una propuesta única dibujada para vos. Ajustamos hasta que quede exactamente como lo imaginaste.',
+    desc: 'Te armo una propuesta basada en las referencias que elegiste y lo ajustamos hasta que quede exactamente como lo imaginaste.',
   },
   {
     num: '03',
     title: 'Sesión',
-    desc: 'Nos encontramos en el estudio. Sin apuro. Mate, música suave, y el tiempo que haga falta.',
+    desc: 'Nos encontramos en el estudio. Algo fresco para tomar, música suave y el tiempo que haga falta. Tatuamos sin apuro.',
   },
   {
     num: '04',
     title: 'Cuidado',
-    desc: 'Te doy una guía de cicatrización detallada y te sigo de cerca en los días que siguen.',
+    desc: 'Te explico en detalle cómo lograr una buena cicatrización y quedamos en contacto por cualquier duda que pueda surgir.',
   },
 ]
 

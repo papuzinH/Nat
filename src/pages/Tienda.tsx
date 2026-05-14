@@ -37,7 +37,7 @@ const Tienda: React.FC = () => {
     <>
       <SEOMeta
         title="Tienda de Arte — Natalia Heller | Prints, Stickers, Cerámicas y más"
-        description="Comprá obra original de Natalia Heller: prints, cerámicas, acuarelas, stickers y abanicos. Envíos a todo el país."
+        description="Comprá obra original de Natalia Heller: prints, cerámicas, acuarelas, stickers y abanicos. A domicilio - Retiro en persona."
         canonical={`${BASE_URL}/tienda`}
         ogImage={`${BASE_URL}/og-tienda.webp`}
         schema={tiendaSchema}

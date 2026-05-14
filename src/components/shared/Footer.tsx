@@ -29,7 +29,7 @@ const Footer: React.FC = () => {
                 maxWidth: 320,
               }}
             >
-              Arte y tatuaje sensible, desde el huerto del estudio en Buenos Aires.
+              Te invito a mirar con calma y conectar con lo que te inspira.
             </p>
           </div>
 

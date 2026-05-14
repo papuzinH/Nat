@@ -53,7 +53,7 @@ const Home: React.FC = () => (
 
       <FeaturedProductsSection />
 
-      <NHDivider label="estudio + tatuaje" />
+      <NHDivider label="Arte en la piel" />
 
       <TattooTeaserSection />
 
