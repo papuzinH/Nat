@@ -7,6 +7,10 @@
     --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
     --line: rgba(44, 44, 44, 0.12);
     --line-soft: rgba(44, 44, 44, 0.06);
+    --header-h: 72px;
+  }
+  @media (min-width: 768px) {
+    :root { --header-h: 80px; }
   }
   body {
     font-family: theme('fontFamily.body');

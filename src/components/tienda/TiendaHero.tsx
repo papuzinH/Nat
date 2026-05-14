@@ -36,7 +36,7 @@ const TiendaHero: React.FC<TiendaHeroProps> = ({ productCount }) => {
                 <span
                   key={i}
                   data-split-word
-                  style={{ display: 'inline-block', willChange: 'transform, opacity, filter' }}
+                  style={{ display: 'inline-block' }}
                 >
                   {token}
                 </span>

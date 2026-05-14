@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, useRef, useEffect } from 'react'
+import React, { useState, useLayoutEffect, useRef, useEffect, useCallback } from 'react'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import { animateHero, splitWords } from '@/lib/animations'
 import NHLeafMark from '@/components/shared/NHLeafMark'
@@ -63,13 +63,133 @@ const Slide: React.FC<SlideProps> = ({ label, tone, index }) => (
   </div>
 )
 
+const MobileTouchCarousel: React.FC = () => {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  // Sync dot indicator with scroll position
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track) return
+    const onScroll = () => {
+      const slideWidth = track.clientWidth
+      if (!slideWidth) return
+      const idx = Math.round(track.scrollLeft / slideWidth)
+      setActiveIndex(idx)
+    }
+    track.addEventListener('scroll', onScroll, { passive: true })
+    return () => track.removeEventListener('scroll', onScroll)
+  }, [])
+
+  const goTo = (i: number) => {
+    const track = trackRef.current
+    if (!track) return
+    track.scrollTo({ left: i * track.clientWidth, behavior: shouldAnimate() ? 'smooth' : 'auto' })
+  }
+
+  return (
+    <div className="relative w-full">
+      <div
+        ref={trackRef}
+        className="flex overflow-x-auto snap-x snap-mandatory w-full h-[280px] rounded-card"
+        style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
+        role="region"
+        aria-label="Carrusel de obras destacadas"
+        aria-roledescription="carousel"
+      >
+        {SLIDES.map((slide, i) => (
+          <div
+            key={i}
+            className="flex-shrink-0 w-full h-full snap-center flex items-center justify-center relative"
+            style={{ background: TONE_COLORS[slide.tone] ?? '#ece2d1' }}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`${i + 1} de ${SLIDES.length}: ${slide.label}`}
+          >
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage:
+                  'repeating-linear-gradient(135deg, transparent 0, transparent 11px, rgba(74,124,89,0.07) 11px, rgba(74,124,89,0.07) 12px)',
+              }}
+            />
+            <span
+              className="relative font-mono text-[10px] uppercase tracking-[0.1em] px-3 py-1 rounded-sm"
+              style={{ color: 'var(--ink-soft)', background: 'rgba(253,252,251,0.85)' }}
+            >
+              {slide.label}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Dots — wrapper extends tap area to 44px */}
+      <div className="mt-2 flex justify-center items-center" role="tablist" aria-label="Selector de imagen">
+        {SLIDES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => goTo(i)}
+            role="tab"
+            aria-selected={i === activeIndex}
+            aria-label={`Ir a imagen ${i + 1}`}
+            className="inline-flex items-center justify-center min-w-[44px] h-[44px] bg-transparent border-0 cursor-pointer p-0"
+          >
+            <span
+              aria-hidden="true"
+              className="block transition-all duration-300 rounded-pill"
+              style={{
+                width: i === activeIndex ? 22 : 6,
+                height: 6,
+                background:
+                  i === activeIndex
+                    ? 'var(--sage-700, #4a7c59)'
+                    : 'var(--taupe-500, #b8a898)',
+                opacity: i === activeIndex ? 1 : 0.4,
+              }}
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 const HomeHeroSection: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
   const slideRefs = useRef<(HTMLDivElement | null)[]>([])
   const gsapCtxRef = useRef<{ revert: () => void } | null>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const textRef = useRef<HTMLDivElement>(null)
+
+  const stopAutoAdvance = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+  }, [])
+
+  const startAutoAdvance = useCallback(() => {
+    stopAutoAdvance()
+    if (isMobile || !shouldAnimate() || isPaused) return
+    intervalRef.current = setInterval(() => {
+      setCurrentSlide((prev) => {
+        const next = (prev + 1) % SLIDES.length
+        const prevEl = slideRefs.current[prev]
+        const nextEl = slideRefs.current[next]
+        if (prevEl && nextEl && shouldAnimate()) {
+          gsap.to(prevEl, { opacity: 0, duration: 0.7, ease: 'power2.inOut' })
+          gsap.fromTo(
+            nextEl,
+            { opacity: 0, scale: 1.04 },
+            { opacity: 1, scale: 1, duration: 0.9, ease: 'power2.inOut' }
+          )
+        }
+        return next
+      })
+    }, 4500)
+  }, [isMobile, isPaused, stopAutoAdvance])
 
   // Detect mobile
   useEffect(() => {
@@ -128,46 +248,29 @@ const HomeHeroSection: React.FC = () => {
 
   // Auto-advance
   useEffect(() => {
-    if (isMobile) return
-    intervalRef.current = setInterval(() => {
-      setCurrentSlide((prev) => {
-        const next = (prev + 1) % SLIDES.length
-        const prevEl = slideRefs.current[prev]
-        const nextEl = slideRefs.current[next]
-        if (prevEl && nextEl && shouldAnimate()) {
-          gsap.to(prevEl, { opacity: 0, duration: 0.7, ease: 'power2.inOut' })
-          gsap.fromTo(
-            nextEl,
-            { opacity: 0, scale: 1.04 },
-            { opacity: 1, scale: 1, duration: 0.9, ease: 'power2.inOut' }
-          )
-        }
-        return next
-      })
-    }, 4500)
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-    }
-  }, [isMobile])
+    startAutoAdvance()
+    return stopAutoAdvance
+  }, [startAutoAdvance, stopAutoAdvance])
 
   const handleArrow = (dir: 1 | -1) => {
-    if (intervalRef.current) clearInterval(intervalRef.current)
+    stopAutoAdvance()
     const next = (currentSlide + dir + SLIDES.length) % SLIDES.length
     goToSlide(next)
   }
 
   const handleDot = (i: number) => {
-    if (intervalRef.current) clearInterval(intervalRef.current)
+    stopAutoAdvance()
     goToSlide(i)
   }
 
+  const togglePause = () => setIsPaused((p) => !p)
+
   return (
     <section className="relative overflow-hidden bg-cream-100">
-      <div className="grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] min-h-[90vh] md:min-h-[85vh]">
+      <div className="grid grid-cols-1 md:grid-cols-[0.95fr_1.05fr] min-h-[80dvh] md:min-h-[85vh]">
 
-        {/* Left column — Text */}
-        <div ref={textRef} className="relative flex flex-col justify-center px-6 py-16 md:px-16 md:py-24 order-2 md:order-1">
+        {/* Left column — Carousel (desktop) / Text second (mobile) */}
+        <div ref={textRef} className="relative flex flex-col justify-center px-6 py-10 md:px-10 md:py-20 lg:px-16 lg:py-24 order-1 md:order-2">
 
           {/* Decorative motifs */}
           <div className="absolute top-8 right-8 md:top-12 md:right-12 pointer-events-none" aria-hidden="true">
@@ -193,7 +296,7 @@ const HomeHeroSection: React.FC = () => {
                   <span
                     key={`pre-${i}`}
                     data-split-word
-                    style={{ display: 'inline-block', willChange: 'transform, opacity, filter' }}
+                    style={{ display: 'inline-block' }}
                   >
                     {token}
                   </span>
@@ -207,7 +310,7 @@ const HomeHeroSection: React.FC = () => {
                     <span
                       key={`em-${i}`}
                       data-split-word
-                      style={{ display: 'inline-block', willChange: 'transform, opacity, filter' }}
+                      style={{ display: 'inline-block' }}
                     >
                       {token}
                     </span>
@@ -229,28 +332,11 @@ const HomeHeroSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Right column — Carousel (desktop) / Static image (mobile) */}
-        <div className="relative order-1 md:order-2 px-6 py-16 md:px-16 md:py-24" style={{ minHeight: isMobile ? 320 : undefined }}>
+        {/* Left column — Carousel (desktop) / Touch carousel (mobile, second) */}
+        <div className="relative order-2 md:order-1 px-6 py-10 md:px-10 md:py-20 lg:px-16 lg:py-24">
           {isMobile ? (
-            /* Mobile: first slide static */
-            <div
-              className="w-full h-[320px] flex items-center justify-center relative"
-              style={{ background: TONE_COLORS.a }}
-            >
-              <div
-                className="absolute inset-0"
-                style={{
-                  backgroundImage:
-                    'repeating-linear-gradient(135deg, transparent 0, transparent 11px, rgba(74,124,89,0.07) 11px, rgba(74,124,89,0.07) 12px)',
-                }}
-              />
-              <span
-                className="relative font-mono text-[10px] uppercase tracking-[0.1em] px-3 py-1 rounded-sm"
-                style={{ color: 'var(--ink-soft)', background: 'rgba(253,252,251,0.85)' }}
-              >
-                {SLIDES[0].label}
-              </span>
-            </div>
+            /* Mobile: native scroll-snap touch carousel */
+            <MobileTouchCarousel />
           ) : (
             /* Desktop: full carousel */
             <div
@@ -258,22 +344,9 @@ const HomeHeroSection: React.FC = () => {
               style={{
                 boxShadow: '0 20px 60px rgba(74,124,89,0.1), 0 2px 6px rgba(44,44,44,0.06)',
               }}
-              onMouseEnter={() => { if (intervalRef.current) clearInterval(intervalRef.current) }}
-              onMouseLeave={() => {
-                intervalRef.current = setInterval(() => {
-                  setCurrentSlide((prev) => {
-                    const next = (prev + 1) % SLIDES.length
-                    const prevEl = slideRefs.current[prev]
-                    const nextEl = slideRefs.current[next]
-                    if (prevEl && nextEl && shouldAnimate()) {
-                      gsap.to(prevEl, { opacity: 0, duration: 0.7, ease: 'power2.inOut' })
-                      gsap.fromTo(nextEl, { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.9, ease: 'power2.inOut' })
-                    }
-                    return next
-                  })
-                }, 4500)
-              }}
-              onFocus={() => { if (intervalRef.current) clearInterval(intervalRef.current) }}
+              onMouseEnter={stopAutoAdvance}
+              onMouseLeave={startAutoAdvance}
+              onFocus={stopAutoAdvance}
             >
               {/* Slides */}
               {SLIDES.map((slide, i) => (
@@ -288,18 +361,38 @@ const HomeHeroSection: React.FC = () => {
                 </div>
               ))}
 
-              {/* Counter */}
-              <div
-                className="absolute top-4 left-4 font-mono text-[11px] px-2 py-1 rounded-sm z-10"
-                style={{
-                  background: 'rgba(253,252,251,0.9)',
-                  color: 'var(--ink-soft)',
-                  letterSpacing: '0.08em',
-                }}
-                aria-live="polite"
-                aria-label={`Imagen ${currentSlide + 1} de ${SLIDES.length}`}
-              >
-                {String(currentSlide + 1).padStart(2, '0')} / {String(SLIDES.length).padStart(2, '0')}
+              {/* Counter + Pause/Play */}
+              <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
+                <div
+                  className="font-mono text-[11px] px-2 py-1 rounded-sm"
+                  style={{
+                    background: 'rgba(253,252,251,0.9)',
+                    color: 'var(--ink-soft)',
+                    letterSpacing: '0.08em',
+                  }}
+                  aria-live="polite"
+                  aria-label={`Imagen ${currentSlide + 1} de ${SLIDES.length}`}
+                >
+                  {String(currentSlide + 1).padStart(2, '0')} / {String(SLIDES.length).padStart(2, '0')}
+                </div>
+                <button
+                  onClick={togglePause}
+                  aria-label={isPaused ? 'Reanudar carrusel' : 'Pausar carrusel'}
+                  aria-pressed={isPaused}
+                  className="inline-flex items-center justify-center w-7 h-7 rounded-full transition-opacity duration-200 hover:opacity-100 opacity-80"
+                  style={{ background: 'rgba(253,252,251,0.9)', color: 'var(--ink-soft)' }}
+                >
+                  {isPaused ? (
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
+                      <path d="M2 1l7 4-7 4z" />
+                    </svg>
+                  ) : (
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
+                      <rect x="2" y="1" width="2" height="8" />
+                      <rect x="6" y="1" width="2" height="8" />
+                    </svg>
+                  )}
+                </button>
               </div>
 
               {/* Arrow left */}

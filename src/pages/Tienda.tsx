@@ -13,6 +13,13 @@ const Tienda: React.FC = () => {
   const { filteredProducts, activeCategory, setActiveCategory, categories, countForCategory } =
     useTiendaLogic(products)
 
+  const handleCategorySelect = (slug: string) => {
+    setActiveCategory(slug as Parameters<typeof setActiveCategory>[0])
+    requestAnimationFrame(() => {
+      document.getElementById('product-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
+
   const activeProducts = products.filter((p) => p.status === 'active')
 
   const tiendaSchema = {
@@ -51,7 +58,7 @@ const Tienda: React.FC = () => {
         <FilterBar
           categories={categories}
           active={activeCategory}
-          onSelect={(slug) => setActiveCategory(slug as Parameters<typeof setActiveCategory>[0])}
+          onSelect={handleCategorySelect}
           countForCategory={countForCategory}
         />
 

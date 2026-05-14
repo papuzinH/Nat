@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, useRef } from 'react'
+import React, { useState, useLayoutEffect, useRef, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import NHLogo from './NHLogo'
@@ -28,6 +28,21 @@ const Header: React.FC = () => {
 
   // Close menu on route change
   const handleNavClick = () => setIsMenuOpen(false)
+
+  // Close mobile menu with Escape + lock body scroll while open
+  useEffect(() => {
+    if (!isMenuOpen) return
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsMenuOpen(false)
+    }
+    document.addEventListener('keydown', onEsc)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onEsc)
+      document.body.style.overflow = prevOverflow
+    }
+  }, [isMenuOpen])
 
   // Badge bump al sumar items
   useLayoutEffect(() => {
@@ -131,12 +146,13 @@ const Header: React.FC = () => {
             <Link
               key={item.path}
               to={item.path}
-              className="font-body text-sm font-medium pb-1 transition-all duration-200"
+              className="font-body text-sm pb-1 transition-all duration-200"
               style={{
                 color: isActive(item.path) ? 'var(--sage-900, #2f4a37)' : 'var(--ink, #2c2c2c)',
+                fontWeight: isActive(item.path) ? 600 : 500,
                 borderBottom: isActive(item.path)
-                  ? '1px solid var(--sage-700, #4a7c59)'
-                  : '1px solid transparent',
+                  ? '2px solid var(--sage-700, #4a7c59)'
+                  : '2px solid transparent',
                 textDecoration: 'none',
               }}
             >
@@ -192,10 +208,10 @@ const Header: React.FC = () => {
             onClick={openCart}
             aria-label="Abrir carrito"
             data-cart-icon
-            className="relative p-2 rounded-full transition-colors hover:bg-cream-200"
+            className="relative inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full transition-colors hover:bg-cream-200"
             style={{ color: 'var(--ink, #2c2c2c)' }}
           >
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <path
                 d="M3 6h14l-1.5 9H4.5L3 6z M7 6V4.5a3 3 0 016 0V6"
                 stroke="currentColor"
@@ -206,11 +222,11 @@ const Header: React.FC = () => {
             {itemCount > 0 && (
               <span
                 ref={badgeMobileRef}
-                className="absolute top-0.5 right-0.5 font-mono text-[9px] text-cream-50 flex items-center justify-center rounded-full"
+                className="absolute top-1.5 right-1.5 font-mono text-[9px] text-cream-50 flex items-center justify-center rounded-full"
                 style={{
                   background: 'var(--sage-700, #4a7c59)',
-                  width: 15,
-                  height: 15,
+                  width: 16,
+                  height: 16,
                   lineHeight: 1,
                 }}
               >
@@ -224,7 +240,7 @@ const Header: React.FC = () => {
             onClick={() => setIsMenuOpen((prev) => !prev)}
             aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
             aria-expanded={isMenuOpen}
-            className="p-2 rounded-full transition-colors hover:bg-cream-200"
+            className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full transition-colors hover:bg-cream-200"
             style={{ color: 'var(--ink, #2c2c2c)' }}
           >
             <svg width="22" height="16" viewBox="0 0 22 16" fill="none" aria-hidden="true">
@@ -236,10 +252,19 @@ const Header: React.FC = () => {
         </div>
       </div>
 
+      {/* Scrim overlay — closes menu on tap outside */}
+      {isMenuOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/30 z-40"
+          onClick={() => setIsMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Mobile menu panel — drops below header */}
       <div
         ref={menuPanelRef}
-        className="md:hidden overflow-hidden"
+        className="md:hidden overflow-hidden relative z-50"
         style={{ height: 0, opacity: 0 }}
         aria-hidden={!isMenuOpen}
       >

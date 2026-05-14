@@ -19,7 +19,7 @@ const TiendaEmptyState: React.FC<TiendaEmptyStateProps> = ({ variant, onReset })
           <p className="text-ink-soft text-[15px] leading-relaxed max-w-sm mb-8">
             Mientras tanto, seguime en Instagram donde comparto el proceso creativo día a día.
           </p>
-          <ButtonGhost href="https://www.instagram.com/nat.tatt/" target="_blank">
+          <ButtonGhost href="https://www.instagram.com/nat.tatt/" target="_blank" rel="noopener noreferrer">
             @nat.tatt
           </ButtonGhost>
         </div>
@@ -30,6 +30,8 @@ const TiendaEmptyState: React.FC<TiendaEmptyStateProps> = ({ variant, onReset })
   return (
     <SectionContainer paddingClassName="px-6 md:px-12 py-16 md:py-20">
       <div className="flex flex-col items-center text-center">
+        <NHLeafMark size={24} className="text-sage-500 mb-4" />
+        <HeroEyebrow className="mb-3">Sin resultados</HeroEyebrow>
         <h2 className="font-display font-normal text-[22px] text-ink mb-6">
           No hay obras en esta categoría todavía
         </h2>

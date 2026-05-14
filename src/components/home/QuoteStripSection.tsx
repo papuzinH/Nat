@@ -19,6 +19,14 @@ const QuoteStripSection: React.FC = () => {
     const line = lineRef.current
     if (!section || !shouldAnimate()) return
 
+    // Pre-set hidden state synchronously to avoid visible→hidden flash
+    if (quote) {
+      const words = quote.querySelectorAll<HTMLElement>('[data-split-word]')
+      if (words.length) gsap.set(words, { y: 14, opacity: 0, filter: 'blur(3px)' })
+    }
+    if (cite) gsap.set(cite, { opacity: 0, y: 6 })
+    if (line) gsap.set(line, { scaleX: 0 })
+
     const ctx = gsap.context(() => {
       if (quote) {
         const words = quote.querySelectorAll<HTMLElement>('[data-split-word]')
@@ -87,7 +95,7 @@ const QuoteStripSection: React.FC = () => {
                 <span
                   key={i}
                   data-split-word
-                  style={{ display: 'inline-block', willChange: 'transform, opacity, filter' }}
+                  style={{ display: 'inline-block' }}
                 >
                   {token}
                 </span>
@@ -109,7 +117,6 @@ const QuoteStripSection: React.FC = () => {
             <cite
               ref={citeRef}
               className="font-mono text-[11px] uppercase tracking-[0.14em] text-amber-700"
-              style={{ opacity: 0 }}
             >
               — Natalia, desde el estudio
             </cite>

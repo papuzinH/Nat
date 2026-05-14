@@ -137,12 +137,18 @@ export function animateHero(container: HTMLElement, opts: AnimateHeroOpts = {}) 
   if (!shouldAnimate()) return () => {}
   const { delay = 0 } = opts
 
-  const ctx = gsap.context(() => {
-    const eyebrow = container.querySelector('.hero-eyebrow')
-    const titleWords = container.querySelectorAll('[data-split-word]')
-    const subtitle = container.querySelector('.hero-subtitle')
-    const extras = gsap.utils.toArray<HTMLElement>('.hero-extra')
+  const eyebrow = container.querySelector('.hero-eyebrow')
+  const titleWords = container.querySelectorAll('[data-split-word]')
+  const subtitle = container.querySelector('.hero-subtitle')
+  const extras = Array.from(container.querySelectorAll<HTMLElement>('.hero-extra'))
 
+  // Pre-set hidden state synchronously to avoid visible→hidden flash on first paint
+  if (eyebrow) gsap.set(eyebrow, { opacity: 0, y: 8 })
+  if (titleWords.length) gsap.set(titleWords, { y: 18, opacity: 0, filter: 'blur(4px)' })
+  if (subtitle) gsap.set(subtitle, { opacity: 0, y: 8 })
+  if (extras.length) gsap.set(extras, { opacity: 0, y: 12 })
+
+  const ctx = gsap.context(() => {
     const tl = gsap.timeline({ defaults: { ease: 'power2.out' }, delay })
 
     if (eyebrow) {
@@ -159,6 +165,12 @@ export function animateHero(container: HTMLElement, opts: AnimateHeroOpts = {}) 
           duration: 0.65,
           stagger: 0.05,
           ease: 'power3.out',
+          onStart: () => {
+            titleWords.forEach((w) => ((w as HTMLElement).style.willChange = 'transform, opacity, filter'))
+          },
+          onComplete: () => {
+            titleWords.forEach((w) => ((w as HTMLElement).style.willChange = 'auto'))
+          },
         },
         '-=0.2'
       )

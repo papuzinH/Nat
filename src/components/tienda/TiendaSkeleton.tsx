@@ -1,18 +1,25 @@
 import React from 'react'
 import { SectionContainer } from '@/components/shared'
 
-const CARDS = [0, 1, 2, 3, 4, 5]
+const CARDS = [
+  { tall: 1.3 },
+  { tall: 1.0 },
+  { tall: 1.5 },
+  { tall: 1.2 },
+  { tall: 0.9 },
+  { tall: 1.4 },
+]
 
 const TiendaSkeleton: React.FC = () => (
   <SectionContainer>
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
-      {CARDS.map((i) => (
+    <div className="[column-count:2] md:[column-count:3]" style={{ columnGap: '12px' }}>
+      {CARDS.map(({ tall }, i) => (
         <div
           key={i}
-          className="bg-cream-50 rounded-card overflow-hidden animate-pulse"
+          className="break-inside-avoid mb-3 md:mb-4 bg-cream-50 rounded-card overflow-hidden animate-pulse"
           style={{ boxShadow: '0 1px 2px rgba(44,44,44,0.04), 0 8px 24px rgba(74,124,89,0.06)' }}
         >
-          <div className="bg-cream-200 w-full" style={{ aspectRatio: '4/5' }} />
+          <div className="bg-cream-200 w-full" style={{ aspectRatio: `1 / ${tall}` }} />
           <div className="p-[18px_18px_22px] space-y-2">
             <div className="flex justify-between items-baseline gap-2">
               <div className="h-5 w-3/5 bg-cream-200 rounded" />

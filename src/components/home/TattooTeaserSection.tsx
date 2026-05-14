@@ -24,6 +24,14 @@ const TattooTeaserSection: React.FC = () => {
     const cta = ctaRef.current
     if (!section || !shouldAnimate()) return
 
+    // Pre-set hidden state synchronously to avoid visible→hidden flash
+    if (title) {
+      const words = title.querySelectorAll<HTMLElement>('[data-split-word]')
+      if (words.length) gsap.set(words, { y: 18, opacity: 0, filter: 'blur(4px)' })
+    }
+    if (paragraph) gsap.set(paragraph, { opacity: 0, y: 12 })
+    if (cta) gsap.set(cta, { opacity: 0, y: 12 })
+
     const ctx = gsap.context(() => {
       if (mosaic) {
         const cards = mosaic.querySelectorAll<HTMLElement>('.teaser-card')
@@ -188,7 +196,7 @@ const TattooTeaserSection: React.FC = () => {
                   <span
                     key={i}
                     data-split-word
-                    style={{ display: 'inline-block', willChange: 'transform, opacity' }}
+                    style={{ display: 'inline-block' }}
                   >
                     {token}
                   </span>
@@ -196,11 +204,11 @@ const TattooTeaserSection: React.FC = () => {
               )}
             </span>
           </SectionTitle>
-          <p ref={paragraphRef} className="font-body text-ink-soft mb-8" style={{ opacity: 0 }}>
+          <p ref={paragraphRef} className="font-body text-ink-soft mb-8">
             Línea fina, botánica y ornamental con un amor especial por los detalles. Cada tatuaje empieza con una conversación y termina siendo parte de tu historia.
           </p>
 
-          <div ref={ctaRef} style={{ opacity: 0 }}>
+          <div ref={ctaRef}>
             <ButtonPrimary to="/estudio">Conocer el estudio</ButtonPrimary>
           </div>
         </div>
