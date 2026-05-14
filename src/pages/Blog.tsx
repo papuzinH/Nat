@@ -3,12 +3,14 @@ import { SchemaMarkup } from '@/components/shared'
 import BlogFeaturedPost from '@/components/blog/BlogFeaturedPost'
 import BlogHeroSection from '@/components/blog/BlogHeroSection'
 import BlogPostsGrid from '@/components/blog/BlogPostsGrid'
+import BlogSkeleton from '@/components/blog/BlogSkeleton'
+import BlogEmptyState from '@/components/blog/BlogEmptyState'
 import { useBlogLogic, BLOG_CATEGORIES } from '@/hooks/useBlogLogic'
 import FilterBar from '@/components/tienda/FilterBar'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 
 const Blog: React.FC = () => {
-  const { featured, rest, allPosts, activeCategory, setActiveCategory } = useBlogLogic()
+  const { featured, rest, allPosts, activeCategory, setActiveCategory, loading } = useBlogLogic()
   const headerRef = useRef<HTMLElement>(null)
   const featuredRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
@@ -85,7 +87,7 @@ const Blog: React.FC = () => {
   }, [activeCategory, rest.length])
 
   const collectionSchema = {
-    name: 'Diario del estudio — Natalia Heller',
+    name: 'Conocé mi lado más íntimo — Natalia Heller',
     description: 'Notas sobre proceso, plantas y oficio. Escritas una vez al mes desde el taller.',
     url: 'https://tatuajesnaty.com/blog',
   }
@@ -103,8 +105,22 @@ const Blog: React.FC = () => {
         countForCategory={countForCategory}
       />
 
-      {featured && <BlogFeaturedPost post={featured} containerRef={featuredRef} />}
-      <BlogPostsGrid posts={rest} containerRef={gridRef} />
+      {loading && <BlogSkeleton />}
+
+      {!loading && allPosts.length === 0 && (
+        <BlogEmptyState variant="global" />
+      )}
+
+      {!loading && allPosts.length > 0 && !featured && rest.length === 0 && (
+        <BlogEmptyState variant="filtered" onReset={() => setActiveCategory('Todos')} />
+      )}
+
+      {!loading && featured && (
+        <BlogFeaturedPost post={featured} containerRef={featuredRef} />
+      )}
+      {!loading && rest.length > 0 && (
+        <BlogPostsGrid posts={rest} containerRef={gridRef} />
+      )}
 
     </>
   )
