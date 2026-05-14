@@ -4,21 +4,22 @@ import { gsap, shouldAnimate } from '@/lib/gsap'
 
 const FAQS = [
   {
-    q: '¿Cuánto tarda en agendarse?',
-    a: 'Abro agenda cada dos meses. Los cupos se llenan rápido; te aviso por mail si hay lugar.',
+    q: '¿Hacés tatuajes personalizados?',
+    a: 'Sí, cada diseño es único y creado exclusivamente para esa persona.',
   },
   {
-    q: '¿Cuál es el mínimo?',
-    a: 'La sesión empieza en $45.000 ARS e incluye diseño, materiales y el tiempo de consulta.',
+    q: '¿Cuál es el valor de la sesión?',
+    a: 'El valor puede cambiar dependiendo de muchos factores, como por ejemplo, el tamaño, la ubicacion, la zona, el nivel de detalle, entre otros.',
   },
   {
-    q: '¿Viajás para trabajar?',
-    a: 'Hago guest spots un par de veces al año. Anotate al newsletter para enterarte.',
+    q: '¿Hacés coberturas de tatuajes viejos?',
+    a: 'En principio sí, pero depende mucho de cuál sea el trabajo a realizar. En caso de ser necesario, te derivo con el artista que crea necesario para lograr la idea que tengas en mente.',
   },
   {
-    q: '¿Hacés tapados o coberturas?',
-    a: 'Depende de cada caso. Mandame fotos y lo conversamos.',
-  },
+    q: '¿Cuánto tiempo dura la sesión?',
+    a: 'Por lo general, un mínimo de 1 o 2 horas y hasta 5 horas máximo para trabajos más complejos.',
+  }
+
 ]
 
 const FAQItem: React.FC<{
@@ -49,13 +50,11 @@ const FAQItem: React.FC<{
         ease: 'power2.inOut',
       })
       if (open) {
-        gsap.set(answer, { height: 'auto' })
-        gsap.from(answer, {
-          height: 0,
-          opacity: 0,
-          duration: 0.35,
-          ease: 'power2.out',
-        })
+        gsap.fromTo(
+          answer,
+          { height: 0, opacity: 0 },
+          { height: 'auto', opacity: 1, duration: 0.35, ease: 'power2.out' }
+        )
       } else {
         gsap.to(answer, {
           height: 0,
@@ -132,7 +131,7 @@ const EstudioFAQ: React.FC = () => {
   return (
     <div ref={wrapperRef}>
       <HeroEyebrow>Antes de escribir</HeroEyebrow>
-      <SectionTitle>Cosas que suelen preguntar</SectionTitle>
+      <SectionTitle>Preguntas frecuentes</SectionTitle>
 
       <div className="space-y-0 divide-y divide-[rgba(44,44,44,0.12)]">
         {FAQS.map((item, i) => (

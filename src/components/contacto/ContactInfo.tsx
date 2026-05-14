@@ -3,10 +3,10 @@ import { HeroEyebrow, HeroTitle, HeroSubtitle } from '../shared'
 import { animateHero, splitWords } from '@/lib/animations'
 
 const INFO_ITEMS = [
-  { label: 'Correo', value: 'hola@nataliaheller.ar' },
+  { label: 'Correo', value: 'agendanattatt@gmail.com' },
   { label: 'Instagram', value: '@nat.tatt' },
   { label: 'Estudio', value: 'Parque Chacabuco · CABA\nCon turno previo' },
-  { label: 'Horario', value: 'Mar a Sáb · 11:00 — 19:00' },
+  { label: 'Horario', value: 'Lun a Vie - 10 a 18hs / Sab - 15 a 19hs.' },
 ]
 
 const TITLE_PRE = 'Las buenas conversaciones '
@@ -23,7 +23,7 @@ const ContactInfo: React.FC = () => {
   return (
     <div ref={wrapperRef} className="flex flex-col gap-8 lg:gap-10">
       <div className="space-y-4">
-        <HeroEyebrow className="hero-eyebrow">Escribime</HeroEyebrow>
+        <HeroEyebrow className="hero-eyebrow">Hablemos</HeroEyebrow>
         <HeroTitle as="h1">
           <span>
             {splitWords(TITLE_PRE).map((token, i) =>
@@ -57,7 +57,7 @@ const ContactInfo: React.FC = () => {
           </span>
         </HeroTitle>
         <HeroSubtitle className="hero-subtitle max-w-sm text-ink-soft">
-          Contame tu idea, pedí una cotización o simplemente decí hola. Respondo en menos de 48 horas.
+          Usá este formulario para despejar tus dudas o simplemente cotizar una idea o pedido personalizado de obras.
         </HeroSubtitle>
       </div>
 

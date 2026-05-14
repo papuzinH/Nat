@@ -82,7 +82,7 @@ const EstudioCTA: React.FC = () => {
         </li>
         <li className="flex items-start gap-2">
           <span className="text-sage-700 mt-0.5">·</span>
-          <span>Sin compromiso de seña hasta confirmar el diseño</span>
+          <span>Te pido que seas lo más detallado posible para entender bien tu idea</span>
         </li>
       </ul>
 

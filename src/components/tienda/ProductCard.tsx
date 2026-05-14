@@ -11,10 +11,11 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) => {
   return (
     <article
-      className="product-card bg-cream-50 rounded-card overflow-hidden transition-all duration-300 hover:-translate-y-1"
+      className="product-card break-inside-avoid mb-3 md:mb-4 bg-cream-50 rounded-card overflow-hidden hover:-translate-y-0.5 hover:scale-[1.015] transition-transform duration-[260ms] ease-out"
       style={{
         boxShadow:
           '0 1px 2px rgba(44,44,44,0.04), 0 8px 24px rgba(74,124,89,0.06)',
+        willChange: 'transform',
       }}
     >
       <Link
@@ -34,7 +35,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
             fetchPriority={priority ? 'high' : 'auto'}
             decoding={priority ? 'sync' : 'async'}
             className="w-full object-cover"
-            style={{ display: 'block' }}
+            style={{ display: 'block', aspectRatio: `1 / ${product.tall}` }}
           />
         ) : (
           <ProductImagePlaceholder

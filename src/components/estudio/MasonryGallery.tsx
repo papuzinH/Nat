@@ -2,6 +2,7 @@ import React, { useLayoutEffect, useRef } from 'react'
 import { TATTOO_CARDS } from '@/assets/tattoo/mock-data'
 import type { TatTone } from '@/assets/tattoo/mock-data'
 import { gsap, ScrollTrigger, shouldAnimate } from '@/lib/gsap'
+import { ButtonPrimary, NHSprig } from '@/components/shared'
 
 const TONE_BG: Record<TatTone, string> = {
   a: '#ece2d1',
@@ -44,47 +45,84 @@ const MasonryGallery: React.FC = () => {
 
   return (
     <section ref={wrapperRef} className="bg-cream-100 px-6 md:px-12 py-16 md:py-20">
-      <div className="[column-count:2] md:[column-count:4]" style={{ columnGap: '10px' }}>
-        {TATTOO_CARDS.map((card) => (
-          <div
-            key={card.id}
-            className="masonry-card relative break-inside-avoid mb-3 md:mb-4 rounded-[4px] overflow-hidden hover:-translate-y-0.5 hover:scale-[1.015] transition-transform duration-[260ms] ease-out"
-            style={{ willChange: 'transform' }}
-          >
-            {card.image ? (
-              <img
-                src={card.image}
-                alt={card.kind}
-                loading="lazy"
-                className="w-full block"
-                style={{ aspectRatio: `1 / ${card.tall}`, objectFit: 'cover' }}
-              />
-            ) : (
-              <div
-                style={{
-                  aspectRatio: `1 / ${card.tall}`,
-                  background: TONE_BG[card.tone],
-                  backgroundImage: `repeating-linear-gradient(
-                    135deg,
-                    rgba(74,124,89,0.07) 0px,
-                    rgba(74,124,89,0.07) 1px,
-                    transparent 1px,
-                    transparent 8px
-                  )`,
-                }}
-              />
-            )}
+      <div className="relative">
+        <div className="[column-count:2] md:[column-count:4]" style={{ columnGap: '10px' }}>
+          {TATTOO_CARDS.map((card) => (
+            <div
+              key={card.id}
+              className="masonry-card relative break-inside-avoid mb-3 md:mb-4 rounded-[4px] overflow-hidden hover:-translate-y-0.5 hover:scale-[1.015] transition-transform duration-[260ms] ease-out"
+              style={{ willChange: 'transform' }}
+            >
+              {card.image ? (
+                <img
+                  src={card.image}
+                  alt={card.kind}
+                  loading="lazy"
+                  className="w-full block"
+                  style={{ aspectRatio: `1 / ${card.tall}`, objectFit: 'cover' }}
+                />
+              ) : (
+                <div
+                  style={{
+                    aspectRatio: `1 / ${card.tall}`,
+                    background: TONE_BG[card.tone],
+                    backgroundImage: `repeating-linear-gradient(
+                      135deg,
+                      rgba(74,124,89,0.07) 0px,
+                      rgba(74,124,89,0.07) 1px,
+                      transparent 1px,
+                      transparent 8px
+                    )`,
+                  }}
+                />
+              )}
 
-            <div className="absolute bottom-2 left-2">
-              <span
-                className="font-mono text-[10px] uppercase tracking-[0.1em] px-2 py-1 rounded-[3px]"
-                style={{ background: 'rgba(253, 252, 251, 0.82)', color: '#5a5350' }}
-              >
-                {card.label}
-              </span>
+              <div className="absolute bottom-2 left-2">
+                <span
+                  className="font-mono text-[10px] uppercase tracking-[0.1em] px-2 py-1 rounded-[3px]"
+                  style={{ background: 'rgba(253, 252, 251, 0.82)', color: '#5a5350' }}
+                >
+                  {card.label}
+                </span>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        <div
+          className="masonry-card absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-[min(400px,90%)] rounded-[6px] bg-cream-50 border border-sage-200/50 shadow-2xl p-8 md:p-9 flex flex-col items-center text-center gap-4 pointer-events-auto overflow-hidden"
+          style={{
+            backgroundImage:
+              'radial-gradient(ellipse at top, rgba(168,184,122,0.10) 0%, transparent 60%)',
+          }}
+        >
+          <span
+            aria-hidden="true"
+            className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-sage-500 to-transparent opacity-60"
+          />
+
+          <NHSprig size={72} color="#606C38" className="opacity-75" />
+
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-sage-700">
+            @nat.tatt
+          </p>
+
+          <h3 className="font-display text-2xl md:text-[26px] leading-tight text-ink">
+            Mi portfolio completo
+          </h3>
+
+          <p className="text-sm font-body text-ink-soft leading-relaxed max-w-[280px]">
+            Podés ver mi trabajo completo haciendo click en el link
+          </p>
+
+          <ButtonPrimary
+            href="https://www.instagram.com/nat.tatt/"
+            target="_blank"
+            className="mt-2"
+          >
+            PORTFOLIO
+          </ButtonPrimary>
+        </div>
       </div>
     </section>
   )

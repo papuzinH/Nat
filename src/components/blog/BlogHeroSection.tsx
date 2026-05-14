@@ -8,7 +8,7 @@ interface BlogHeroSectionProps {
   sectionRef?: React.RefObject<HTMLElement | null>
 }
 
-const TITLE = 'Notas sobre proceso, plantas y oficio.'
+const TITLE = 'Guías, reflexiones e historias que quiero compartir.'
 
 const BlogHeroSection: React.FC<BlogHeroSectionProps> = ({ sectionRef }) => {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -26,7 +26,7 @@ const BlogHeroSection: React.FC<BlogHeroSectionProps> = ({ sectionRef }) => {
     >
       <div ref={containerRef} className="relative mx-auto max-w-7xl">
         <HeroEyebrow className="hero-eyebrow blog-eyebrow mb-4">
-          Diario del estudio
+         Conocé mi lado más íntimo
         </HeroEyebrow>
         <HeroTitle className="blog-h1 mb-4">
           <span>
@@ -46,8 +46,7 @@ const BlogHeroSection: React.FC<BlogHeroSectionProps> = ({ sectionRef }) => {
           </span>
         </HeroTitle>
         <HeroSubtitle className="hero-subtitle blog-subtitle">
-          Una vez al mes escribo sobre lo que estoy aprendiendo. Sin agenda, sin newsletter de
-          lunes. Solo notas del taller.
+          Sí, también disfruto mucho la escritura. En esta sección te cuento más sobre mi universo creativo y personal. Espero que lo disfrutes!
         </HeroSubtitle>
       </div>
     </section>

@@ -167,7 +167,7 @@ const BookingForm: React.FC = () => {
           style={{ fontSize: '15px', maxWidth: '360px' }}
         >
           Gracias, {firstName}. Te voy a contestar en los próximos días desde
-          hola@nataliaheller.ar. Mientras tanto, respirá hondo ✶
+          agendanattatt@gmail.com. Mientras tanto, respirá hondo ✶
         </p>
         <button
           onClick={reset}
