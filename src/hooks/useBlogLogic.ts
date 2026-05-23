@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { pb } from '@/lib/pocketbase'
 import { BLOG_CATEGORIES, type BlogPost } from '@/data/blog-posts'
 
 export { BLOG_CATEGORIES }
@@ -13,15 +13,15 @@ function formatDate(isoDate: string): string {
 
 export function rowToPost(row: Record<string, unknown>): BlogPost {
   return {
-    slug: row.slug as string,
-    title: row.title as string,
+    slug:     row.slug     as string,
+    title:    row.title    as string,
     subtitle: (row.subtitle as string) ?? '',
     category: row.category as string,
-    date: formatDate(row.date as string),
-    reading: row.reading_time as string,
-    image: (row.cover_image as string) ?? undefined,
-    body: [],
-    related: (row.related as string[]) ?? [],
+    date:     formatDate(row.date as string),
+    reading:  row.reading_time as string,
+    image:    (row.cover_image as string) ?? undefined,
+    body:     [],
+    related:  (row.related as string[]) ?? [],
   }
 }
 
@@ -31,15 +31,17 @@ export const useBlogLogic = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase
-      .from('blog_posts')
-      .select('slug, title, subtitle, category, date, reading_time, cover_image, related')
-      .eq('published', true)
-      .order('date', { ascending: false })
-      .then(({ data }) => {
-        if (data) setAllPosts(data.map(rowToPost))
+    pb.collection('blog_posts')
+      .getFullList({
+        filter: 'published = true',
+        sort:   '-date',
+        fields: 'slug,title,subtitle,category,date,reading_time,cover_image,related',
+      })
+      .then((data) => {
+        setAllPosts(data.map((r) => rowToPost(r as Record<string, unknown>)))
         setLoading(false)
       })
+      .catch(() => setLoading(false))
   }, [])
 
   const filtered =

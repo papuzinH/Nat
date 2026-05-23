@@ -1,0 +1,12 @@
+[
+  {
+    "slug": "print1",
+    "stock": 99,
+    "status": "active"
+  },
+  {
+    "slug": "print2",
+    "stock": null,
+    "status": "active"
+  }
+]

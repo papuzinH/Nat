@@ -1,0 +1,33 @@
+[
+  {
+    "id": 6,
+    "name": "Caballito",
+    "price": 4000,
+    "active": true,
+    "postal_codes": [
+      "1416",
+      "1417"
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Parque chacabuco",
+    "price": 2000,
+    "active": true,
+    "postal_codes": null
+  },
+  {
+    "id": 9,
+    "name": "Villa crespo",
+    "price": 0,
+    "active": true,
+    "postal_codes": null
+  },
+  {
+    "id": 10,
+    "name": "Palermo",
+    "price": 8000,
+    "active": false,
+    "postal_codes": null
+  }
+]

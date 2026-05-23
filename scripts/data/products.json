@@ -1,0 +1,62 @@
+[
+  {
+    "slug": "print1",
+    "title": "print1",
+    "category": "laminas",
+    "cat_label": "Print impreso",
+    "base_price": 2,
+    "size": "A4 21x29,7",
+    "tone": "a",
+    "tall": "1.3",
+    "medium": "Impresión en papel de ilustración 300gr",
+    "edition": "Edición Limitada",
+    "description": "Esto es una descriptción super wow!! tipo no se puede creer, naty es muy capa la re amo!!!!!!!!!!!!!",
+    "images": [
+      "https://ujmbnpdsnwinjbhmfdjl.supabase.co/storage/v1/object/public/product-images/print1/1777558249509-9epox8h9j6n.webp"
+    ],
+    "tags": [
+      "botánica"
+    ],
+    "variants": [
+      {
+        "size": "A5",
+        "priceMultiplier": 1.2
+      }
+    ],
+    "has_frame": true,
+    "frame_price": 5000,
+    "on_demand": false,
+    "sort_order": 0
+  },
+  {
+    "slug": "print2",
+    "title": "Print2",
+    "category": "laminas",
+    "cat_label": "Printon",
+    "base_price": 3,
+    "size": "A4 21,97cm x 27cm",
+    "tone": "a",
+    "tall": "1.3",
+    "medium": "Impresion loca",
+    "edition": "",
+    "description": "Queeeee",
+    "images": [
+      "https://ujmbnpdsnwinjbhmfdjl.supabase.co/storage/v1/object/public/product-images/print2/1778792590331-qec5um4hwg.jpg",
+      "https://ujmbnpdsnwinjbhmfdjl.supabase.co/storage/v1/object/public/product-images/print2/1778792591654-t2z6mq5nn4f.jpeg",
+      "https://ujmbnpdsnwinjbhmfdjl.supabase.co/storage/v1/object/public/product-images/print2/1778792595724-wcq6pzxex2g.jpg",
+      "https://ujmbnpdsnwinjbhmfdjl.supabase.co/storage/v1/object/public/product-images/print2/1778792859104-ag0ukfy8c6b.gif",
+      "https://ujmbnpdsnwinjbhmfdjl.supabase.co/storage/v1/object/public/product-images/print2/1778792866095-syu9qcl8f6l.png"
+    ],
+    "tags": [],
+    "variants": [
+      {
+        "size": "A5",
+        "priceMultiplier": 1.2
+      }
+    ],
+    "has_frame": false,
+    "frame_price": 0,
+    "on_demand": false,
+    "sort_order": 0
+  }
+]

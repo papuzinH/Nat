@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
-
-// ─── Tipos ────────────────────────────────────────────────────────────────────
+import { pb } from '@/lib/pocketbase'
 
 interface PostListItem {
   id: string
@@ -15,15 +13,11 @@ interface PostListItem {
   confirmDelete: boolean
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat('es-AR', {
     day: 'numeric', month: 'short', year: 'numeric',
   }).format(new Date(iso + 'T12:00:00')).replace('.', '')
 }
-
-// ─── Componente ───────────────────────────────────────────────────────────────
 
 const AdminBlog: React.FC = () => {
   const navigate = useNavigate()
@@ -31,39 +25,36 @@ const AdminBlog: React.FC = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase
-      .from('blog_posts')
-      .select('id, slug, title, category, date, published, created_at')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        if (data) {
-          setRows(
-            data.map((d) => ({
-              id: d.id as string,
-              slug: d.slug as string,
-              title: d.title as string,
-              category: d.category as string,
-              date: d.date as string,
-              published: d.published as boolean,
-              toggling: false,
-              confirmDelete: false,
-            }))
-          )
-        }
+    pb.collection('blog_posts')
+      .getFullList({ sort: '-created', fields: 'id,slug,title,category,date,published' })
+      .then((data) => {
+        setRows(
+          data.map((d) => ({
+            id:            d.id,
+            slug:          d.slug as string,
+            title:         d.title as string,
+            category:      d.category as string,
+            date:          d.date as string,
+            published:     d.published as boolean,
+            toggling:      false,
+            confirmDelete: false,
+          }))
+        )
         setLoading(false)
       })
+      .catch(() => setLoading(false))
   }, [])
 
   const togglePublished = async (id: string, current: boolean) => {
     setRows((prev) => prev.map((r) => r.id === id ? { ...r, toggling: true } : r))
-    await supabase.from('blog_posts').update({ published: !current }).eq('id', id)
+    await pb.collection('blog_posts').update(id, { published: !current })
     setRows((prev) =>
       prev.map((r) => r.id === id ? { ...r, published: !current, toggling: false } : r)
     )
   }
 
   const deletePost = async (id: string) => {
-    await supabase.from('blog_posts').delete().eq('id', id)
+    await pb.collection('blog_posts').delete(id)
     setRows((prev) => prev.filter((r) => r.id !== id))
   }
 
@@ -77,7 +68,6 @@ const AdminBlog: React.FC = () => {
 
   return (
     <div>
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-display text-[22px] text-ink font-normal">Blog</h1>
         <button
@@ -102,15 +92,12 @@ const AdminBlog: React.FC = () => {
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {/* Cabecera de tabla */}
           <div
             className="grid grid-cols-[1fr_2fr_100px_110px_100px_auto] gap-4 px-4 py-2 hidden md:grid"
             style={{ borderBottom: '1px solid var(--line-soft)' }}
           >
             {['Slug', 'Título', 'Categoría', 'Fecha', 'Estado', ''].map((h) => (
-              <span key={h} className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">
-                {h}
-              </span>
+              <span key={h} className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">{h}</span>
             ))}
           </div>
 
@@ -121,27 +108,14 @@ const AdminBlog: React.FC = () => {
               style={{ border: '1px solid var(--line-soft)' }}
             >
               <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr_100px_110px_100px_auto] gap-4 px-4 py-3.5 items-center bg-cream-50">
-                {/* Slug */}
                 <span className="font-mono text-[11px] text-ink-soft truncate max-w-[120px]">
                   {row.slug || '—'}
                 </span>
-
-                {/* Título */}
                 <span className="font-body text-[14px] text-ink">
                   {row.title || <span className="italic text-ink-soft">sin título</span>}
                 </span>
-
-                {/* Categoría */}
-                <span className="font-mono text-[11px] text-ink-soft hidden md:block">
-                  {row.category}
-                </span>
-
-                {/* Fecha */}
-                <span className="font-mono text-[11px] text-ink-soft hidden md:block">
-                  {formatDate(row.date)}
-                </span>
-
-                {/* Estado */}
+                <span className="font-mono text-[11px] text-ink-soft hidden md:block">{row.category}</span>
+                <span className="font-mono text-[11px] text-ink-soft hidden md:block">{formatDate(row.date)}</span>
                 <span
                   className="font-mono text-[10px] uppercase tracking-[0.1em] px-2 py-0.5 rounded-pill self-start md:self-auto"
                   style={{
@@ -151,8 +125,6 @@ const AdminBlog: React.FC = () => {
                 >
                   {row.published ? 'Publicado' : 'Borrador'}
                 </span>
-
-                {/* Acciones */}
                 <div className="flex items-center gap-3 justify-end">
                   <button
                     type="button"
@@ -161,7 +133,6 @@ const AdminBlog: React.FC = () => {
                   >
                     Editar
                   </button>
-
                   <button
                     type="button"
                     disabled={row.toggling}
@@ -171,15 +142,10 @@ const AdminBlog: React.FC = () => {
                   >
                     {row.toggling ? '…' : row.published ? 'Despublicar' : 'Publicar'}
                   </button>
-
                   {!row.confirmDelete ? (
                     <button
                       type="button"
-                      onClick={() =>
-                        setRows((prev) =>
-                          prev.map((r) => r.id === row.id ? { ...r, confirmDelete: true } : r)
-                        )
-                      }
+                      onClick={() => setRows((prev) => prev.map((r) => r.id === row.id ? { ...r, confirmDelete: true } : r))}
                       className="font-mono text-[10px] uppercase tracking-[0.1em] hover:underline"
                       style={{ color: '#a8503f' }}
                     >
@@ -188,25 +154,8 @@ const AdminBlog: React.FC = () => {
                   ) : (
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-[10px] text-ink-soft">¿Segura?</span>
-                      <button
-                        type="button"
-                        onClick={() => deletePost(row.id)}
-                        className="font-mono text-[10px] uppercase tracking-[0.1em] hover:underline"
-                        style={{ color: '#a8503f' }}
-                      >
-                        Sí
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setRows((prev) =>
-                            prev.map((r) => r.id === row.id ? { ...r, confirmDelete: false } : r)
-                          )
-                        }
-                        className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft hover:text-ink"
-                      >
-                        No
-                      </button>
+                      <button type="button" onClick={() => deletePost(row.id)} className="font-mono text-[10px] uppercase tracking-[0.1em] hover:underline" style={{ color: '#a8503f' }}>Sí</button>
+                      <button type="button" onClick={() => setRows((prev) => prev.map((r) => r.id === row.id ? { ...r, confirmDelete: false } : r))} className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft hover:text-ink">No</button>
                     </div>
                   )}
                 </div>

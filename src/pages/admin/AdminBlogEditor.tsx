@@ -1,13 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import type { JSONContent } from '@tiptap/core'
-import { supabase } from '@/lib/supabase'
+import { pb } from '@/lib/pocketbase'
 import TipTapEditor from '@/components/admin/blog/TipTapEditor'
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
 const BLOG_CATEGORIES = ['Estudio', 'Botánica', 'Cerámica', 'Dibujo', 'Textiles']
-const BLOG_BUCKET = 'blog-images'
 const EMPTY_BODY: JSONContent = { type: 'doc', content: [] }
 const TODAY = new Date().toISOString().slice(0, 10)
 
@@ -89,23 +88,24 @@ const Field: React.FC<{ label: string; hint?: string; children: React.ReactNode 
 
 // Upload de imagen de portada
 const CoverImageUploader: React.FC<{
-  slug: string
   url: string | null
   onChange: (url: string | null) => void
-}> = ({ slug, url, onChange }) => {
+}> = ({ url, onChange }) => {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const upload = async (file: File) => {
-    if (!slug) { setError('Ingresá el slug antes de subir la imagen'); return }
     setUploading(true); setError(null)
-    const ext = file.name.split('.').pop()
-    const path = `covers/${slug}-${Date.now()}.${ext}`
-    const { error: uploadErr } = await supabase.storage.from(BLOG_BUCKET).upload(path, file, { upsert: true })
-    if (uploadErr) { setError(uploadErr.message); setUploading(false); return }
-    const { data } = supabase.storage.from(BLOG_BUCKET).getPublicUrl(path)
-    onChange(data.publicUrl)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const record = await pb.collection('media').create(formData)
+      const url = `${pb.baseUrl}/api/files/${record.collectionId}/${record.id}/${record['file']}`
+      onChange(url)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error al subir imagen')
+    }
     setUploading(false)
   }
 
@@ -174,7 +174,7 @@ const AdminBlogEditor: React.FC = () => {
   useEffect(() => {
     if (!id) return
     setState((prev) => ({ ...prev, isNew: false }))
-    supabase.from('blog_posts').select('*').eq('id', id).single().then(({ data }) => {
+    pb.collection('blog_posts').getOne(id).then((data) => {
       if (!data) return
       setState({
         id: data.id as string,
@@ -246,28 +246,21 @@ const AdminBlogEditor: React.FC = () => {
     }
     if (!state.isNew && state.id) payload.id = state.id
 
-    const { data, error } = await supabase
-      .from('blog_posts')
-      .upsert(payload)
-      .select()
-      .single()
-
-    if (error) {
-      setState((prev) => ({ ...prev, saving: false, saveError: error.message }))
+    try {
+      let recordId: string
+      if (!state.isNew && state.id) {
+        await pb.collection('blog_posts').update(state.id, payload)
+        recordId = state.id
+      } else {
+        const record = await pb.collection('blog_posts').create(payload)
+        recordId = record.id
+      }
+      setState((prev) => ({ ...prev, id: recordId, isNew: false, published, dirty: false, saving: false, saveError: null }))
+      if (!id) navigate(`/admin/blog/${recordId}`, { replace: true })
+    } catch (e) {
+      setState((prev) => ({ ...prev, saving: false, saveError: e instanceof Error ? e.message : 'Error al guardar' }))
       return
     }
-
-    setState((prev) => ({
-      ...prev,
-      id: data.id as string,
-      isNew: false,
-      published,
-      dirty: false,
-      saving: false,
-      saveError: null,
-    }))
-
-    if (!id) navigate(`/admin/blog/${data.id as string}`, { replace: true })
   }
 
   const headerTitle = state.isNew
@@ -434,7 +427,6 @@ const AdminBlogEditor: React.FC = () => {
               Imagen de portada
             </p>
             <CoverImageUploader
-              slug={state.slug}
               url={state.cover_image}
               onChange={(url) => patch('cover_image', url)}
             />

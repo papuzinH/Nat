@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { pb } from '@/lib/pocketbase'
 import { formatARS } from '@/data/products'
 import type { ProductCategory, ProductTone } from '@/data/products'
 
@@ -88,9 +88,16 @@ const Tooltip: React.FC<{ text: string }> = ({ text }) => {
   )
 }
 
-// ─── Upload de imágenes ────────────────────────────────────────────────────────
+// ─── Upload de imágenes a la colección media de PocketBase ───────────────────
 
-const BUCKET = 'product-images'
+async function uploadToMedia(file: File): Promise<string | null> {
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    const record = await pb.collection('media').create(formData)
+    return `${pb.baseUrl}/api/files/${record.collectionId}/${record.id}/${record['file']}`
+  } catch { return null }
+}
 
 const ImageUploader: React.FC<{
   slug: string
@@ -113,15 +120,12 @@ const ImageUploader: React.FC<{
     const newUrls: string[] = []
 
     for (const file of Array.from(files)) {
-      const ext = file.name.split('.').pop()
-      const path = `${slug}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-      const { error } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true })
-      if (error) {
-        setUploadError(`Error al subir ${file.name}: ${error.message}`)
+      const url = await uploadToMedia(file)
+      if (!url) {
+        setUploadError(`Error al subir ${file.name}`)
         continue
       }
-      const { data } = supabase.storage.from(BUCKET).getPublicUrl(path)
-      newUrls.push(data.publicUrl)
+      newUrls.push(url)
     }
 
     onChange([...images, ...newUrls])
@@ -365,14 +369,13 @@ const AdminProducts: React.FC = () => {
   const [saveErrors, setSaveErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    supabase
-      .from('products')
-      .select('*')
-      .order('sort_order')
-      .then(({ data }) => {
-        if (data) setRows(data.map(rawToRow))
+    pb.collection('products')
+      .getFullList({ sort: 'sort_order' })
+      .then((data) => {
+        setRows(data.map((p) => rawToRow(p as Record<string, unknown>)))
         setLoading(false)
       })
+      .catch(() => setLoading(false))
   }, [])
 
   const getKey = (row: ProductRow) => row.isNew ? '__new__' : row.slug
@@ -420,11 +423,18 @@ const AdminProducts: React.FC = () => {
       sort_order: row.sort_order,
     }
 
-    const { error } = await supabase.from('products').upsert(payload)
-    if (error) {
-      setSaveErrors((prev) => ({ ...prev, [key]: error.message }))
-      setRows((prev) => prev.map((r) => matchRow(r) ? { ...r, saving: false } : r))
-      return
+    try {
+      const existing = await pb.collection('products').getFirstListItem(`slug = "${row.slug}"`)
+      await pb.collection('products').update(existing.id, payload)
+    } catch (e: unknown) {
+      if ((e as { status?: number })?.status === 404 || (e as { status?: number })?.status === 0) {
+        await pb.collection('products').create(payload)
+      } else {
+        const msg = e instanceof Error ? e.message : 'Error al guardar'
+        setSaveErrors((prev) => ({ ...prev, [key]: msg }))
+        setRows((prev) => prev.map((r) => matchRow(r) ? { ...r, saving: false } : r))
+        return
+      }
     }
 
     setRows((prev) => prev.map((r) => matchRow(r) ? { ...r, dirty: false, saving: false, isNew: false } : r))
@@ -432,7 +442,10 @@ const AdminProducts: React.FC = () => {
   }
 
   const deleteRow = async (slug: string) => {
-    await supabase.from('products').delete().eq('slug', slug)
+    try {
+      const record = await pb.collection('products').getFirstListItem(`slug = "${slug}"`)
+      await pb.collection('products').delete(record.id)
+    } catch {}
     setRows((prev) => prev.filter((r) => r.slug !== slug))
     if (expanded === slug) setExpanded(null)
   }

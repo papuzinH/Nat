@@ -7,14 +7,14 @@ const AdminEnvios: React.FC = () => {
   const [newZonePrice, setNewZonePrice] = useState<number>(0)
   const [zoneAdding,   setZoneAdding]   = useState(false)
   const [zoneError,    setZoneError]    = useState<string | null>(null)
-  const [editingZone,  setEditingZone]  = useState<Record<number, Partial<ShippingZone>>>({})
+  const [editingZone,  setEditingZone]  = useState<Record<string, Partial<ShippingZone>>>({})
 
-  const [expandedZone, setExpandedZone] = useState<number | null>(null)
-  const [newCP,        setNewCP]        = useState<Record<number, string>>({})
-  const [cpAdding,     setCpAdding]     = useState<Record<number, boolean>>({})
-  const [cpError,      setCpError]      = useState<Record<number, string | null>>({})
+  const [expandedZone, setExpandedZone] = useState<string | null>(null)
+  const [newCP,        setNewCP]        = useState<Record<string, string>>({})
+  const [cpAdding,     setCpAdding]     = useState<Record<string, boolean>>({})
+  const [cpError,      setCpError]      = useState<Record<string, string | null>>({})
 
-  const handleAddCP = async (zoneId: number) => {
+  const handleAddCP = async (zoneId: string) => {
     const code = (newCP[zoneId] ?? '').trim()
     if (!code) return
     setCpAdding((p) => ({ ...p, [zoneId]: true }))
@@ -25,7 +25,7 @@ const AdminEnvios: React.FC = () => {
     setCpAdding((p) => ({ ...p, [zoneId]: false }))
   }
 
-  const handleRemoveCP = async (zoneId: number, code: string) => {
+  const handleRemoveCP = async (zoneId: string, code: string) => {
     const ok = await removePostalCode(zoneId, code)
     if (!ok) setCpError((p) => ({ ...p, [zoneId]: 'Error al eliminar CP' }))
   }

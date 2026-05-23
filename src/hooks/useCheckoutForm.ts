@@ -8,7 +8,7 @@ export interface CheckoutFields {
   street: string
   city: string
   postalCode: string
-  zoneId: number | null
+  zoneId: string | null
   zoneName: string
   zonePrice: number
   deliveryDay: string
@@ -38,7 +38,7 @@ const INITIAL: CheckoutFields = {
   street: '',
   city: '',
   postalCode: '',
-  zoneId: null,
+  zoneId: null as string | null,
   zoneName: '',
   zonePrice: 0,
   deliveryDay: '',

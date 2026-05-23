@@ -1,12 +1,22 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { pb } from '@/lib/pocketbase'
 
 export interface ShippingZone {
-  id: number
+  id: string   // PocketBase usa strings (era number en Supabase)
   name: string
   price: number
   active: boolean
   postal_codes: string[]
+}
+
+function rowToZone(z: Record<string, unknown>): ShippingZone {
+  return {
+    id:           z.id as string,
+    name:         z.name as string,
+    price:        z.price as number,
+    active:       z.active as boolean,
+    postal_codes: (z.postal_codes as string[]) ?? [],
+  }
 }
 
 export function useShippingZones() {
@@ -14,77 +24,61 @@ export function useShippingZones() {
   const [loading, setLoading] = useState(true)
 
   const fetchZones = async () => {
-    const { data } = await supabase
-      .from('shipping_zones')
-      .select('id, name, price, active, shipping_zone_postal_codes(postal_code)')
-      .order('name')
-    if (data) {
-      setZones(
-        data.map((z: any) => ({
-          id: z.id,
-          name: z.name,
-          price: z.price,
-          active: z.active,
-          postal_codes: (z.shipping_zone_postal_codes ?? []).map(
-            (pc: { postal_code: string }) => pc.postal_code
-          ),
-        }))
-      )
-    }
+    const data = await pb.collection('shipping_zones').getFullList({ sort: 'name' })
+    setZones(data.map(rowToZone))
     setLoading(false)
   }
 
-  useEffect(() => { fetchZones() }, [])
+  useEffect(() => { fetchZones() }, [])  // eslint-disable-line react-hooks/exhaustive-deps
 
   const addZone = async (name: string, price: number): Promise<boolean> => {
-    const { error } = await supabase
-      .from('shipping_zones')
-      .insert({ name: name.trim(), price, active: true })
-    if (error) return false
-    await fetchZones()
-    return true
+    try {
+      await pb.collection('shipping_zones').create({ name: name.trim(), price, active: true, postal_codes: [] })
+      await fetchZones()
+      return true
+    } catch { return false }
   }
 
-  const updateZone = async (id: number, patch: Partial<Pick<ShippingZone, 'name' | 'price' | 'active'>>): Promise<boolean> => {
-    const { error } = await supabase
-      .from('shipping_zones')
-      .update(patch)
-      .eq('id', id)
-    if (error) return false
-    await fetchZones()
-    return true
+  const updateZone = async (
+    id: string,
+    patch: Partial<Pick<ShippingZone, 'name' | 'price' | 'active'>>,
+  ): Promise<boolean> => {
+    try {
+      await pb.collection('shipping_zones').update(id, patch)
+      await fetchZones()
+      return true
+    } catch { return false }
   }
 
-  const deleteZone = async (id: number): Promise<boolean> => {
-    const { error } = await supabase
-      .from('shipping_zones')
-      .delete()
-      .eq('id', id)
-    if (error) return false
-    await fetchZones()
-    return true
+  const deleteZone = async (id: string): Promise<boolean> => {
+    try {
+      await pb.collection('shipping_zones').delete(id)
+      await fetchZones()
+      return true
+    } catch { return false }
   }
 
-  const addPostalCode = async (zoneId: number, code: string): Promise<boolean> => {
+  const addPostalCode = async (zoneId: string, code: string): Promise<boolean> => {
     const normalized = code.trim().toUpperCase()
     if (!normalized) return false
-    const { error } = await supabase
-      .from('shipping_zone_postal_codes')
-      .insert({ zone_id: zoneId, postal_code: normalized })
-    if (error) return false
-    await fetchZones()
-    return true
+    try {
+      const zone = await pb.collection('shipping_zones').getOne(zoneId)
+      const codes = [...((zone.postal_codes as string[]) ?? []), normalized]
+      await pb.collection('shipping_zones').update(zoneId, { postal_codes: codes })
+      await fetchZones()
+      return true
+    } catch { return false }
   }
 
-  const removePostalCode = async (zoneId: number, code: string): Promise<boolean> => {
-    const { error } = await supabase
-      .from('shipping_zone_postal_codes')
-      .delete()
-      .eq('zone_id', zoneId)
-      .eq('postal_code', code.trim().toUpperCase())
-    if (error) return false
-    await fetchZones()
-    return true
+  const removePostalCode = async (zoneId: string, code: string): Promise<boolean> => {
+    const normalized = code.trim().toUpperCase()
+    try {
+      const zone = await pb.collection('shipping_zones').getOne(zoneId)
+      const codes = ((zone.postal_codes as string[]) ?? []).filter((pc) => pc !== normalized)
+      await pb.collection('shipping_zones').update(zoneId, { postal_codes: codes })
+      await fetchZones()
+      return true
+    } catch { return false }
   }
 
   return { zones, loading, addZone, updateZone, deleteZone, addPostalCode, removePostalCode }
@@ -95,27 +89,13 @@ export function usePublicShippingZones() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase
-      .from('shipping_zones')
-      .select('id, name, price, active, shipping_zone_postal_codes(postal_code)')
-      .eq('active', true)
-      .order('name')
-      .then(({ data }) => {
-        if (data) {
-          setZones(
-            data.map((z: any) => ({
-              id: z.id,
-              name: z.name,
-              price: z.price,
-              active: z.active,
-              postal_codes: (z.shipping_zone_postal_codes ?? []).map(
-                (pc: { postal_code: string }) => pc.postal_code
-              ),
-            }))
-          )
-        }
+    pb.collection('shipping_zones')
+      .getFullList({ filter: 'active = true', sort: 'name' })
+      .then((data) => {
+        setZones(data.map(rowToZone))
         setLoading(false)
       })
+      .catch(() => setLoading(false))
   }, [])
 
   return { zones, loading }

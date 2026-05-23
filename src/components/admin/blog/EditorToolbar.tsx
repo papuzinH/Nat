@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import type { Editor } from '@tiptap/react'
-import { supabase } from '@/lib/supabase'
+import { pb } from '@/lib/pocketbase'
 
 // ─── Helpers visuales ─────────────────────────────────────────────────────────
 
@@ -42,17 +42,15 @@ const Btn: React.FC<{
   </button>
 )
 
-// ─── Upload de imágenes al bucket blog-images ─────────────────────────────────
-
-const BLOG_BUCKET = 'blog-images'
+// ─── Upload de imágenes a la colección media de PocketBase ───────────────────
 
 async function uploadImage(file: File): Promise<string | null> {
-  const ext = file.name.split('.').pop()
-  const path = `posts/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-  const { error } = await supabase.storage.from(BLOG_BUCKET).upload(path, file, { upsert: false })
-  if (error) return null
-  const { data } = supabase.storage.from(BLOG_BUCKET).getPublicUrl(path)
-  return data.publicUrl
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    const record = await pb.collection('media').create(formData)
+    return `${pb.baseUrl}/api/files/${record.collectionId}/${record.id}/${record['file']}`
+  } catch { return null }
 }
 
 // ─── Toolbar ──────────────────────────────────────────────────────────────────

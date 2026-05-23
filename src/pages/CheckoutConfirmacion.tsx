@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
+import { pb } from '@/lib/pocketbase'
 import { formatARS } from '@/data/products'
 import { Helmet } from 'react-helmet-async'
 import { gsap, shouldAnimate } from '@/lib/gsap'
@@ -15,15 +15,15 @@ interface OrderItem {
 }
 
 interface Order {
-  id: string
-  customer_name: string
+  id:             string
+  customer_name:  string
   customer_email: string
-  delivery_mode: string
+  delivery_mode:  string
   payment_method: string
-  shipping_cost: number
-  total: number
-  status: string
-  order_items?: OrderItem[]
+  shipping_cost:  number
+  total:          number
+  status:         string
+  items?:         OrderItem[]
 }
 
 function getBodyMessage(paymentMethod: string, deliveryMode: string, firstName: string): string {
@@ -75,16 +75,13 @@ const CheckoutConfirmacion: React.FC = () => {
 
   useEffect(() => {
     if (!orderId) { setNotFound(true); setLoading(false); return }
-    supabase
-      .from('orders')
-      .select('*, order_items(*)')
-      .eq('id', orderId)
-      .single()
-      .then(({ data, error }) => {
-        if (error || !data) setNotFound(true)
-        else setOrder(data as Order)
+    pb.collection('orders')
+      .getOne(orderId)
+      .then((data) => {
+        setOrder(data as unknown as Order)
         setLoading(false)
       })
+      .catch(() => { setNotFound(true); setLoading(false) })
   }, [orderId])
 
   if (loading) return (
@@ -148,10 +145,10 @@ const CheckoutConfirmacion: React.FC = () => {
             <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft px-5 py-3 bg-cream-100">
               Resumen del pedido
             </p>
-            {order!.order_items?.map((item) => {
+            {(order!.items ?? []).map((item, i) => {
               const label = [item.product_title, item.selected_size, item.has_frame ? 'con marco' : null, item.quantity > 1 ? `×${item.quantity}` : null].filter(Boolean).join(' · ')
               return (
-                <div key={item.id} className="flex justify-between items-baseline px-5 py-3" style={{ borderTop: '1px solid var(--line-soft)' }}>
+                <div key={i} className="flex justify-between items-baseline px-5 py-3" style={{ borderTop: '1px solid var(--line-soft)' }}>
                   <span className="font-body text-[13px] text-ink">{label}</span>
                   <span className="font-mono text-[12px] text-ink-soft">{formatARS(item.unit_price * item.quantity)}</span>
                 </div>
