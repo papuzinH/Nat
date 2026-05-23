@@ -98,7 +98,7 @@ const ProductDetail: React.FC = () => {
     ],
   }
 
-  const metaDescription = `${product.description} ${product.medium}. ${product.edition}. Envíos a todo el país.`
+  const metaDescription = `${product.description} ${product.medium}. ${product.edition}. A domicilio - Retiro en persona.`
 
   return (
     <>

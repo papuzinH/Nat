@@ -3,6 +3,8 @@ import { SEOMeta } from '@/components/shared'
 import { useTiendaLogic } from '@/hooks/useTiendaLogic'
 import { useProducts } from '@/hooks/useProducts'
 import { TiendaHero, FilterBar, ProductGrid } from '@/components/tienda'
+import TiendaSkeleton from '@/components/tienda/TiendaSkeleton'
+import TiendaEmptyState from '@/components/tienda/TiendaEmptyState'
 
 const BASE_URL = 'https://tatuajesnaty.com'
 
@@ -37,7 +39,7 @@ const Tienda: React.FC = () => {
     <>
       <SEOMeta
         title="Tienda de Arte — Natalia Heller | Prints, Stickers, Cerámicas y más"
-        description="Comprá obra original de Natalia Heller: prints, cerámicas, acuarelas, stickers y abanicos. Envíos a todo el país."
+        description="Comprá obra original de Natalia Heller: prints, cerámicas, acuarelas, stickers y abanicos. A domicilio - Retiro en persona."
         canonical={`${BASE_URL}/tienda`}
         ogImage={`${BASE_URL}/og-tienda.webp`}
         schema={tiendaSchema}
@@ -46,20 +48,25 @@ const Tienda: React.FC = () => {
       <main className="min-h-screen bg-cream-50">
         <TiendaHero productCount={filteredProducts.length} />
 
-        {loading ? (
-          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft text-center py-20">
-            Cargando productos…
-          </p>
-        ) : (
-          <>
-            <FilterBar
-              categories={categories}
-              active={activeCategory}
-              onSelect={(slug) => setActiveCategory(slug as Parameters<typeof setActiveCategory>[0])}
-              countForCategory={countForCategory}
-            />
-            <ProductGrid products={filteredProducts} activeCategory={activeCategory} />
-          </>
+        <FilterBar
+          categories={categories}
+          active={activeCategory}
+          onSelect={(slug) => setActiveCategory(slug as Parameters<typeof setActiveCategory>[0])}
+          countForCategory={countForCategory}
+        />
+
+        {loading && <TiendaSkeleton />}
+
+        {!loading && products.length === 0 && (
+          <TiendaEmptyState variant="global" />
+        )}
+
+        {!loading && products.length > 0 && filteredProducts.length === 0 && (
+          <TiendaEmptyState variant="filtered" onReset={() => setActiveCategory('todos')} />
+        )}
+
+        {!loading && filteredProducts.length > 0 && (
+          <ProductGrid products={filteredProducts} activeCategory={activeCategory} />
         )}
       </main>
     </>

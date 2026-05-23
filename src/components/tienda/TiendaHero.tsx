@@ -8,7 +8,7 @@ interface TiendaHeroProps {
   productCount: number
 }
 
-const TITLE = 'Obra disponible'
+const TITLE = 'Obras disponibles'
 
 const TiendaHero: React.FC<TiendaHeroProps> = ({ productCount }) => {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -45,8 +45,7 @@ const TiendaHero: React.FC<TiendaHeroProps> = ({ productCount }) => {
           </span>
         </HeroTitle>
         <HeroSubtitle className="hero-subtitle mt-4 max-w-2xl">
-          Piezas únicas y ediciones firmadas. Cada obra sale del estudio con
-          envoltorio en papel reciclado y una nota escrita a mano.
+          Piezas únicas creadas desde el amor por la naturaleza. Regalos para vos o para esa persona importante con la que compartir un momento especial.
         </HeroSubtitle>
       </div>
     </section>

@@ -20,7 +20,7 @@ const FeaturedProductsSection: React.FC = () => {
       if (!b.createdAt) return -1
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     })
-    .slice(0, 6)
+    .slice(0, 3)
 
   useLayoutEffect(() => {
     const title = titleRef.current
@@ -54,7 +54,7 @@ const FeaturedProductsSection: React.FC = () => {
     }
   }, [])
 
-  const titleText = 'Piezas que acaban de salir del estudio'
+  const titleText = 'Últimas creaciones'
 
   return (
     <SectionContainer aria-labelledby="featured-products-heading">

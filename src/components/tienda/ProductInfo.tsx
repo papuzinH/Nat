@@ -149,7 +149,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
               ['Técnica', product.medium],
               ['Medidas', product.size],
               ['Edición', product.edition],
-              ['Envío', 'Todo el país · 3–6 días hábiles'],
+              ['Envío', 'A domicilio - Retiro en persona'],
             ].map(([key, value]) => (
               <tr
                 key={key}

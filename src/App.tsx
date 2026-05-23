@@ -10,7 +10,8 @@ const ProductDetail        = lazy(() => import('./pages/ProductDetail'));
 const Checkout             = lazy(() => import('./pages/Checkout'));
 const CheckoutConfirmacion = lazy(() => import('./pages/CheckoutConfirmacion'));
 const CheckoutError        = lazy(() => import('./pages/CheckoutError'));
-const Estudio       = lazy(() => import('./pages/Estudio'));
+const Estudio          = lazy(() => import('./pages/Estudio'));
+const EstudioReservar  = lazy(() => import('./pages/EstudioReservar'));
 const Blog          = lazy(() => import('./pages/Blog'));
 const BlogPost      = lazy(() => import('./pages/BlogPost'));
 const Contacto      = lazy(() => import('./pages/Contacto'));
@@ -56,7 +57,8 @@ function App() {
                   <Route path="/checkout"                  element={<Checkout />} />
                   <Route path="/checkout/confirmacion" element={<CheckoutConfirmacion />} />
                   <Route path="/checkout/error"        element={<CheckoutError />} />
-                  <Route path="/estudio"      element={<Estudio />} />
+                  <Route path="/estudio"           element={<Estudio />} />
+                  <Route path="/estudio/reservar"  element={<EstudioReservar />} />
                   <Route path="/blog"         element={<Blog />} />
                   <Route path="/blog/:slug"   element={<BlogPost />} />
                   <Route path="/contacto"     element={<Contacto />} />

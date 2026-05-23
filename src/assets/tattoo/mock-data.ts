@@ -25,6 +25,8 @@ export const TATTOO_CARDS: TattooCard[] = [
   { id: 8,  tone: 'a', tall: 1.45, label: 'EN PIEL',        kind: 'Mandala minimal · muñeca',     image: tat4 },
   { id: 9,  tone: 'c', tall: 0.95, label: 'BOCETO',         kind: 'Hoja monstera · tobillo',      image: tat1 },
   { id: 10, tone: 'b', tall: 1.3,  label: 'EN PIEL',        kind: 'Ornamental pecho',             image: tat2 },
+  { id: 11, tone: 'e', tall: 1.55, label: 'BOCETO · 2025',  kind: 'Botánico minimal · costado',   image: tat3 },
+  { id: 12, tone: 'a', tall: 1.05, label: 'EN PIEL',        kind: 'Line art · antebrazo',         image: tat4 },
 ]
 
 // Mock data para tatuajes con contenido SEO/LLMO optimizado

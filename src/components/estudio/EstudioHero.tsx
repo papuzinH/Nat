@@ -6,8 +6,8 @@ import HeroSubtitle from '@/components/shared/HeroSubtitle'
 import { SectionContainer } from '../shared'
 import { animateHero, splitWords } from '@/lib/animations'
 
-const TITLE_PRE = 'Línea fina, botánica '
-const TITLE_EM = 'y una conversación lenta.'
+const TITLE_PRE = 'Un momento para vos '
+const TITLE_EM = 'y un recuerdo para siempre.'
 
 const EstudioHero: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -67,9 +67,7 @@ const EstudioHero: React.FC = () => {
         </HeroTitle>
 
         <HeroSubtitle className="hero-subtitle max-w-2xl">
-          Diseño tatuajes únicos basados en botánica, línea fina y formas orgánicas.
-          Cada sesión empieza con una charla larga y termina con algo que realmente
-          tiene sentido en tu piel.
+          Me especializo en línea fina, botánica y ornamental. La idea es crear algo especial y único que se adapte a la anatomía de tu cuerpo.
         </HeroSubtitle>
       </div>
     </SectionContainer>

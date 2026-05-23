@@ -27,7 +27,6 @@ const NHLogo: React.FC<NHLogoProps> = ({ size = 32, onClick }) => {
         style={{
           fontFamily: 'Fraunces, Georgia, serif',
           fontSize: 17,
-          fontStyle: 'italic',
           color: 'var(--ink, #2c2c2c)',
           lineHeight: 1,
           whiteSpace: 'nowrap',

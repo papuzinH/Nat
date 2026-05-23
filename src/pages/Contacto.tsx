@@ -11,7 +11,7 @@ const Contacto: React.FC = () => {
       '@type': 'LocalBusiness',
       name: 'Natalia Heller Tattoo Studio',
       telephone: '+54 9 11 6619-1209',
-      email: 'hola@nataliaheller.ar',
+      email: 'agendanattatt@gmail.com',
       address: {
         '@type': 'PostalAddress',
         addressLocality: 'Buenos Aires',

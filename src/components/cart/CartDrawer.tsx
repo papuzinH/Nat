@@ -200,7 +200,7 @@ const CartDrawer: React.FC = () => {
                 Proceder al pago
               </Link>
               <p className="font-mono text-[10px] text-ink-soft text-center mt-3 uppercase tracking-[0.1em]">
-                Envíos a todo el país · 3–6 días hábiles
+                A domicilio - Retiro en persona
               </p>
             </div>
           </>
