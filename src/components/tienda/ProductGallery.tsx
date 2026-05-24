@@ -100,7 +100,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product }) => {
         {hasImages ? (
           <img
             src={product.images[activeThumb] ?? product.images[0]}
-            alt={`${product.title} — ${product.catLabel}, ${product.medium}`}
+            alt={`${product.title} — ${product.catLabel}`}
             loading="eager"
             fetchPriority="high"
             className="absolute inset-0 w-full h-full object-cover"

@@ -2,6 +2,7 @@ import React from 'react'
 import { SEOMeta } from '@/components/shared'
 import { useTiendaLogic } from '@/hooks/useTiendaLogic'
 import { useProducts } from '@/hooks/useProducts'
+import { descriptionToPlainText } from '@/data/products'
 import { TiendaHero, FilterBar, ProductGrid } from '@/components/tienda'
 import TiendaSkeleton from '@/components/tienda/TiendaSkeleton'
 import TiendaEmptyState from '@/components/tienda/TiendaEmptyState'
@@ -29,7 +30,7 @@ const Tienda: React.FC = () => {
         '@type': 'Product',
         name: p.title,
         url: `${BASE_URL}/tienda/${p.slug}`,
-        description: p.description,
+        description: descriptionToPlainText(p.description),
         category: p.catLabel,
       },
     })),

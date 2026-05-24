@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useParams, Navigate } from 'react-router-dom'
-import { getVariantPrice } from '@/data/products'
+import { getVariantPrice, descriptionToPlainText } from '@/data/products'
 import { useProducts } from '@/hooks/useProducts'
 import { useCart } from '@/context/CartContext'
 import {
@@ -45,9 +45,11 @@ const ProductDetail: React.FC = () => {
     setToastVisible(true)
   }
 
+  const descriptionText = descriptionToPlainText(product.description)
+
   const productSchema = {
     name: product.title,
-    description: product.description,
+    description: descriptionText,
     image: product.images[0] ?? `${BASE_URL}/og-placeholder.webp`,
     url: `${BASE_URL}/tienda/${product.slug}`,
     brand: { '@type': 'Brand', name: 'Natalia Heller' },
@@ -98,7 +100,10 @@ const ProductDetail: React.FC = () => {
     ],
   }
 
-  const metaDescription = `${product.description} ${product.medium}. ${product.edition}. A domicilio - Retiro en persona.`
+  const specsLine = product.specs.map((s) => `${s.label}: ${s.value}`).join('. ')
+  const metaDescription = [descriptionText, specsLine, 'A domicilio - Retiro en persona.']
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <>

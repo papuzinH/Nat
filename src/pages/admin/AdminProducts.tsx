@@ -1,7 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
+import type { JSONContent } from '@tiptap/core'
 import { pb } from '@/lib/pocketbase'
-import { formatARS } from '@/data/products'
-import type { ProductCategory, ProductTone } from '@/data/products'
+import {
+  formatARS,
+  normalizeDescription,
+  EMPTY_DESCRIPTION,
+} from '@/data/products'
+import type { ProductCategory, ProductSpec, ProductTone } from '@/data/products'
+import TipTapEditor from '@/components/admin/blog/TipTapEditor'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -19,9 +25,8 @@ interface ProductRow {
   size: string
   tone: string
   tall: number
-  medium: string
-  edition: string
-  description: string
+  description: JSONContent
+  specs: ProductSpec[]
   images: string[]
   tags: string[]
   tagsInput: string
@@ -297,13 +302,82 @@ const VariantsEditor: React.FC<{
   )
 }
 
+// ─── Editor de características (specs dinámicos) ─────────────────────────────
+
+const SpecsEditor: React.FC<{
+  specs: ProductSpec[]
+  onChange: (specs: ProductSpec[]) => void
+}> = ({ specs, onChange }) => {
+  const add = () => onChange([...specs, { label: '', value: '' }])
+  const remove = (i: number) => onChange(specs.filter((_, idx) => idx !== i))
+  const update = (i: number, field: keyof ProductSpec, value: string) =>
+    onChange(specs.map((s, idx) => (idx === i ? { ...s, [field]: value } : s)))
+
+  return (
+    <div className="flex flex-col gap-3">
+      {specs.length === 0 ? (
+        <p className="font-body text-[13px] text-ink-soft italic">
+          Sin características — agregá las que necesites (ej. Técnica, Edición, Origen).
+        </p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          <div className="grid grid-cols-[180px_1fr_32px] gap-3 px-1">
+            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">Nombre</span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">Valor</span>
+            <span />
+          </div>
+
+          {specs.map((s, i) => (
+            <div key={i} className="grid grid-cols-[180px_1fr_32px] gap-3 items-center">
+              <input
+                type="text"
+                value={s.label}
+                placeholder="Técnica"
+                onChange={(e) => update(i, 'label', e.target.value)}
+                className="font-body text-[13px] text-ink bg-transparent border-b outline-none focus:border-sage-700 py-1 transition-colors"
+                style={{ borderColor: 'var(--line)' }}
+              />
+              <input
+                type="text"
+                value={s.value}
+                placeholder="Impresión giclée sobre papel Hahnemühle 308g"
+                onChange={(e) => update(i, 'value', e.target.value)}
+                className="font-body text-[13px] text-ink bg-transparent border-b outline-none focus:border-sage-700 py-1 transition-colors"
+                style={{ borderColor: 'var(--line)' }}
+              />
+              <button
+                type="button"
+                onClick={() => remove(i)}
+                className="w-8 h-8 flex items-center justify-center rounded-sm hover:bg-[#f5e6e6] transition-colors"
+                style={{ color: '#a8503f' }}
+                aria-label="Eliminar característica"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={add}
+        className="self-start font-mono text-[10px] uppercase tracking-[0.1em] px-3 py-1.5 rounded-pill border transition-all hover:border-sage-700 hover:text-sage-700"
+        style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)' }}
+      >
+        + Agregar característica
+      </button>
+    </div>
+  )
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function emptyRow(): ProductRow {
   return {
     slug: '', title: '', category: 'laminas', cat_label: '',
     base_price: 0, size: '', tone: 'a', tall: 1.3,
-    medium: '', edition: '', description: '',
+    description: EMPTY_DESCRIPTION, specs: [],
     images: [], tags: [], tagsInput: '', variants: [],
     has_frame: false, frame_price: 0, on_demand: false, sort_order: 0,
     isNew: true, dirty: true, saving: false, confirmDelete: false,
@@ -317,6 +391,24 @@ function rawToRow(p: Record<string, unknown>): ProductRow {
       (v) => typeof v === 'object' && 'size' in v && 'priceMultiplier' in v
     )
   }
+
+  // Specs: usa el array si existe; si no, reconstruye desde medium/edition legacy.
+  let specs: ProductSpec[] = []
+  if (Array.isArray(p.specs)) {
+    specs = (p.specs as ProductSpec[]).filter(
+      (s) => typeof s === 'object' && 'label' in s && 'value' in s
+    )
+  } else if (typeof p.specs === 'string' && p.specs.trim().startsWith('[')) {
+    try {
+      const parsed = JSON.parse(p.specs)
+      if (Array.isArray(parsed)) specs = parsed.filter((s) => s?.label && s?.value)
+    } catch { /* ignore */ }
+  }
+  if (specs.length === 0) {
+    if (p.medium) specs.push({ label: 'Técnica', value: String(p.medium) })
+    if (p.edition) specs.push({ label: 'Edición', value: String(p.edition) })
+  }
+
   return {
     slug: p.slug as string,
     title: p.title as string,
@@ -326,9 +418,8 @@ function rawToRow(p: Record<string, unknown>): ProductRow {
     size: p.size as string,
     tone: p.tone as string,
     tall: p.tall as number,
-    medium: p.medium as string,
-    edition: p.edition as string,
-    description: p.description as string,
+    description: normalizeDescription(p.description),
+    specs,
     images: (p.images as string[]) ?? [],
     tags: (p.tags as string[]) ?? [],
     tagsInput: ((p.tags as string[]) ?? []).join(', '),
@@ -402,6 +493,10 @@ const AdminProducts: React.FC = () => {
     const matchRow = (r: ProductRow) => key === '__new__' ? !!r.isNew : r.slug === key
     setRows((prev) => prev.map((r) => matchRow(r) ? { ...r, saving: true } : r))
 
+    const cleanSpecs = row.specs
+      .map((s) => ({ label: s.label.trim(), value: s.value.trim() }))
+      .filter((s) => s.label && s.value)
+
     const payload = {
       slug: row.slug,
       title: row.title,
@@ -411,9 +506,8 @@ const AdminProducts: React.FC = () => {
       size: row.size,
       tone: row.tone,
       tall: row.tall,
-      medium: row.medium,
-      edition: row.edition,
       description: row.description,
+      specs: cleanSpecs,
       images: row.images,
       tags: row.tags,
       variants: row.variants.length > 0 ? row.variants : null,
@@ -598,28 +692,29 @@ const AdminProducts: React.FC = () => {
                   {/* Sección: descripción */}
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-4">Descripción y detalles</p>
-                    <div className="flex flex-col gap-4">
-                      <Field label="Descripción">
-                        <textarea value={row.description} rows={3}
-                          placeholder="Texto descriptivo del producto…"
-                          onChange={(e) => patch(key, 'description', e.target.value)}
-                          className="font-body text-[13px] text-ink bg-transparent border-b outline-none focus:border-sage-700 py-1.5 transition-colors resize-none"
-                          style={{ borderColor: 'var(--line)' }} />
+                    <div className="flex flex-col gap-5">
+                      <Field
+                        label="Descripción"
+                        tooltip="Texto rico con formato (negrita, listas, enlaces, etc.) que aparece en la ficha del producto."
+                      >
+                        <TipTapEditor
+                          value={row.description}
+                          onChange={(v) => patch(key, 'description', v)}
+                          placeholder="Contá la historia del producto, materiales, inspiración…"
+                        />
                       </Field>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Field label="Técnica / material">
-                          <input type="text" value={row.medium}
-                            placeholder="Impresión giclée sobre papel Hahnemühle 308g"
-                            onChange={(e) => patch(key, 'medium', e.target.value)}
-                            className={inputCls} style={inputStyle} />
-                        </Field>
-                        <Field label="Edición">
-                          <input type="text" value={row.edition}
-                            placeholder="Edición abierta · firmada"
-                            onChange={(e) => patch(key, 'edition', e.target.value)}
-                            className={inputCls} style={inputStyle} />
-                        </Field>
+
+                      <div>
+                        <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-3 flex items-center">
+                          Características
+                          <Tooltip text="Pares nombre/valor que aparecen en la tabla de detalles del producto. Agregá las que quieras: Técnica, Edición, Origen, Cuidados, etc." />
+                        </p>
+                        <SpecsEditor
+                          specs={row.specs}
+                          onChange={(s) => patch(key, 'specs', s)}
+                        />
                       </div>
+
                       <Field label="Tags" tooltip="Palabras clave separadas por coma, usadas internamente para búsqueda y filtros. Ejemplo: botanica, tinta, papel, serie-2025">
                         <input type="text"
                           value={row.tagsInput}

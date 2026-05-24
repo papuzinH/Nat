@@ -1,9 +1,27 @@
-import React, { useState, useRef, useLayoutEffect } from 'react'
+import React, { useState, useRef, useLayoutEffect, useMemo } from 'react'
+import { generateHTML } from '@tiptap/html'
+import StarterKit from '@tiptap/starter-kit'
+import LinkExt from '@tiptap/extension-link'
+import ImageExt from '@tiptap/extension-image'
+import TextAlign from '@tiptap/extension-text-align'
+import Underline from '@tiptap/extension-underline'
+import Highlight from '@tiptap/extension-highlight'
+import Typography from '@tiptap/extension-typography'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import { flyToCart } from '@/lib/animations'
 import { type Product, getVariantPrice, formatARS } from '@/data/products'
 import VariantSelector from './VariantSelector'
 import AddonSelector from './AddonSelector'
+
+const DESC_RENDERER_EXTENSIONS = [
+  StarterKit,
+  LinkExt,
+  ImageExt,
+  TextAlign.configure({ types: ['heading', 'paragraph'] }),
+  Underline,
+  Highlight,
+  Typography,
+]
 
 interface ProductInfoProps {
   product: Product
@@ -57,6 +75,18 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
     `Hola Natalia! Me interesa "${product.title}" (${product.catLabel}). ¿Está disponible?`
   )
 
+  const descriptionHTML = useMemo(() => {
+    try {
+      return generateHTML(product.description, DESC_RENDERER_EXTENSIONS)
+    } catch { return '' }
+  }, [product.description])
+
+  const detailRows: [string, string][] = [
+    ...product.specs.map((s) => [s.label, s.value] as [string, string]),
+    ['Medidas', product.size],
+    ['Envío', 'A domicilio - Retiro en persona'],
+  ]
+
   return (
     <div className="md:sticky md:top-[100px]">
       <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 mb-3">
@@ -87,12 +117,11 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
         </span>
       </div>
 
-      <p
-        className="font-body text-ink-soft mt-5"
+      <div
+        className="tiptap-content product-description font-body text-ink-soft mt-5"
         style={{ fontSize: '15px', lineHeight: 1.7 }}
-      >
-        {product.description}
-      </p>
+        dangerouslySetInnerHTML={{ __html: descriptionHTML }}
+      />
 
       <VariantSelector
         product={product}
@@ -145,27 +174,24 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
       >
         <table className="w-full" style={{ borderCollapse: 'collapse' }}>
           <tbody>
-            {[
-              ['Técnica', product.medium],
-              ['Medidas', product.size],
-              ['Edición', product.edition],
-              ['Envío', 'A domicilio - Retiro en persona'],
-            ].map(([key, value]) => (
-              <tr
-                key={key}
-                style={{ borderBottom: '1px solid var(--line-soft)' }}
-              >
-                <td
-                  className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft py-3 pr-4"
-                  style={{ width: 120 }}
+            {detailRows
+              .filter(([, value]) => value && value.trim().length > 0)
+              .map(([key, value]) => (
+                <tr
+                  key={key}
+                  style={{ borderBottom: '1px solid var(--line-soft)' }}
                 >
-                  {key}
-                </td>
-                <td className="font-body text-[13px] text-ink py-3">
-                  {value}
-                </td>
-              </tr>
-            ))}
+                  <td
+                    className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft py-3 pr-4 align-top"
+                    style={{ width: 120 }}
+                  >
+                    {key}
+                  </td>
+                  <td className="font-body text-[13px] text-ink py-3">
+                    {value}
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>

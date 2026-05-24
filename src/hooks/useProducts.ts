@@ -1,6 +1,36 @@
 import { useState, useEffect } from 'react'
 import { pb } from '@/lib/pocketbase'
-import type { Product, ProductCategory, ProductStatus, ProductTone, ProductVariant } from '@/data/products'
+import {
+  normalizeDescription,
+  type Product,
+  type ProductCategory,
+  type ProductSpec,
+  type ProductStatus,
+  type ProductTone,
+  type ProductVariant,
+} from '@/data/products'
+
+function buildSpecs(p: Record<string, unknown>): ProductSpec[] {
+  const raw = p.specs
+  let specs: ProductSpec[] = []
+  if (Array.isArray(raw)) {
+    specs = (raw as ProductSpec[]).filter(
+      (s) => s && typeof s === 'object' && typeof s.label === 'string' && typeof s.value === 'string'
+    )
+  } else if (typeof raw === 'string' && raw.trim().startsWith('[')) {
+    try {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) {
+        specs = parsed.filter((s) => s?.label && s?.value)
+      }
+    } catch { /* ignore */ }
+  }
+  if (specs.length === 0) {
+    if (p.medium) specs.push({ label: 'Técnica', value: String(p.medium) })
+    if (p.edition) specs.push({ label: 'Edición', value: String(p.edition) })
+  }
+  return specs
+}
 
 export function useProducts() {
   const [products, setProducts] = useState<Product[]>([])
@@ -26,9 +56,10 @@ export function useProducts() {
             size:        p.size,
             tone:        p.tone as ProductTone,
             tall:        p.tall,
-            medium:      p.medium,
-            edition:     p.edition,
-            description: p.description,
+            description: normalizeDescription(p.description),
+            specs:       buildSpecs(p as Record<string, unknown>),
+            medium:      p.medium ?? undefined,
+            edition:     p.edition ?? undefined,
             images:      p.images ?? [],
             tags:        p.tags ?? [],
             variants:    (p.variants as ProductVariant[] | null) ?? null,

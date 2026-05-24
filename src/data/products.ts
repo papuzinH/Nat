@@ -1,3 +1,5 @@
+import type { JSONContent } from '@tiptap/core'
+
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
 export type ProductTone = 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
@@ -21,6 +23,11 @@ export interface ProductVariant {
   priceMultiplier: number // 0.55 | 0.75 | 1 | 1.6
 }
 
+export interface ProductSpec {
+  label: string            // 'Técnica', 'Edición', 'Origen', etc.
+  value: string            // 'Impresión giclée sobre papel Hahnemühle 308g'
+}
+
 export interface Product {
   slug: string
   title: string
@@ -30,9 +37,8 @@ export interface Product {
   size: string             // descripción de medidas: 'A4 · 21×29,7 cm', '∅ 14 cm', etc.
   tone: ProductTone
   tall: number             // aspect ratio tall para placeholder: 1.3 = 1:1.3
-  medium: string           // 'Impresión giclée sobre papel Hahnemühle 308g'
-  edition: string          // 'Edición abierta · firmada', 'Pieza única', etc.
-  description: string      // párrafo descriptivo, copy aprobado
+  description: JSONContent // contenido rico TipTap (párrafos, listas, formato)
+  specs: ProductSpec[]     // características dinámicas: [{label,value}, …]
   images: string[]         // paths a imágenes reales (vacío → placeholder)
   tags: string[]
   variants: ProductVariant[] | null
@@ -42,6 +48,10 @@ export interface Product {
   status: ProductStatus
   stock?: number | null    // de product_stock (null = ilimitado)
   createdAt?: string | null
+  /** @deprecated Reemplazado por specs[]. Conservado solo para lectura de datos legacy. */
+  medium?: string
+  /** @deprecated Reemplazado por specs[]. Conservado solo para lectura de datos legacy. */
+  edition?: string
 }
 
 export interface ProductCategoryMeta {
@@ -92,4 +102,51 @@ export function formatARS(price: number): string {
     currency: 'ARS',
     maximumFractionDigits: 0,
   }).format(price)
+}
+
+// ─── Descripción rica (TipTap JSONContent) ───────────────────────────────────
+
+export const EMPTY_DESCRIPTION: JSONContent = { type: 'doc', content: [] }
+
+/**
+ * Normaliza la descripción que viene de PocketBase: puede ser
+ * un objeto JSONContent (nuevo), un string JSON serializado, o un
+ * string plano (legacy). Devuelve siempre un JSONContent válido.
+ */
+export function normalizeDescription(raw: unknown): JSONContent {
+  if (!raw) return EMPTY_DESCRIPTION
+  if (typeof raw === 'object') return raw as JSONContent
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim()
+    if (!trimmed) return EMPTY_DESCRIPTION
+    if (trimmed.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(trimmed)
+        if (parsed && typeof parsed === 'object') return parsed as JSONContent
+      } catch { /* cae al wrap como texto plano */ }
+    }
+    return {
+      type: 'doc',
+      content: [{ type: 'paragraph', content: [{ type: 'text', text: trimmed }] }],
+    }
+  }
+  return EMPTY_DESCRIPTION
+}
+
+/** Extrae texto plano de un JSONContent para meta tags, schema.org, etc. */
+export function descriptionToPlainText(doc: JSONContent): string {
+  const out: string[] = []
+  const walk = (node: JSONContent | undefined) => {
+    if (!node) return
+    if (node.type === 'text' && typeof node.text === 'string') out.push(node.text)
+    if (Array.isArray(node.content)) {
+      node.content.forEach(walk)
+      // separa bloques con espacio para que no se peguen palabras
+      if (node.type === 'paragraph' || node.type?.startsWith('heading') || node.type === 'listItem') {
+        out.push(' ')
+      }
+    }
+  }
+  walk(doc)
+  return out.join('').replace(/\s+/g, ' ').trim()
 }
