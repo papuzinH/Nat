@@ -18,7 +18,7 @@ const AdminLogin: React.FC = () => {
     setError(null)
     setLoading(true)
     try {
-      await pb.admins.authWithPassword(email, password)
+      await pb.collection('_superusers').authWithPassword(email, password)
       navigate('/admin', { replace: true })
     } catch {
       setError('Email o contraseña incorrectos.')
