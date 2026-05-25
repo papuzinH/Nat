@@ -15,9 +15,10 @@ const EstudioReservar  = lazy(() => import('./pages/EstudioReservar'));
 const Blog          = lazy(() => import('./pages/Blog'));
 const BlogPost      = lazy(() => import('./pages/BlogPost'));
 const Contacto      = lazy(() => import('./pages/Contacto'));
-const AdminLogin    = lazy(() => import('./pages/admin/AdminLogin'));
-const AdminLayout   = lazy(() => import('./pages/admin/AdminLayout'));
-const AdminOrders   = lazy(() => import('./pages/admin/AdminOrders'));
+const AdminLogin     = lazy(() => import('./pages/admin/AdminLogin'));
+const AdminLayout    = lazy(() => import('./pages/admin/AdminLayout'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminOrders    = lazy(() => import('./pages/admin/AdminOrders'));
 const AdminStock    = lazy(() => import('./pages/admin/AdminStock'));
 const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
 const AdminEnvios   = lazy(() => import('./pages/admin/AdminEnvios'))
@@ -78,7 +79,8 @@ function App() {
               <AdminLayout />
             </Suspense>
           }>
-            <Route index             element={<AdminOrders />} />
+            <Route index             element={<AdminDashboard />} />
+            <Route path="ordenes"    element={<AdminOrders />} />
             <Route path="stock"      element={<AdminStock />} />
             <Route path="envios"     element={<AdminEnvios />} />
             <Route path="productos"  element={<AdminProducts />} />

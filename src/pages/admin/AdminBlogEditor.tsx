@@ -1,8 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import type { JSONContent } from '@tiptap/core'
 import { pb } from '@/lib/pocketbase'
 import TipTapEditor from '@/components/admin/blog/TipTapEditor'
+import { useToast } from '@/context/ToastContext'
+import { useUnsavedWarning } from '@/hooks/useUnsavedWarning'
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
@@ -165,16 +167,55 @@ const CoverImageUploader: React.FC<{
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 
+function countWordsInDoc(doc: JSONContent): number {
+  let total = 0
+  const walk = (node: JSONContent) => {
+    if (node.text) total += node.text.trim().split(/\s+/).filter(Boolean).length
+    node.content?.forEach(walk)
+  }
+  walk(doc)
+  return total
+}
+
 const AdminBlogEditor: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const toast = useToast()
   const [state, setState] = useState<BlogEditorState>(emptyState())
+  const { confirmExit } = useUnsavedWarning(state.dirty, 'Tenés cambios sin guardar. ¿Salir igual?')
+  const [readingTimeAuto, setReadingTimeAuto] = useState(true)
+
+  const goBack = () => {
+    if (confirmExit()) navigate('/admin/blog')
+  }
+
+  const openPreview = () => {
+    if (!state.slug) {
+      toast.error('Guardá el post primero para ver la vista previa.')
+      return
+    }
+    if (state.dirty) {
+      toast.info('La vista previa muestra la versión guardada — guardá para ver tus últimos cambios.')
+    }
+    window.open(`/blog/${state.slug}?preview=true`, '_blank', 'noopener,noreferrer')
+  }
+
+  // Autocalcular reading_time desde el body
+  const wordCount = useMemo(() => countWordsInDoc(state.body), [state.body])
+  useEffect(() => {
+    if (!readingTimeAuto) return
+    const minutes = Math.max(1, Math.ceil(wordCount / 220))
+    const auto = `${minutes} min`
+    if (auto !== state.reading_time) {
+      setState((prev) => ({ ...prev, reading_time: auto }))
+    }
+  }, [wordCount, readingTimeAuto]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Carga del post existente
   useEffect(() => {
     if (!id) return
     setState((prev) => ({ ...prev, isNew: false }))
-    pb.collection('blog_posts').getOne(id).then((data) => {
+    pb.collection('blog_posts').getOne(id, { requestKey: null }).then((data) => {
       if (!data) return
       setState({
         id: data.id as string,
@@ -257,8 +298,11 @@ const AdminBlogEditor: React.FC = () => {
       }
       setState((prev) => ({ ...prev, id: recordId, isNew: false, published, dirty: false, saving: false, saveError: null }))
       if (!id) navigate(`/admin/blog/${recordId}`, { replace: true })
+      toast.success(published ? 'Post publicado' : 'Borrador guardado', { detail: state.title })
     } catch (e) {
-      setState((prev) => ({ ...prev, saving: false, saveError: e instanceof Error ? e.message : 'Error al guardar' }))
+      const msg = e instanceof Error ? e.message : 'Error al guardar'
+      setState((prev) => ({ ...prev, saving: false, saveError: msg }))
+      toast.error('No se pudo guardar', { detail: msg })
       return
     }
   }
@@ -270,33 +314,41 @@ const AdminBlogEditor: React.FC = () => {
     : 'Editor'
 
   return (
-    <div>
+    <div className="pb-24 md:pb-0">
       {/* Header */}
       <div
-        className="flex items-center justify-between mb-6 pb-5"
+        className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6 pb-5"
         style={{ borderBottom: '1px solid var(--line-soft)' }}
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 md:gap-4 flex-wrap">
           <button
             type="button"
-            onClick={() => navigate('/admin/blog')}
+            onClick={goBack}
             className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft hover:text-ink transition-colors"
           >
             ← Blog
           </button>
-          <h1 className="font-display text-[20px] text-ink font-normal">{headerTitle}</h1>
+          <h1 className="font-display text-[20px] text-ink font-normal truncate">{headerTitle}</h1>
           {state.dirty && (
             <span className="font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: '#a87c3f' }}>
               sin guardar
             </span>
           )}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-3">
           {state.saveError && (
             <span className="font-mono text-[11px]" style={{ color: '#a8503f' }}>
               {state.saveError}
             </span>
           )}
+          <button
+            type="button"
+            onClick={openPreview}
+            className="font-mono text-[11px] uppercase tracking-[0.1em] px-4 py-2 rounded-pill border transition-all"
+            style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)' }}
+          >
+            ↗ Vista previa
+          </button>
           <button
             type="button"
             disabled={state.saving}
@@ -342,8 +394,8 @@ const AdminBlogEditor: React.FC = () => {
               Identificación
             </p>
             <Field
-              label="Slug"
-              hint={state.isNew ? 'Se genera automáticamente desde el título. No se puede cambiar después.' : undefined}
+              label={state.isNew ? 'Slug' : 'Slug · 🔒 fijo'}
+              hint={state.isNew ? 'Se genera desde el título. No se puede cambiar después.' : 'El slug es la URL del post — no se modifica luego de crear.'}
             >
               <input
                 type="text"
@@ -351,7 +403,7 @@ const AdminBlogEditor: React.FC = () => {
                 disabled={!state.isNew}
                 placeholder="mi-primer-post"
                 onChange={(e) => patch('slug', e.target.value.toLowerCase().replace(/\s+/g, '-'))}
-                className={`${inputCls} disabled:opacity-50`}
+                className={`${inputCls} disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={inputStyle}
               />
             </Field>
@@ -406,12 +458,18 @@ const AdminBlogEditor: React.FC = () => {
                   style={inputStyle}
                 />
               </Field>
-              <Field label="Tiempo de lectura">
+              <Field
+                label={readingTimeAuto ? `Lectura · auto · ${wordCount}p` : 'Lectura'}
+                hint={readingTimeAuto ? 'Calculado automáticamente. Editá para personalizar.' : undefined}
+              >
                 <input
                   type="text"
                   value={state.reading_time}
                   placeholder="5 min"
-                  onChange={(e) => patch('reading_time', e.target.value)}
+                  onChange={(e) => {
+                    setReadingTimeAuto(false)
+                    patch('reading_time', e.target.value)
+                  }}
                   className={inputCls}
                   style={inputStyle}
                 />
@@ -521,7 +579,15 @@ const AdminBlogEditor: React.FC = () => {
                 className="font-body text-[13px] text-ink bg-transparent border-b outline-none focus:border-sage-700 py-1.5 transition-colors resize-none w-full"
                 style={{ borderColor: 'var(--line)' }}
               />
-              <p className="font-mono text-[10px] text-ink-soft text-right">
+              <p
+                className="font-mono text-[10px] text-right"
+                style={{
+                  color:
+                    state.seo_description.length >= 160 ? '#a8503f'
+                    : state.seo_description.length > 140 ? '#a87c3f'
+                    : 'var(--ink-soft)',
+                }}
+              >
                 {state.seo_description.length}/160
               </p>
             </Field>
@@ -552,6 +618,40 @@ const AdminBlogEditor: React.FC = () => {
             </span>
           </section>
         </div>
+      </div>
+
+      {/* Sticky action bar mobile */}
+      <div
+        className="md:hidden fixed bottom-0 inset-x-0 z-40 flex items-center gap-2 px-4 py-3"
+        style={{ background: 'var(--cream-50)', borderTop: '1px solid var(--line-soft)', boxShadow: '0 -4px 12px rgba(0,0,0,0.04)' }}
+      >
+        <button
+          type="button"
+          onClick={openPreview}
+          className="font-mono text-[10px] uppercase tracking-[0.1em] px-3 py-2 rounded-pill border"
+          style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)' }}
+          aria-label="Vista previa"
+        >
+          ↗
+        </button>
+        <button
+          type="button"
+          disabled={state.saving}
+          onClick={() => save(false)}
+          className="flex-1 font-mono text-[11px] uppercase tracking-[0.1em] px-3 py-2 rounded-pill border transition-all disabled:opacity-40"
+          style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)' }}
+        >
+          {state.saving && !state.published ? 'Guardando…' : 'Borrador'}
+        </button>
+        <button
+          type="button"
+          disabled={state.saving}
+          onClick={() => save(true)}
+          className="flex-1 font-mono text-[11px] uppercase tracking-[0.1em] px-3 py-2 rounded-pill transition-all disabled:opacity-40"
+          style={{ background: 'var(--sage-700)', color: 'var(--cream-50)', border: '1px solid var(--sage-700)' }}
+        >
+          {state.saving && state.published ? 'Publicando…' : state.published ? 'Actualizar' : 'Publicar'}
+        </button>
       </div>
     </div>
   )

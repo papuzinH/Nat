@@ -38,8 +38,8 @@ export function useProducts() {
 
   useEffect(() => {
     Promise.all([
-      pb.collection('products').getFullList({ sort: 'sort_order' }),
-      pb.collection('product_stock').getFullList({ fields: 'slug,stock,status' }),
+      pb.collection('products').getFullList({ sort: 'sort_order', requestKey: null }),
+      pb.collection('product_stock').getFullList({ fields: 'slug,stock,status', requestKey: null }),
     ]).then(([rawProducts, stockData]) => {
       const stockMap: Record<string, { stock: number | null; status: string }> = {}
       for (const row of stockData) stockMap[row.slug] = { stock: row.stock, status: row.status }

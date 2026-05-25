@@ -24,7 +24,7 @@ export function useShippingZones() {
   const [loading, setLoading] = useState(true)
 
   const fetchZones = async () => {
-    const data = await pb.collection('shipping_zones').getFullList({ sort: 'name' })
+    const data = await pb.collection('shipping_zones').getFullList({ sort: 'name', requestKey: null })
     setZones(data.map(rowToZone))
     setLoading(false)
   }

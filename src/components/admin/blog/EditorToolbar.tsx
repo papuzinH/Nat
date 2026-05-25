@@ -1,7 +1,8 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import type { Editor } from '@tiptap/react'
 import { pb } from '@/lib/pocketbase'
 import { compressImage } from '@/lib/imageCompression'
+import LinkModal from './LinkModal'
 
 // ─── Helpers visuales ─────────────────────────────────────────────────────────
 
@@ -19,9 +20,11 @@ const Btn: React.FC<{
   <button
     type="button"
     title={title}
+    aria-label={title}
+    aria-pressed={active}
     disabled={disabled}
     onClick={onClick}
-    className="p-1.5 rounded-sm font-mono text-[11px] transition-colors disabled:opacity-30"
+    className="inline-flex items-center justify-center p-2 md:p-1.5 min-w-[36px] min-h-[36px] md:min-w-0 md:min-h-0 rounded-sm font-mono text-[11px] transition-colors disabled:opacity-30"
     style={{
       background: active ? 'var(--sage-700)' : 'transparent',
       color: active ? 'var(--cream-50)' : 'var(--ink-soft)',
@@ -58,6 +61,7 @@ async function uploadImage(file: File): Promise<string | null> {
 
 export const EditorToolbar: React.FC<{ editor: Editor | null }> = ({ editor }) => {
   const imgInputRef = useRef<HTMLInputElement>(null)
+  const [linkModalOpen, setLinkModalOpen] = useState(false)
 
   if (!editor) return null
 
@@ -70,20 +74,29 @@ export const EditorToolbar: React.FC<{ editor: Editor | null }> = ({ editor }) =
     e.target.value = ''
   }
 
-  const setLink = () => {
-    const prev = editor.getAttributes('link').href as string | undefined
-    const url = window.prompt('URL del enlace', prev ?? 'https://')
-    if (url === null) return
-    if (url === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink().run()
-      return
+  const linkAttrs = editor.getAttributes('link') as { href?: string; target?: string }
+  const existingHref = linkAttrs.href ?? ''
+  const existingNewTab = linkAttrs.target === '_blank'
+
+  const applyLink = (url: string, newTab: boolean) => {
+    const attrs: { href: string; target?: string; rel?: string } = { href: url }
+    if (newTab) {
+      attrs.target = '_blank'
+      attrs.rel = 'noopener noreferrer'
     }
-    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
+    editor.chain().focus().extendMarkRange('link').setLink(attrs).run()
+    setLinkModalOpen(false)
+  }
+
+  const removeLink = () => {
+    editor.chain().focus().extendMarkRange('link').unsetLink().run()
+    setLinkModalOpen(false)
   }
 
   return (
+    <>
     <div
-      className="flex flex-wrap items-center gap-0.5 px-3 py-2"
+      className="flex flex-wrap items-center gap-0.5 px-2 md:px-3 py-2"
       style={{ background: 'var(--cream-100, #f5f0eb)', borderBottom: '1px solid var(--line-soft)' }}
     >
       {/* Formato de texto */}
@@ -154,7 +167,7 @@ export const EditorToolbar: React.FC<{ editor: Editor | null }> = ({ editor }) =
       <Divider />
 
       {/* Link e imagen */}
-      <Btn title="Agregar enlace" active={editor.isActive('link')} onClick={setLink}>
+      <Btn title="Agregar enlace" active={editor.isActive('link')} onClick={() => setLinkModalOpen(true)}>
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3">
           <path d="M5.5 8.5a3.5 3.5 0 005 0l2-2a3.5 3.5 0 00-5-5L6 3" strokeLinecap="round" />
           <path d="M8.5 5.5a3.5 3.5 0 00-5 0l-2 2a3.5 3.5 0 005 5L8 11" strokeLinecap="round" />
@@ -241,6 +254,17 @@ export const EditorToolbar: React.FC<{ editor: Editor | null }> = ({ editor }) =
         </svg>
       </Btn>
     </div>
+
+    <LinkModal
+      open={linkModalOpen}
+      initialUrl={existingHref}
+      initialNewTab={existingNewTab}
+      hasExisting={!!existingHref}
+      onApply={applyLink}
+      onRemove={removeLink}
+      onClose={() => setLinkModalOpen(false)}
+    />
+    </>
   )
 }
 

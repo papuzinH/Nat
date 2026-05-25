@@ -9,7 +9,7 @@ export interface BlogPostDetail extends BlogPost {
   isoDate: string
 }
 
-export const useBlogPostLogic = (slug: string | undefined) => {
+export const useBlogPostLogic = (slug: string | undefined, preview = false) => {
   const [post, setPost] = useState<BlogPostDetail | null>(null)
   const [related, setRelated] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
@@ -21,8 +21,10 @@ export const useBlogPostLogic = (slug: string | undefined) => {
     setRelated([])
     setLoading(true)
 
+    // En preview, traemos también borradores (requiere superuser auth).
+    const filter = preview ? `slug = "${slug}"` : `slug = "${slug}" && published = true`
     pb.collection('blog_posts')
-      .getFirstListItem(`slug = "${slug}" && published = true`)
+      .getFirstListItem(filter)
       .then(async (data) => {
         const base = rowToPost(data as Record<string, unknown>)
         setPost({
@@ -44,7 +46,7 @@ export const useBlogPostLogic = (slug: string | undefined) => {
         setLoading(false)
       })
       .catch(() => { setLoading(false) })
-  }, [slug])
+  }, [slug, preview])
 
   return { post, related, loading }
 }

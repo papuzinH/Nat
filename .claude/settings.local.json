@@ -32,7 +32,8 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" 'https://nat.lhstudio.com.ar/api/collections/orders/records?skipTotal=1')",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" 'https://nat.lhstudio.com.ar/api/collections/orders/records?sort=-id')",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" 'https://nat.lhstudio.com.ar/api/collections/orders/records?sort=-status')",
-      "Bash(curl -s -o /dev/null -w '%{http_code}\\\\n' https://nat.lhstudio.com.ar/api/collections/__TRACKED_VAR__/records?sort=-created)"
+      "Bash(curl -s -o /dev/null -w '%{http_code}\\\\n' https://nat.lhstudio.com.ar/api/collections/__TRACKED_VAR__/records?sort=-created)",
+      "Bash(echo \"EXIT=$?\")"
     ]
   }
 }

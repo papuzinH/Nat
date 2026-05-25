@@ -108,6 +108,24 @@
   .animate-slide-in-left {
     animation: slide-in-left 0.5s ease-out;
   }
+
+  /* Focus ring unificado para admin — accesibilidad keyboard */
+  .focus-ring:focus-visible {
+    outline: 2px solid rgba(96, 108, 56, 0.45);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* Focus visible global para inputs y botones dentro del admin */
+[class*="admin"] button:focus-visible,
+[class*="admin"] input:focus-visible,
+[class*="admin"] select:focus-visible,
+[class*="admin"] textarea:focus-visible,
+[class*="admin"] [role="button"]:focus-visible,
+[class*="admin"] [role="tab"]:focus-visible {
+  outline: 2px solid rgba(96, 108, 56, 0.55);
+  outline-offset: 2px;
 }
 
 /* ── TipTap: área editable (admin) ─────────────────────────────────────────── */
