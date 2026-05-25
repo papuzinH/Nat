@@ -1,6 +1,7 @@
 import React, { useRef } from 'react'
 import type { Editor } from '@tiptap/react'
 import { pb } from '@/lib/pocketbase'
+import { compressImage } from '@/lib/imageCompression'
 
 // ─── Helpers visuales ─────────────────────────────────────────────────────────
 
@@ -63,7 +64,8 @@ export const EditorToolbar: React.FC<{ editor: Editor | null }> = ({ editor }) =
   const handleImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const url = await uploadImage(file)
+    const optimized = await compressImage(file)
+    const url = await uploadImage(optimized)
     if (url) editor.chain().focus().setImage({ src: url }).run()
     e.target.value = ''
   }

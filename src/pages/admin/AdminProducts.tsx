@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import type { JSONContent } from '@tiptap/core'
 import { pb } from '@/lib/pocketbase'
+import { compressImage } from '@/lib/imageCompression'
 import {
   formatARS,
   normalizeDescription,
@@ -124,10 +125,11 @@ const ImageUploader: React.FC<{
     setUploadError(null)
     const newUrls: string[] = []
 
-    for (const file of Array.from(files)) {
-      const url = await uploadToMedia(file)
+    for (const original of Array.from(files)) {
+      const optimized = await compressImage(original)
+      const url = await uploadToMedia(optimized)
       if (!url) {
-        setUploadError(`Error al subir ${file.name}`)
+        setUploadError(`Error al subir ${original.name}`)
         continue
       }
       newUrls.push(url)
