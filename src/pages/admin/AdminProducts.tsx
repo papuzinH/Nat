@@ -517,18 +517,56 @@ const AdminProducts: React.FC = () => {
       sort_order: row.sort_order,
     }
 
+    // Log temporal de diagnóstico: ver qué se envía y qué devuelve PB
+    console.log('[AdminProducts] payload.description =', JSON.stringify(payload.description))
+    console.log('[AdminProducts] payload.specs       =', JSON.stringify(payload.specs))
+
     try {
-      const existing = await pb.collection('products').getFirstListItem(`slug = "${row.slug}"`)
-      await pb.collection('products').update(existing.id, payload)
-    } catch (e: unknown) {
-      if ((e as { status?: number })?.status === 404 || (e as { status?: number })?.status === 0) {
-        await pb.collection('products').create(payload)
-      } else {
-        const msg = e instanceof Error ? e.message : 'Error al guardar'
-        setSaveErrors((prev) => ({ ...prev, [key]: msg }))
+      let recordId: string
+      try {
+        const existing = await pb.collection('products').getFirstListItem(`slug = "${row.slug}"`)
+        const updated = await pb.collection('products').update(existing.id, payload)
+        recordId = updated.id
+      } catch (e: unknown) {
+        if ((e as { status?: number })?.status === 404 || (e as { status?: number })?.status === 0) {
+          const created = await pb.collection('products').create(payload)
+          recordId = created.id
+        } else {
+          throw e
+        }
+      }
+
+      // Verificación post-save: re-leer el record y comprobar que description quedó persistido.
+      const fresh = await pb.collection('products').getOne(recordId)
+      console.log('[AdminProducts] fresh.description  =', JSON.stringify(fresh.description))
+      console.log('[AdminProducts] fresh.specs        =', JSON.stringify(fresh.specs))
+
+      const descSaved = fresh.description
+      const descIsEmpty =
+        descSaved == null ||
+        descSaved === '' ||
+        (typeof descSaved === 'object' &&
+          Array.isArray((descSaved as { content?: unknown[] }).content) &&
+          (descSaved as { content: unknown[] }).content.length === 0)
+
+      // Si el TipTap tenía contenido pero PocketBase devuelve vacío,
+      // el campo de la colección no está aceptando el payload.
+      const localHasContent =
+        Array.isArray(row.description?.content) && row.description.content.length > 0
+      if (localHasContent && descIsEmpty) {
+        setSaveErrors((prev) => ({
+          ...prev,
+          [key]: 'PocketBase no persistió la descripción. Verificá que el campo "description" exista en la colección products y sea de tipo JSON (no Text). Revisá la consola para más detalle.',
+        }))
         setRows((prev) => prev.map((r) => matchRow(r) ? { ...r, saving: false } : r))
         return
       }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Error al guardar'
+      console.error('[AdminProducts] save error', e)
+      setSaveErrors((prev) => ({ ...prev, [key]: msg }))
+      setRows((prev) => prev.map((r) => matchRow(r) ? { ...r, saving: false } : r))
+      return
     }
 
     setRows((prev) => prev.map((r) => matchRow(r) ? { ...r, dirty: false, saving: false, isNew: false } : r))
