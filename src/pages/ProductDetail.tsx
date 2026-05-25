@@ -118,7 +118,7 @@ const ProductDetail: React.FC = () => {
 
       <main className="min-h-screen bg-cream-50">
         {/* Breadcrumb */}
-        <div className="max-w-5xl mx-auto px-6 md:px-12 pt-8 pb-6">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 pt-8 pb-6">
           <Breadcrumb
             items={[
               { label: 'tienda', href: '/tienda' },
@@ -129,7 +129,7 @@ const ProductDetail: React.FC = () => {
         </div>
 
         {/* Layout principal */}
-        <section className="max-w-5xl mx-auto px-6 md:px-12 pb-16">
+        <section className="max-w-7xl mx-auto px-6 md:px-12 pb-16">
           <div className="grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-10 md:gap-16 items-start">
             <ProductGallery product={product} />
             <ProductInfo product={product} onAddToCart={handleAddToCart} />
