@@ -19,10 +19,66 @@ const DEFAULTS: Required<CompressOptions> = {
   skipUnderBytes: 800_000, // 800 KB
 }
 
+// ─── Helpers internos ────────────────────────────────────────────────────────
+
+function isImageFile(file: File): boolean {
+  if (file.type.startsWith('image/')) return true
+  // Algunos archivos de cámara llegan con type vacío. Caer al match por extensión.
+  return /\.(jpe?g|png|webp|bmp|avif|heic|heif)$/i.test(file.name)
+}
+
+function isUnprocessable(file: File): boolean {
+  if (file.type === 'image/gif' || file.type === 'image/svg+xml') return true
+  if (/\.(gif|svg)$/i.test(file.name)) return true
+  return false
+}
+
+/** Intenta decodificar con createImageBitmap (preferido) o fallback a <img>. */
+async function decodeImage(
+  file: File
+): Promise<{ source: CanvasImageSource; width: number; height: number; cleanup: () => void } | null> {
+  // Camino rápido: createImageBitmap
+  if (typeof createImageBitmap !== 'undefined') {
+    try {
+      const bitmap = await createImageBitmap(file)
+      return {
+        source: bitmap,
+        width: bitmap.width,
+        height: bitmap.height,
+        cleanup: () => bitmap.close(),
+      }
+    } catch (err) {
+      console.warn('[compressImage] createImageBitmap falló, usando fallback <img>', err)
+    }
+  }
+
+  // Fallback: <img> con object URL (más tolerante con JPEGs raros tipo PORTRAIT)
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      resolve({
+        source: img,
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+        cleanup: () => URL.revokeObjectURL(url),
+      })
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      console.warn('[compressImage] fallback <img> también falló para', file.name)
+      resolve(null)
+    }
+    img.src = url
+  })
+}
+
+// ─── API pública ─────────────────────────────────────────────────────────────
+
 /**
  * Devuelve un nuevo File comprimido/redimensionado. Si la imagen no puede
- * procesarse (SVG, GIF animado, decode error, navegador sin soporte), o si
- * la compresión no logra reducir el tamaño, devuelve el archivo original.
+ * procesarse (SVG, GIF animado, decode error en ambos paths), o si la
+ * compresión no logra reducir el tamaño, devuelve el archivo original.
  */
 export async function compressImage(
   file: File,
@@ -30,24 +86,21 @@ export async function compressImage(
 ): Promise<File> {
   const opts = { ...DEFAULTS, ...options }
 
-  // No tocar GIF (puede ser animado) ni SVG (vectorial) ni tipos no-imagen.
-  if (!file.type.startsWith('image/')) return file
-  if (file.type === 'image/gif' || file.type === 'image/svg+xml') return file
-  if (typeof createImageBitmap === 'undefined') return file
-
-  let bitmap: ImageBitmap
-  try {
-    bitmap = await createImageBitmap(file)
-  } catch {
+  if (!isImageFile(file) || isUnprocessable(file)) {
+    console.log('[compressImage] skip (no procesable):', file.name, file.type)
     return file
   }
 
-  const { width, height } = bitmap
+  const decoded = await decodeImage(file)
+  if (!decoded) return file
+
+  const { source, width, height, cleanup } = decoded
   const longest = Math.max(width, height)
 
   // Si ya es chica y liviana, no tiene sentido recomprimir.
   if (longest <= opts.maxDimension && file.size < opts.skipUnderBytes) {
-    bitmap.close()
+    cleanup()
+    console.log('[compressImage] skip (ya optimizada):', file.name, `${width}x${height}`, `${(file.size / 1024).toFixed(0)} KB`)
     return file
   }
 
@@ -60,17 +113,19 @@ export async function compressImage(
   canvas.height = targetH
   const ctx = canvas.getContext('2d')
   if (!ctx) {
-    bitmap.close()
+    cleanup()
     return file
   }
 
   ctx.imageSmoothingEnabled = true
   ctx.imageSmoothingQuality = 'high'
-  ctx.drawImage(bitmap, 0, 0, targetW, targetH)
-  bitmap.close()
+  ctx.drawImage(source, 0, 0, targetW, targetH)
+  cleanup()
 
   // PNG con posible transparencia → conserva PNG. Resto → JPEG.
-  const outputType = file.type === 'image/png' ? 'image/png' : 'image/jpeg'
+  const outputType = file.type === 'image/png' || /\.png$/i.test(file.name)
+    ? 'image/png'
+    : 'image/jpeg'
   const outputExt = outputType === 'image/png' ? 'png' : 'jpg'
 
   const blob = await new Promise<Blob | null>((resolve) => {
@@ -80,14 +135,28 @@ export async function compressImage(
       outputType === 'image/jpeg' ? opts.quality : undefined
     )
   })
-  if (!blob) return file
+  if (!blob) {
+    console.warn('[compressImage] toBlob devolvió null para', file.name)
+    return file
+  }
 
   // Si la "comprimida" resultó más grande, dejamos el original.
-  if (blob.size >= file.size) return file
+  if (blob.size >= file.size) {
+    console.log('[compressImage] descartada (no redujo):', file.name, `${(file.size / 1024).toFixed(0)} KB → ${(blob.size / 1024).toFixed(0)} KB`)
+    return file
+  }
 
   const baseName = file.name.replace(/\.[^.]+$/, '')
-  return new File([blob], `${baseName}.${outputExt}`, {
+  const compressed = new File([blob], `${baseName}.${outputExt}`, {
     type: outputType,
     lastModified: Date.now(),
   })
+  console.log(
+    '[compressImage] OK',
+    file.name,
+    `${width}x${height} ${(file.size / 1024).toFixed(0)} KB`,
+    '→',
+    `${targetW}x${targetH} ${(compressed.size / 1024).toFixed(0)} KB`
+  )
+  return compressed
 }
