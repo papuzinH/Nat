@@ -5,10 +5,16 @@ import { BLOG_CATEGORIES, type BlogPost } from '@/data/blog-posts'
 export { BLOG_CATEGORIES }
 export type { BlogPost }
 
-function formatDate(isoDate: string): string {
+function formatDate(raw: string): string {
+  if (!raw) return ''
+  // PocketBase devuelve "2026-05-25 00:00:00.000Z" (separador espacio).
+  // Tomamos solo el YYYY-MM-DD y forzamos hora 12:00 para evitar desfases de timezone.
+  const datePart = raw.slice(0, 10)
+  const d = new Date(`${datePart}T12:00:00`)
+  if (isNaN(d.getTime())) return raw
   return new Intl.DateTimeFormat('es-AR', {
     day: 'numeric', month: 'short', year: 'numeric',
-  }).format(new Date(isoDate + 'T12:00:00')).replace('.', '')
+  }).format(d).replace('.', '')
 }
 
 export function rowToPost(row: Record<string, unknown>): BlogPost {
@@ -41,7 +47,10 @@ export const useBlogLogic = () => {
         setAllPosts(data.map((r) => rowToPost(r as Record<string, unknown>)))
         setLoading(false)
       })
-      .catch(() => setLoading(false))
+      .catch((err) => {
+        console.error('[useBlogLogic] error al traer blog_posts', err)
+        setLoading(false)
+      })
   }, [])
 
   const filtered =
