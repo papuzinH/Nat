@@ -88,7 +88,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
   ]
 
   return (
-    <div className="md:sticky md:top-[100px]">
+    <div>
       <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 mb-3">
         {product.catLabel}
       </p>
@@ -96,7 +96,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
       <h1
         className="font-display font-normal text-ink"
         style={{
-          fontSize: 'clamp(28px, 4.5vw, 52px)',
+          fontSize: 'clamp(22px, 3vw, 36px)',
           lineHeight: 1.08,
           letterSpacing: '-0.02em',
         }}
@@ -107,7 +107,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
       <div className="flex items-baseline gap-3 mt-5">
         <p
           ref={priceRef}
-          className="font-display text-[28px] text-sage-900"
+          className="font-display text-[22px] text-sage-900"
           style={{ lineHeight: 1 }}
         >
           {formatARS(displayPrice)}

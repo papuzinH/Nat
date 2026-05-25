@@ -131,7 +131,9 @@ const ProductDetail: React.FC = () => {
         {/* Layout principal */}
         <section className="max-w-7xl mx-auto px-6 md:px-12 pb-16">
           <div className="grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-10 md:gap-16 items-start">
-            <ProductGallery product={product} />
+            <div className="md:sticky md:top-[100px] md:h-[calc(100dvh-100px)]">
+              <ProductGallery product={product} sticky />
+            </div>
             <ProductInfo product={product} onAddToCart={handleAddToCart} />
           </div>
         </section>

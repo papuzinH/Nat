@@ -7,9 +7,10 @@ import ProductImagePlaceholder from './ProductImagePlaceholder'
 
 interface ProductGalleryProps {
   product: Product
+  sticky?: boolean
 }
 
-const ProductGallery: React.FC<ProductGalleryProps> = ({ product }) => {
+const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky }) => {
   const mainRef = useRef<HTMLDivElement>(null)
   const thumbsContainerRef = useRef<HTMLDivElement>(null)
   const [activeThumb, setActiveThumb] = useState(0)
@@ -82,12 +83,13 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product }) => {
   }
 
   return (
-    <div>
+    <div className={sticky ? 'md:flex md:flex-col md:h-full' : ''}>
       {/* Imagen principal */}
       <div
         ref={mainRef}
         className={[
           'relative rounded-card overflow-hidden group',
+          sticky ? 'md:flex-1 md:min-h-0 md:![aspect-ratio:unset]' : '',
           hasImages ? 'cursor-zoom-in' : '',
         ].join(' ')}
         style={{ aspectRatio }}
@@ -146,7 +148,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product }) => {
       {hasImages && (
         <div
           ref={thumbsContainerRef}
-          className="flex gap-[12px] mt-[12px] overflow-x-auto [&::-webkit-scrollbar]:hidden"
+          className={`flex gap-[12px] mt-[12px] overflow-x-auto [&::-webkit-scrollbar]:hidden${sticky ? ' md:flex-shrink-0' : ''}`}
           style={{ scrollbarWidth: 'none' }}
         >
           {product.images.map((src, i) => (
