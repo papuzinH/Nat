@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { compressImage } from '@/lib/imageCompression'
 
 export type ArrayField = 'workTypes' | 'days' | 'timeSlots'
 
@@ -49,13 +50,13 @@ const INITIAL: BookingFields = {
   notes: '',
 }
 
+
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => {
       const result = reader.result as string
-      const base64 = result.split(',')[1] ?? ''
-      resolve(base64)
+      resolve(result.split(',')[1] ?? '')
     }
     reader.onerror = () => reject(reader.error)
     reader.readAsDataURL(file)
@@ -196,13 +197,21 @@ export function useBookingForm() {
     setSendError(null)
 
     try {
+      // Comprimir imágenes antes de convertir a base64 (evita el 413 de Vercel)
       const attachments = await Promise.all(
-        fields.references.map(async (file) => ({
-          name: file.name,
-          mimeType: file.type,
-          size: file.size,
-          base64: await fileToBase64(file),
-        }))
+        fields.references.map(async (file) => {
+          const compressed = await compressImage(file, {
+            maxDimension: 1200,
+            quality: 0.8,
+            skipUnderBytes: 300_000,
+          })
+          return {
+            name: compressed.name,
+            mimeType: compressed.type || 'image/jpeg',
+            size: compressed.size,
+            base64: await fileToBase64(compressed),
+          }
+        })
       )
 
       const payload = {

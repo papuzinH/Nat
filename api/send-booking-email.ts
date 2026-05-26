@@ -38,6 +38,7 @@ function labelize(map: Record<string, string>, values: string[]) {
   return values.map((v) => map[v] ?? v).join(' · ')
 }
 
+
 function sanitizeName(n: string) {
   return n.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 80)
 }
