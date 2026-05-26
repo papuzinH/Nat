@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { supabase } from '@/lib/supabase'
 
 export type ArrayField = 'workTypes' | 'days' | 'timeSlots'
 
@@ -220,11 +219,16 @@ export function useBookingForm() {
         attachments,
       }
 
-      const { error } = await supabase.functions.invoke('send-booking-email', {
-        body: payload,
+      const emailRes = await fetch('/api/send-booking-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       })
 
-      if (error) throw error
+      if (!emailRes.ok) {
+        const errData = await emailRes.json().catch(() => ({})) as { error?: string }
+        throw new Error(errData.error ?? 'email_send_failed')
+      }
 
       setSubmitted(true)
     } catch (err) {

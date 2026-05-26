@@ -157,13 +157,47 @@ const Checkout: React.FC = () => {
 
     // ── Mercado Pago ────────────────────────────────────────────────
     if (fields.paymentMethod === 'mercadopago') {
-      // TODO: reemplazar con endpoint propio (Vercel API route /api/create-mp-preference)
-      const res = await fetch('/api/create-mp-preference', {
+      // 1. Crear orden en PocketBase con status pendiente
+      let orderId: string
+      try {
+        const order = await pb.collection('orders').create({
+          status:         'pendiente',
+          customer_name:  fields.name,
+          customer_email: fields.email,
+          customer_phone: fields.phone,
+          delivery_mode:  fields.deliveryMode,
+          street:         fields.street   || '',
+          city:           fields.city     || '',
+          postal_code:    fields.postalCode || '',
+          payment_method: 'mercadopago',
+          shipping_cost:  shippingCost,
+          total:          grandTotal,
+          items:          p_items,
+        })
+        orderId = order.id
+
+        // 2. Descontar stock
+        for (const item of p_items) {
+          try {
+            const s = await pb.collection('product_stock').getFirstListItem(`slug = "${item.product_slug}"`)
+            if (s.stock !== null) {
+              await pb.collection('product_stock').update(s.id, { stock: Math.max(0, s.stock - item.quantity) })
+            }
+          } catch {}
+        }
+      } catch {
+        setSubmitting(false)
+        setStockError('Error al procesar el pedido. Intentá de nuevo.')
+        return
+      }
+
+      // 3. Crear preferencia en MercadoPago
+      const mpRes = await fetch('/api/create-mp-preference', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(basePayload),
+        body: JSON.stringify({ ...basePayload, orderId }),
       })
-      const data = res.ok ? await res.json() : null
+      const data = mpRes.ok ? (await mpRes.json() as { initPoint?: string }) : null
 
       setSubmitting(false)
 
