@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useMemo } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, useSearchParams, Link } from 'react-router-dom'
 import { NHLeafMark, NHDivider, SchemaMarkup, NHFlower } from '@/components/shared'
 import BlogCard from '@/components/blog/BlogCard'
 import BlogPlaceholder from '@/components/blog/BlogPlaceholder'
@@ -45,7 +45,9 @@ const TipTapRenderer: React.FC<{ content: JSONContent }> = ({ content }) => {
 
 const BlogPost: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
-  const { post, related, loading } = useBlogPostLogic(slug)
+  const [searchParams] = useSearchParams()
+  const isPreview = searchParams.get('preview') === 'true'
+  const { post, related, loading } = useBlogPostLogic(slug, isPreview)
   const heroRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLElement>(null)
   const progressRef = useRef<HTMLDivElement>(null)

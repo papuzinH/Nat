@@ -5,7 +5,7 @@ import { formatARS } from '@/data/products'
 import InputField from '@/components/contacto/InputField'
 import { useCheckoutForm } from '@/hooks/useCheckoutForm'
 import { usePublicShippingZones } from '@/hooks/useShippingZones'
-import { supabase } from '@/lib/supabase'
+import { pb } from '@/lib/pocketbase'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 
 function normalizeCP(cp: string): string {
@@ -132,12 +132,12 @@ const Checkout: React.FC = () => {
     setStockError(null)
 
     const p_items = items.map((item) => ({
-      slug:        item.slug,
-      title:       item.title,
-      size:        item.selectedSize ?? '',
-      has_frame:   item.hasFrame,
-      unit_price:  item.unitPrice,
-      qty:         item.quantity,
+      product_slug:  item.slug,
+      product_title: item.title,
+      selected_size: item.selectedSize ?? null,
+      has_frame:     item.hasFrame,
+      unit_price:    item.unitPrice,
+      quantity:      item.quantity,
     }))
 
     const basePayload = {
@@ -157,18 +157,52 @@ const Checkout: React.FC = () => {
 
     // ── Mercado Pago ────────────────────────────────────────────────
     if (fields.paymentMethod === 'mercadopago') {
-      const { data, error } = await supabase.functions.invoke('create-mp-preference', {
-        body: basePayload,
+      // 1. Crear orden en PocketBase con status pendiente
+      let orderId: string
+      try {
+        const order = await pb.collection('orders').create({
+          status:         'pendiente',
+          customer_name:  fields.name,
+          customer_email: fields.email,
+          customer_phone: fields.phone,
+          delivery_mode:  fields.deliveryMode,
+          street:         fields.street   || '',
+          city:           fields.city     || '',
+          postal_code:    fields.postalCode || '',
+          payment_method: 'mercadopago',
+          shipping_cost:  shippingCost,
+          total:          grandTotal,
+          items:          p_items,
+        })
+        orderId = order.id
+
+        // 2. Descontar stock
+        for (const item of p_items) {
+          try {
+            const s = await pb.collection('product_stock').getFirstListItem(`slug = "${item.product_slug}"`)
+            if (s.stock !== null) {
+              await pb.collection('product_stock').update(s.id, { stock: Math.max(0, s.stock - item.quantity) })
+            }
+          } catch {}
+        }
+      } catch {
+        setSubmitting(false)
+        setStockError('Error al procesar el pedido. Intentá de nuevo.')
+        return
+      }
+
+      // 3. Crear preferencia en MercadoPago
+      const mpRes = await fetch('/api/create-mp-preference', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...basePayload, orderId }),
       })
+      const data = mpRes.ok ? (await mpRes.json() as { initPoint?: string }) : null
 
       setSubmitting(false)
 
-      if (error || !data?.initPoint) {
-        setStockError(
-          error?.message?.includes('sin-stock')
-            ? 'Uno o más productos ya no tienen stock. Revisá tu carrito.'
-            : 'No pudimos iniciar el pago. Intentá de nuevo.'
-        )
+      if (!data?.initPoint) {
+        setStockError('No pudimos iniciar el pago. Intentá de nuevo.')
         return
       }
 
@@ -178,31 +212,38 @@ const Checkout: React.FC = () => {
     }
 
     // ── Transferencia bancaria ──────────────────────────────────────
-    const { error } = await supabase.rpc('create_order', {
-      p_customer_name:  fields.name,
-      p_customer_email: fields.email,
-      p_customer_phone: fields.phone,
-      p_delivery_mode:  fields.deliveryMode,
-      p_street:         fields.street,
-      p_city:           fields.city,
-      p_postal_code:    fields.postalCode,
-      p_payment_method: 'transferencia',
-      p_shipping_cost:  shippingCost,
-      p_total:          grandTotal,
-      p_items,
-    })
+    try {
+      await pb.collection('orders').create({
+        status:         'pendiente',
+        customer_name:  fields.name,
+        customer_email: fields.email,
+        customer_phone: fields.phone,
+        delivery_mode:  fields.deliveryMode,
+        street:         fields.street   || '',
+        city:           fields.city     || '',
+        postal_code:    fields.postalCode || '',
+        payment_method: 'transferencia',
+        shipping_cost:  shippingCost,
+        total:          grandTotal,
+        items:          p_items,
+      })
 
-    setSubmitting(false)
-
-    if (error) {
-      setStockError(
-        error.message.includes('sin-stock')
-          ? 'Uno o más productos ya no tienen stock. Revisá tu carrito.'
-          : 'Error al procesar el pedido. Intentá de nuevo.'
-      )
+      // Descontar stock
+      for (const item of p_items) {
+        try {
+          const s = await pb.collection('product_stock').getFirstListItem(`slug = "${item.product_slug}"`)
+          if (s.stock !== null) {
+            await pb.collection('product_stock').update(s.id, { stock: Math.max(0, s.stock - item.quantity) })
+          }
+        } catch {}
+      }
+    } catch {
+      setSubmitting(false)
+      setStockError('Error al procesar el pedido. Intentá de nuevo.')
       return
     }
 
+    setSubmitting(false)
     clearCart()
     setConfirmed(true)
   }

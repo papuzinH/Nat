@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { pb } from '@/lib/pocketbase'
 
 export interface ShippingConfig {
   price:       number
@@ -14,15 +14,13 @@ export function useShippingConfig() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase
-      .from('shipping_config')
-      .select('price, label, description')
-      .eq('id', 1)
-      .single()
-      .then(({ data }) => {
-        if (data) setConfig(data as ShippingConfig)
+    pb.collection('shipping_config')
+      .getFirstListItem('')
+      .then((data) => {
+        if (data) setConfig({ price: data.price, label: data.label, description: data.description ?? null })
         setLoading(false)
       })
+      .catch(() => setLoading(false))
   }, [])
 
   return { config, loading }

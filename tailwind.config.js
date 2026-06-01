@@ -33,6 +33,19 @@ export default {
           DEFAULT: '#2c2c2c',
           soft:    '#5a5350',
         },
+        // Tokens semánticos para estados (badges de orden, blog, stock). Verificados WCAG AA.
+        status: {
+          pendingBg:    '#f5efe6', pendingFg:    '#7a5a2c',
+          paidBg:       '#e6f0eb', paidFg:       '#3a5f48',
+          prepBg:       '#eaf0f5', prepFg:       '#2f5a78',
+          shippedBg:    '#f0eaf5', shippedFg:    '#5a347a',
+          deliveredBg: '#dbe7df',  deliveredFg: '#234a32',
+          cancelledBg: '#f5e6e6',  cancelledFg: '#8a3a2c',
+          draftBg:     '#ede8e0',  draftFg:     '#5a5350',
+          publishedBg: '#dff0e6',  publishedFg: '#284f30',
+          warningBg:   '#fef3e0',  warningFg:   '#7a5a1c',
+          dangerBg:    '#fbe9e7',  dangerFg:    '#8a2c1f',
+        },
       },
       fontFamily: {
         display: ['Fraunces', 'Georgia', 'serif'],

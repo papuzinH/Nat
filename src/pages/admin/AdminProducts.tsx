@@ -1,7 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { supabase } from '@/lib/supabase'
-import { formatARS } from '@/data/products'
-import type { ProductCategory, ProductTone } from '@/data/products'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import type { JSONContent } from '@tiptap/core'
+import { pb } from '@/lib/pocketbase'
+import { compressImage } from '@/lib/imageCompression'
+import {
+  formatARS,
+  normalizeDescription,
+  EMPTY_DESCRIPTION,
+} from '@/data/products'
+import type { ProductCategory, ProductSpec, ProductTone } from '@/data/products'
+import TipTapEditor from '@/components/admin/blog/TipTapEditor'
+import Tooltip from '@/components/admin/shared/Tooltip'
+import ConfirmDeleteInline from '@/components/admin/shared/ConfirmDeleteInline'
+import Tabs from '@/components/admin/shared/Tabs'
+import { useToast } from '@/context/ToastContext'
+import { useTableFilter } from '@/hooks/useTableFilter'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -19,9 +31,8 @@ interface ProductRow {
   size: string
   tone: string
   tall: number
-  medium: string
-  edition: string
-  description: string
+  description: JSONContent
+  specs: ProductSpec[]
   images: string[]
   tags: string[]
   tagsInput: string
@@ -34,6 +45,7 @@ interface ProductRow {
   dirty: boolean
   saving: boolean
   confirmDelete: boolean
+  [key: string]: unknown
 }
 
 // ─── Opciones ─────────────────────────────────────────────────────────────────
@@ -60,46 +72,27 @@ const TONE_OPTIONS: { value: ProductTone; label: string }[] = [
   { value: 'f', label: 'F — hueso' },
 ]
 
-// ─── Tooltip ──────────────────────────────────────────────────────────────────
+// ─── Upload de imágenes a la colección media de PocketBase ───────────────────
 
-const Tooltip: React.FC<{ text: string }> = ({ text }) => {
-  const [show, setShow] = useState(false)
-  return (
-    <span
-      className="relative inline-flex items-center ml-1.5 cursor-default"
-      onMouseEnter={() => setShow(true)}
-      onMouseLeave={() => setShow(false)}
-    >
-      <span
-        className="inline-flex items-center justify-center rounded-full font-mono text-[9px] w-3.5 h-3.5 flex-shrink-0"
-        style={{ background: 'var(--line)', color: 'var(--ink-soft)' }}
-      >
-        ?
-      </span>
-      {show && (
-        <span
-          className="absolute left-5 top-1/2 -translate-y-1/2 z-50 w-52 font-body text-[12px] leading-snug rounded-sm px-3 py-2 shadow-md"
-          style={{ background: '#2c2c2c', color: '#fdfcfb', whiteSpace: 'normal' }}
-        >
-          {text}
-        </span>
-      )}
-    </span>
-  )
+async function uploadToMedia(file: File): Promise<string | null> {
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    const record = await pb.collection('media').create(formData)
+    return `${pb.baseUrl}/api/files/${record.collectionId}/${record.id}/${record['file']}`
+  } catch { return null }
 }
-
-// ─── Upload de imágenes ────────────────────────────────────────────────────────
-
-const BUCKET = 'product-images'
 
 const ImageUploader: React.FC<{
   slug: string
   images: string[]
   onChange: (urls: string[]) => void
 }> = ({ slug, images, onChange }) => {
-  const [dragging, setDragging] = useState(false)
+  const [dragOver, setDragOver] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const uploadFiles = async (files: FileList | null) => {
@@ -112,38 +105,53 @@ const ImageUploader: React.FC<{
     setUploadError(null)
     const newUrls: string[] = []
 
-    for (const file of Array.from(files)) {
-      const ext = file.name.split('.').pop()
-      const path = `${slug}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-      const { error } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true })
-      if (error) {
-        setUploadError(`Error al subir ${file.name}: ${error.message}`)
+    for (const original of Array.from(files)) {
+      const optimized = await compressImage(original)
+      const url = await uploadToMedia(optimized)
+      if (!url) {
+        setUploadError(`Error al subir ${original.name}`)
         continue
       }
-      const { data } = supabase.storage.from(BUCKET).getPublicUrl(path)
-      newUrls.push(data.publicUrl)
+      newUrls.push(url)
     }
 
     onChange([...images, ...newUrls])
     setUploading(false)
   }
 
-  const removeImage = (url: string) => {
-    onChange(images.filter((u) => u !== url))
+  const removeImage = (url: string) => onChange(images.filter((u) => u !== url))
+
+  const promoteToMain = (i: number) => {
+    if (i === 0) return
+    const next = [...images]
+    const [moved] = next.splice(i, 1)
+    next.unshift(moved)
+    onChange(next)
+  }
+
+  const handleReorderDrop = (target: number) => {
+    if (dragIndex === null || dragIndex === target) {
+      setDragIndex(null); setHoverIndex(null); return
+    }
+    const next = [...images]
+    const [moved] = next.splice(dragIndex, 1)
+    next.splice(target, 0, moved)
+    onChange(next)
+    setDragIndex(null); setHoverIndex(null)
   }
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Zona drag & drop */}
+      {/* Zona drag & drop para upload */}
       <div
-        onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={(e) => { e.preventDefault(); setDragging(false); uploadFiles(e.dataTransfer.files) }}
+        onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => { e.preventDefault(); setDragOver(false); uploadFiles(e.dataTransfer.files) }}
         onClick={() => inputRef.current?.click()}
         className="flex flex-col items-center justify-center gap-2 py-8 rounded-sm cursor-pointer transition-colors"
         style={{
-          border: `1.5px dashed ${dragging ? 'var(--sage-700)' : 'var(--line)'}`,
-          background: dragging ? 'var(--cream-200, #ede8e0)' : 'var(--cream-50)',
+          border: `1.5px dashed ${dragOver ? 'var(--sage-700)' : 'var(--line)'}`,
+          background: dragOver ? 'var(--cream-200, #ede8e0)' : 'var(--cream-50)',
         }}
       >
         {uploading ? (
@@ -177,28 +185,66 @@ const ImageUploader: React.FC<{
         <p className="font-mono text-[11px]" style={{ color: '#a8503f' }}>{uploadError}</p>
       )}
 
-      {/* Previews */}
+      {/* Previews + drag-to-sort + principal */}
       {images.length > 0 && (
-        <div className="flex flex-wrap gap-3">
-          {images.map((url) => (
-            <div key={url} className="relative group flex-shrink-0">
-              <img
-                src={url}
-                alt=""
-                className="w-20 h-20 object-cover rounded-sm"
-                style={{ border: '1px solid var(--line-soft)' }}
-              />
-              <button
-                type="button"
-                onClick={() => removeImage(url)}
-                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ background: '#a8503f', color: '#fff', fontSize: 12, lineHeight: 1 }}
-                aria-label="Eliminar imagen"
-              >
-                ×
-              </button>
-            </div>
-          ))}
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-ink-soft mb-2">
+            Arrastrá para reordenar · la primera es la principal en la tienda
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {images.map((url, i) => {
+              const isMain = i === 0
+              const isHover = hoverIndex === i && dragIndex !== null && dragIndex !== i
+              return (
+                <div
+                  key={url}
+                  draggable
+                  onDragStart={() => setDragIndex(i)}
+                  onDragEnter={() => setHoverIndex(i)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={() => handleReorderDrop(i)}
+                  onDragEnd={() => { setDragIndex(null); setHoverIndex(null) }}
+                  className={`relative group flex-shrink-0 transition-opacity ${dragIndex === i ? 'opacity-40' : 'opacity-100'}`}
+                  style={isHover ? { outline: '2px solid var(--sage-700)', outlineOffset: 2, borderRadius: 4 } : undefined}
+                >
+                  <img
+                    src={url}
+                    alt={isMain ? 'Imagen principal' : ''}
+                    className="w-20 h-20 object-cover rounded-sm cursor-move"
+                    style={{ border: '1px solid var(--line-soft)' }}
+                  />
+                  {isMain && (
+                    <span
+                      className="absolute top-1 left-1 font-mono text-[8px] uppercase tracking-[0.08em] px-1.5 py-0.5 rounded-sm pointer-events-none"
+                      style={{ background: 'var(--sage-700)', color: 'var(--cream-50)' }}
+                    >
+                      Principal
+                    </span>
+                  )}
+                  {!isMain && (
+                    <button
+                      type="button"
+                      onClick={() => promoteToMain(i)}
+                      className="absolute top-1 left-1 font-mono text-[8px] uppercase tracking-[0.08em] px-1.5 py-0.5 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                      style={{ background: 'rgba(44,44,44,0.85)', color: '#fdfcfb' }}
+                      title="Marcar como principal"
+                    >
+                      Hacer principal
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeImage(url)}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ background: '#a8503f', color: '#fff', fontSize: 12, lineHeight: 1 }}
+                    aria-label="Eliminar imagen"
+                  >
+                    ×
+                  </button>
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
     </div>
@@ -293,13 +339,82 @@ const VariantsEditor: React.FC<{
   )
 }
 
+// ─── Editor de características (specs dinámicos) ─────────────────────────────
+
+const SpecsEditor: React.FC<{
+  specs: ProductSpec[]
+  onChange: (specs: ProductSpec[]) => void
+}> = ({ specs, onChange }) => {
+  const add = () => onChange([...specs, { label: '', value: '' }])
+  const remove = (i: number) => onChange(specs.filter((_, idx) => idx !== i))
+  const update = (i: number, field: keyof ProductSpec, value: string) =>
+    onChange(specs.map((s, idx) => (idx === i ? { ...s, [field]: value } : s)))
+
+  return (
+    <div className="flex flex-col gap-3">
+      {specs.length === 0 ? (
+        <p className="font-body text-[13px] text-ink-soft italic">
+          Sin características — agregá las que necesites (ej. Técnica, Edición, Origen).
+        </p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          <div className="grid grid-cols-[180px_1fr_32px] gap-3 px-1">
+            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">Nombre</span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">Valor</span>
+            <span />
+          </div>
+
+          {specs.map((s, i) => (
+            <div key={i} className="grid grid-cols-[180px_1fr_32px] gap-3 items-center">
+              <input
+                type="text"
+                value={s.label}
+                placeholder="Técnica"
+                onChange={(e) => update(i, 'label', e.target.value)}
+                className="font-body text-[13px] text-ink bg-transparent border-b outline-none focus:border-sage-700 py-1 transition-colors"
+                style={{ borderColor: 'var(--line)' }}
+              />
+              <input
+                type="text"
+                value={s.value}
+                placeholder="Impresión giclée sobre papel Hahnemühle 308g"
+                onChange={(e) => update(i, 'value', e.target.value)}
+                className="font-body text-[13px] text-ink bg-transparent border-b outline-none focus:border-sage-700 py-1 transition-colors"
+                style={{ borderColor: 'var(--line)' }}
+              />
+              <button
+                type="button"
+                onClick={() => remove(i)}
+                className="w-8 h-8 flex items-center justify-center rounded-sm hover:bg-[#f5e6e6] transition-colors"
+                style={{ color: '#a8503f' }}
+                aria-label="Eliminar característica"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={add}
+        className="self-start font-mono text-[10px] uppercase tracking-[0.1em] px-3 py-1.5 rounded-pill border transition-all hover:border-sage-700 hover:text-sage-700"
+        style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)' }}
+      >
+        + Agregar característica
+      </button>
+    </div>
+  )
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function emptyRow(): ProductRow {
   return {
     slug: '', title: '', category: 'laminas', cat_label: '',
     base_price: 0, size: '', tone: 'a', tall: 1.3,
-    medium: '', edition: '', description: '',
+    description: EMPTY_DESCRIPTION, specs: [],
     images: [], tags: [], tagsInput: '', variants: [],
     has_frame: false, frame_price: 0, on_demand: false, sort_order: 0,
     isNew: true, dirty: true, saving: false, confirmDelete: false,
@@ -313,6 +428,24 @@ function rawToRow(p: Record<string, unknown>): ProductRow {
       (v) => typeof v === 'object' && 'size' in v && 'priceMultiplier' in v
     )
   }
+
+  // Specs: usa el array si existe; si no, reconstruye desde medium/edition legacy.
+  let specs: ProductSpec[] = []
+  if (Array.isArray(p.specs)) {
+    specs = (p.specs as ProductSpec[]).filter(
+      (s) => typeof s === 'object' && 'label' in s && 'value' in s
+    )
+  } else if (typeof p.specs === 'string' && p.specs.trim().startsWith('[')) {
+    try {
+      const parsed = JSON.parse(p.specs)
+      if (Array.isArray(parsed)) specs = parsed.filter((s) => s?.label && s?.value)
+    } catch { /* ignore */ }
+  }
+  if (specs.length === 0) {
+    if (p.medium) specs.push({ label: 'Técnica', value: String(p.medium) })
+    if (p.edition) specs.push({ label: 'Edición', value: String(p.edition) })
+  }
+
   return {
     slug: p.slug as string,
     title: p.title as string,
@@ -322,9 +455,8 @@ function rawToRow(p: Record<string, unknown>): ProductRow {
     size: p.size as string,
     tone: p.tone as string,
     tall: p.tall as number,
-    medium: p.medium as string,
-    edition: p.edition as string,
-    description: p.description as string,
+    description: normalizeDescription(p.description),
+    specs,
     images: (p.images as string[]) ?? [],
     tags: (p.tags as string[]) ?? [],
     tagsInput: ((p.tags as string[]) ?? []).join(', '),
@@ -358,22 +490,58 @@ const inputStyle = { borderColor: 'var(--line)' }
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 
+const PRODUCT_TABS = [
+  { id: 'basico',    label: 'Básico' },
+  { id: 'contenido', label: 'Contenido' },
+  { id: 'imagenes',  label: 'Imágenes' },
+  { id: 'avanzado',  label: 'Avanzado' },
+]
+
 const AdminProducts: React.FC = () => {
+  const toast = useToast()
   const [rows, setRows] = useState<ProductRow[]>([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<Record<string, string>>({})
   const [saveErrors, setSaveErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    supabase
-      .from('products')
-      .select('*')
-      .order('sort_order')
-      .then(({ data }) => {
-        if (data) setRows(data.map(rawToRow))
+    pb.collection('products')
+      .getFullList({ sort: 'sort_order', requestKey: null })
+      .then((data) => {
+        setRows(data.map((p) => rawToRow(p as Record<string, unknown>)))
         setLoading(false)
       })
-  }, [])
+      .catch((e) => {
+        toast.error('No se pudieron cargar los productos', { detail: e instanceof Error ? e.message : undefined })
+        setLoading(false)
+      })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Filtros: search, categoría, sin-imágenes
+  const { filtered, query, setQuery, filters, setFilter } = useTableFilter(rows, {
+    searchFields: ['title', 'slug'],
+    customFilter: (row, f) => {
+      if (f.category && row.category !== f.category) return false
+      if (f.images === 'none' && row.images.length > 0) return false
+      // Búsqueda extra por tags
+      return true
+    },
+  })
+
+  const filteredWithTags = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    if (!q) return filtered
+    // Si la búsqueda no matcheó título/slug, probamos también con tags
+    return filtered.length > 0
+      ? filtered
+      : rows.filter((r) =>
+          r.tags.some((t) => t.toLowerCase().includes(q)) &&
+          (!filters.category || r.category === filters.category)
+        )
+  }, [filtered, rows, query, filters.category])
+
+  const dirtyCount = rows.filter((r) => r.dirty).length
 
   const getKey = (row: ProductRow) => row.isNew ? '__new__' : row.slug
 
@@ -399,6 +567,10 @@ const AdminProducts: React.FC = () => {
     const matchRow = (r: ProductRow) => key === '__new__' ? !!r.isNew : r.slug === key
     setRows((prev) => prev.map((r) => matchRow(r) ? { ...r, saving: true } : r))
 
+    const cleanSpecs = row.specs
+      .map((s) => ({ label: s.label.trim(), value: s.value.trim() }))
+      .filter((s) => s.label && s.value)
+
     const payload = {
       slug: row.slug,
       title: row.title,
@@ -408,9 +580,8 @@ const AdminProducts: React.FC = () => {
       size: row.size,
       tone: row.tone,
       tall: row.tall,
-      medium: row.medium,
-      edition: row.edition,
       description: row.description,
+      specs: cleanSpecs,
       images: row.images,
       tags: row.tags,
       variants: row.variants.length > 0 ? row.variants : null,
@@ -420,21 +591,65 @@ const AdminProducts: React.FC = () => {
       sort_order: row.sort_order,
     }
 
-    const { error } = await supabase.from('products').upsert(payload)
-    if (error) {
-      setSaveErrors((prev) => ({ ...prev, [key]: error.message }))
+    try {
+      let recordId: string
+      try {
+        const existing = await pb.collection('products').getFirstListItem(`slug = "${row.slug}"`)
+        const updated = await pb.collection('products').update(existing.id, payload)
+        recordId = updated.id
+      } catch (e: unknown) {
+        if ((e as { status?: number })?.status === 404 || (e as { status?: number })?.status === 0) {
+          const created = await pb.collection('products').create(payload)
+          recordId = created.id
+        } else {
+          throw e
+        }
+      }
+
+      // Verificación post-save: re-leer el record y comprobar que description quedó persistido.
+      const fresh = await pb.collection('products').getOne(recordId)
+      const descSaved = fresh.description
+      const descIsEmpty =
+        descSaved == null ||
+        descSaved === '' ||
+        (typeof descSaved === 'object' &&
+          Array.isArray((descSaved as { content?: unknown[] }).content) &&
+          (descSaved as { content: unknown[] }).content.length === 0)
+
+      // Si el TipTap tenía contenido pero PocketBase devuelve vacío,
+      // el campo de la colección no está aceptando el payload.
+      const localHasContent =
+        Array.isArray(row.description?.content) && row.description.content.length > 0
+      if (localHasContent && descIsEmpty) {
+        const msg = 'PocketBase no persistió la descripción. Verificá que el campo "description" sea JSON en la colección products.'
+        setSaveErrors((prev) => ({ ...prev, [key]: msg }))
+        setRows((prev) => prev.map((r) => matchRow(r) ? { ...r, saving: false } : r))
+        toast.error('No se guardó la descripción', { detail: msg })
+        return
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Error al guardar'
+      setSaveErrors((prev) => ({ ...prev, [key]: msg }))
       setRows((prev) => prev.map((r) => matchRow(r) ? { ...r, saving: false } : r))
+      toast.error('No se pudo guardar', { detail: msg })
       return
     }
 
     setRows((prev) => prev.map((r) => matchRow(r) ? { ...r, dirty: false, saving: false, isNew: false } : r))
     if (row.isNew) setExpanded(row.slug)
+    toast.success(row.isNew ? 'Producto creado' : 'Producto actualizado', { detail: row.title })
   }
 
-  const deleteRow = async (slug: string) => {
-    await supabase.from('products').delete().eq('slug', slug)
-    setRows((prev) => prev.filter((r) => r.slug !== slug))
-    if (expanded === slug) setExpanded(null)
+  const deleteRow = async (slug: string, title: string) => {
+    try {
+      const record = await pb.collection('products').getFirstListItem(`slug = "${slug}"`)
+      await pb.collection('products').delete(record.id)
+      setRows((prev) => prev.filter((r) => r.slug !== slug))
+      if (expanded === slug) setExpanded(null)
+      toast.success('Producto eliminado', { detail: title })
+    } catch (e) {
+      toast.error('No se pudo eliminar', { detail: e instanceof Error ? e.message : undefined })
+    }
   }
 
   if (loading) {
@@ -443,8 +658,14 @@ const AdminProducts: React.FC = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-[22px] text-ink font-normal">Productos</h1>
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
+        <div>
+          <h1 className="font-display text-[22px] text-ink font-normal">Productos</h1>
+          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mt-1">
+            {filteredWithTags.length} de {rows.length}
+            {dirtyCount > 0 && ` · ${dirtyCount} sin guardar`}
+          </p>
+        </div>
         <button
           type="button"
           onClick={addNew}
@@ -455,8 +676,44 @@ const AdminProducts: React.FC = () => {
         </button>
       </div>
 
+      {/* Toolbar filtros */}
+      {rows.length > 0 && (
+        <div className="flex flex-col md:flex-row md:items-center gap-3 mb-5 p-3 rounded-sm" style={{ background: 'var(--cream-100, #faf6f0)', border: '1px solid var(--line-soft)' }}>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar título, slug o tag…"
+            className="flex-1 min-w-0 font-body text-[13px] text-ink bg-cream-50 border rounded-sm px-3 py-1.5 outline-none focus:border-sage-700 transition-colors"
+            style={{ borderColor: 'var(--line)' }}
+            aria-label="Buscar producto"
+          />
+          <select
+            value={filters.category ?? 'all'}
+            onChange={(e) => setFilter('category', e.target.value)}
+            className="font-body text-[13px] text-ink bg-cream-50 border rounded-sm px-2 py-1.5 outline-none focus:border-sage-700 transition-colors"
+            style={{ borderColor: 'var(--line)' }}
+            aria-label="Filtrar por categoría"
+          >
+            <option value="all">Todas las categorías</option>
+            {CATEGORY_OPTIONS.map((c) => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
+          </select>
+          <label className="inline-flex items-center gap-2 font-mono text-[11px] text-ink whitespace-nowrap">
+            <input
+              type="checkbox"
+              checked={filters.images === 'none'}
+              onChange={(e) => setFilter('images', e.target.checked ? 'none' : '')}
+              className="accent-sage-700 w-4 h-4"
+            />
+            Sin imágenes
+          </label>
+        </div>
+      )}
+
       <div className="flex flex-col gap-2">
-        {rows.map((row) => {
+        {filteredWithTags.map((row) => {
           const key = getKey(row)
           const isOpen = expanded === key
 
@@ -466,35 +723,45 @@ const AdminProducts: React.FC = () => {
               className="rounded-sm overflow-hidden"
               style={{ border: '1px solid var(--line-soft)' }}
             >
-              {/* Fila resumen */}
+              {/* Fila resumen — incluye thumbnail */}
               <button
                 type="button"
                 onClick={() => setExpanded(isOpen ? null : key)}
-                className="w-full text-left px-5 py-4 bg-cream-50 hover:bg-cream-100 transition-colors"
+                aria-expanded={isOpen}
+                className="w-full text-left px-3 md:px-5 py-3 bg-cream-50 hover:bg-cream-100 transition-colors"
               >
-                <div className="flex items-center gap-4 flex-wrap">
-                  <span className="font-mono text-[11px] text-ink-soft w-[90px] flex-shrink-0 uppercase tracking-[0.08em]">
-                    {row.isNew ? '— nuevo —' : row.slug}
-                  </span>
-                  <span className="font-body text-[14px] text-ink flex-1 min-w-[120px]">
-                    {row.title || <span className="text-ink-soft italic text-[13px]">sin título</span>}
-                  </span>
-                  <span className="font-mono text-[11px] text-ink-soft hidden md:block">
-                    {CATEGORY_OPTIONS.find((c) => c.value === row.category)?.label ?? row.category}
-                  </span>
+                <div className="flex items-center gap-3 md:gap-4">
+                  {/* Thumbnail */}
+                  <div className="w-10 h-10 rounded-sm overflow-hidden bg-cream-100 flex-shrink-0" style={{ border: '1px solid var(--line-soft)' }}>
+                    {row.images.length > 0 ? (
+                      <img src={row.images[0]} alt="" className="w-full h-full object-cover" loading="lazy" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center font-mono text-[9px] text-ink-soft">—</div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-body text-[14px] text-ink truncate min-w-0">
+                        {row.title || <span className="text-ink-soft italic text-[13px]">sin título</span>}
+                      </span>
+                      {row.dirty && (
+                        <span className="font-mono text-[10px] uppercase tracking-[0.1em] flex-shrink-0" style={{ color: '#a87c3f' }}>
+                          sin guardar
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                      <span className="font-mono text-[10px] text-ink-soft uppercase tracking-[0.08em] truncate">
+                        {row.isNew ? '— nuevo —' : row.slug}
+                      </span>
+                      <span className="font-mono text-[10px] text-ink-soft hidden sm:inline">
+                        · {CATEGORY_OPTIONS.find((c) => c.value === row.category)?.label ?? row.category}
+                      </span>
+                    </div>
+                  </div>
                   <span className="font-mono text-[12px] text-ink flex-shrink-0">
                     {row.base_price ? formatARS(row.base_price) : '—'}
                   </span>
-                  {row.images.length > 0 && (
-                    <span className="font-mono text-[10px] text-ink-soft hidden md:block">
-                      {row.images.length} foto{row.images.length > 1 ? 's' : ''}
-                    </span>
-                  )}
-                  {row.dirty && (
-                    <span className="font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: '#a87c3f' }}>
-                      sin guardar
-                    </span>
-                  )}
                   <svg
                     width="12" height="12" viewBox="0 0 12 12" fill="none"
                     className={`flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
@@ -505,109 +772,141 @@ const AdminProducts: React.FC = () => {
                 </div>
               </button>
 
-              {/* Formulario expandido */}
+              {/* Formulario expandido con tabs */}
               {isOpen && (
                 <div
-                  className="px-5 py-6 flex flex-col gap-6"
+                  className="flex flex-col"
                   style={{ borderTop: '1px solid var(--line-soft)', background: 'var(--cream-100, #f5f0eb)' }}
                 >
-
-                  {/* Sección: identificación */}
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-4">Identificación</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Field label="Slug (ID único)" tooltip="Identificador permanente del producto en la URL. Solo letras minúsculas, números y guiones. Ejemplo: helecho-i. No se puede cambiar una vez creado.">
-                        <input
-                          type="text"
-                          value={row.slug}
-                          disabled={!row.isNew}
-                          placeholder="helecho-i"
-                          onChange={(e) => patch(key, 'slug', e.target.value.toLowerCase().replace(/\s+/g, '-'))}
-                          className={`${inputCls} disabled:opacity-50`}
-                          style={inputStyle}
-                        />
-                      </Field>
-                      <Field label="Título">
-                        <input type="text" value={row.title} placeholder="Helecho I"
-                          onChange={(e) => patch(key, 'title', e.target.value)}
-                          className={inputCls} style={inputStyle} />
-                      </Field>
-                    </div>
-                  </div>
-
-                  {/* Sección: categoría y precios */}
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-4">Categoría y precio</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Field label="Categoría">
-                        <select value={row.category} onChange={(e) => patch(key, 'category', e.target.value)}
-                          className="font-body text-[13px] text-ink bg-cream-50 border rounded-sm px-2 py-1.5 outline-none focus:border-sage-700 transition-colors"
-                          style={{ borderColor: 'var(--line)' }}>
-                          {CATEGORY_OPTIONS.map((c) => (
-                            <option key={c.value} value={c.value}>{c.label}</option>
-                          ))}
-                        </select>
-                      </Field>
-                      <Field label="Etiqueta de categoría" tooltip="Texto que aparece en la ficha del producto. Ejemplo: 'Lámina — Giclée', 'Cerámica — Gres esmaltado'.">
-                        <input type="text" value={row.cat_label} placeholder="Lámina — Giclée"
-                          onChange={(e) => patch(key, 'cat_label', e.target.value)}
-                          className={inputCls} style={inputStyle} />
-                      </Field>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                      <Field label="Precio base (ARS)" tooltip="Precio del tamaño estándar (A4 o pieza única). Si el producto tiene variantes de tamaño, los otros precios se calculan automáticamente a partir de este.">
-                        <input type="number" min={0} value={row.base_price || ''}
-                          placeholder="8500"
-                          onChange={(e) => patch(key, 'base_price', parseInt(e.target.value, 10) || 0)}
-                          className={inputCls} style={inputStyle} />
-                      </Field>
-                      <Field label="Medidas / tamaño">
-                        <input type="text" value={row.size} placeholder="A4 · 21×29,7 cm"
-                          onChange={(e) => patch(key, 'size', e.target.value)}
-                          className={inputCls} style={inputStyle} />
-                      </Field>
-                    </div>
-                  </div>
-
-                  {/* Sección: variantes de tamaño */}
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-1 flex items-center">
-                      Variantes de tamaño
-                      <Tooltip text="Usá variantes si el producto existe en varios tamaños con distintos precios (ej. láminas A6, A5, A4, A3). Dejalo vacío si es una sola versión." />
-                    </p>
-                    <VariantsEditor
-                      variants={row.variants}
-                      basePrice={row.base_price}
-                      onChange={(v) => patch(key, 'variants', v)}
+                  <div className="px-3 md:px-5 pt-2">
+                    <Tabs
+                      tabs={PRODUCT_TABS}
+                      active={activeTab[key] ?? 'basico'}
+                      onChange={(id) => setActiveTab((prev) => ({ ...prev, [key]: id }))}
                     />
                   </div>
 
-                  {/* Sección: descripción */}
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-4">Descripción y detalles</p>
-                    <div className="flex flex-col gap-4">
-                      <Field label="Descripción">
-                        <textarea value={row.description} rows={3}
-                          placeholder="Texto descriptivo del producto…"
-                          onChange={(e) => patch(key, 'description', e.target.value)}
-                          className="font-body text-[13px] text-ink bg-transparent border-b outline-none focus:border-sage-700 py-1.5 transition-colors resize-none"
-                          style={{ borderColor: 'var(--line)' }} />
-                      </Field>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Field label="Técnica / material">
-                          <input type="text" value={row.medium}
-                            placeholder="Impresión giclée sobre papel Hahnemühle 308g"
-                            onChange={(e) => patch(key, 'medium', e.target.value)}
-                            className={inputCls} style={inputStyle} />
-                        </Field>
-                        <Field label="Edición">
-                          <input type="text" value={row.edition}
-                            placeholder="Edición abierta · firmada"
-                            onChange={(e) => patch(key, 'edition', e.target.value)}
-                            className={inputCls} style={inputStyle} />
-                        </Field>
+                  <div className="px-4 md:px-5 py-6 flex flex-col gap-6">
+                  {/* TAB · BÁSICO */}
+                  {(activeTab[key] ?? 'basico') === 'basico' && (
+                    <>
+                      <div>
+                        <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-4">Identificación</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <Field label={row.isNew ? 'Slug (ID único)' : 'Slug · 🔒 fijo'} tooltip="Identificador permanente del producto en la URL. Solo letras minúsculas, números y guiones. No se puede cambiar una vez creado.">
+                            <input
+                              type="text"
+                              value={row.slug}
+                              disabled={!row.isNew}
+                              placeholder="helecho-i"
+                              onChange={(e) => patch(key, 'slug', e.target.value.toLowerCase().replace(/\s+/g, '-'))}
+                              className={`${inputCls} disabled:opacity-50 disabled:cursor-not-allowed`}
+                              style={inputStyle}
+                            />
+                          </Field>
+                          <Field label="Título">
+                            <input type="text" value={row.title} placeholder="Helecho I"
+                              onChange={(e) => patch(key, 'title', e.target.value)}
+                              className={inputCls} style={inputStyle} />
+                          </Field>
+                        </div>
                       </div>
-                      <Field label="Tags" tooltip="Palabras clave separadas por coma, usadas internamente para búsqueda y filtros. Ejemplo: botanica, tinta, papel, serie-2025">
+
+                      <div>
+                        <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-4">Categoría y precio</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <Field label="Categoría">
+                            <select value={row.category} onChange={(e) => patch(key, 'category', e.target.value)}
+                              className="font-body text-[13px] text-ink bg-cream-50 border rounded-sm px-2 py-1.5 outline-none focus:border-sage-700 transition-colors"
+                              style={{ borderColor: 'var(--line)' }}>
+                              {CATEGORY_OPTIONS.map((c) => (
+                                <option key={c.value} value={c.value}>{c.label}</option>
+                              ))}
+                            </select>
+                          </Field>
+                          <Field label="Etiqueta de categoría" tooltip="Texto que aparece en la ficha del producto. Ejemplo: 'Lámina — Giclée', 'Cerámica — Gres esmaltado'.">
+                            <input type="text" value={row.cat_label} placeholder="Lámina — Giclée"
+                              onChange={(e) => patch(key, 'cat_label', e.target.value)}
+                              className={inputCls} style={inputStyle} />
+                          </Field>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                          <Field label="Precio base (ARS)" tooltip="Precio del tamaño estándar. Las variantes se calculan con multiplicadores.">
+                            <input type="number" min={0} value={row.base_price || ''}
+                              placeholder="8500"
+                              onChange={(e) => patch(key, 'base_price', parseInt(e.target.value, 10) || 0)}
+                              className={inputCls} style={inputStyle} />
+                          </Field>
+                          <Field label="Medidas / tamaño">
+                            <input type="text" value={row.size} placeholder="A4 · 21×29,7 cm"
+                              onChange={(e) => patch(key, 'size', e.target.value)}
+                              className={inputCls} style={inputStyle} />
+                          </Field>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-1 flex items-center">
+                          Variantes de tamaño
+                          <Tooltip text="Usá variantes si el producto existe en varios tamaños con distintos precios. Dejalo vacío si es una sola versión." />
+                        </p>
+                        <VariantsEditor
+                          variants={row.variants}
+                          basePrice={row.base_price}
+                          onChange={(v) => patch(key, 'variants', v)}
+                        />
+                      </div>
+
+                      <div>
+                        <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-4">Marco</p>
+                        <div className="flex flex-col gap-4">
+                          <div className="flex items-center gap-3">
+                            <input type="checkbox" id={`frame-${key}`} checked={row.has_frame}
+                              onChange={(e) => patch(key, 'has_frame', e.target.checked)}
+                              className="accent-sage-700 w-4 h-4 cursor-pointer" />
+                            <label htmlFor={`frame-${key}`} className="font-body text-[13px] text-ink cursor-pointer">
+                              Ofrece opción de enmarcado
+                            </label>
+                          </div>
+                          {row.has_frame && (
+                            <Field label="Precio del marco (ARS)">
+                              <input type="number" min={0} value={row.frame_price || ''}
+                                placeholder="12000"
+                                onChange={(e) => patch(key, 'frame_price', parseInt(e.target.value, 10) || 0)}
+                                className={`${inputCls} max-w-[160px]`} style={inputStyle} />
+                            </Field>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* TAB · CONTENIDO */}
+                  {activeTab[key] === 'contenido' && (
+                    <>
+                      <Field
+                        label="Descripción"
+                        tooltip="Texto rico con formato que aparece en la ficha del producto."
+                      >
+                        <TipTapEditor
+                          value={row.description}
+                          onChange={(v) => patch(key, 'description', v)}
+                          placeholder="Contá la historia del producto, materiales, inspiración…"
+                        />
+                      </Field>
+
+                      <div>
+                        <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-3 flex items-center">
+                          Características
+                          <Tooltip text="Pares nombre/valor que aparecen en la tabla de detalles. Ej: Técnica, Edición, Origen, Cuidados." />
+                        </p>
+                        <SpecsEditor
+                          specs={row.specs}
+                          onChange={(s) => patch(key, 'specs', s)}
+                        />
+                      </div>
+
+                      <Field label="Tags" tooltip="Palabras clave separadas por coma. Ej: botanica, tinta, papel, serie-2025.">
                         <input type="text"
                           value={row.tagsInput}
                           placeholder="botanica, tinta, papel"
@@ -619,112 +918,71 @@ const AdminProducts: React.FC = () => {
                           }}
                           className={inputCls} style={inputStyle} />
                       </Field>
-                    </div>
-                  </div>
+                    </>
+                  )}
 
-                  {/* Sección: marco */}
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-4">Marco</p>
-                    <div className="flex flex-col gap-4">
-                      <div className="flex items-center gap-3">
-                        <input type="checkbox" id={`frame-${key}`} checked={row.has_frame}
-                          onChange={(e) => patch(key, 'has_frame', e.target.checked)}
-                          className="accent-sage-700 w-4 h-4 cursor-pointer" />
-                        <label htmlFor={`frame-${key}`} className="font-body text-[13px] text-ink cursor-pointer">
-                          Ofrece opción de enmarcado
-                        </label>
-                      </div>
-                      {row.has_frame && (
-                        <Field label="Precio del marco (ARS)">
-                          <input type="number" min={0} value={row.frame_price || ''}
-                            placeholder="12000"
-                            onChange={(e) => patch(key, 'frame_price', parseInt(e.target.value, 10) || 0)}
-                            className={`${inputCls} max-w-[160px]`} style={inputStyle} />
-                        </Field>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Sección: imágenes */}
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-4">Imágenes</p>
+                  {/* TAB · IMÁGENES */}
+                  {activeTab[key] === 'imagenes' && (
                     <ImageUploader
                       slug={row.slug}
                       images={row.images}
                       onChange={(urls) => patch(key, 'images', urls)}
                     />
-                  </div>
+                  )}
 
-                  {/* Sección: opciones avanzadas */}
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-4">Opciones avanzadas</p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <Field label="Tono placeholder" tooltip="Color del fondo de espera mientras carga la imagen. Usá el tono que más se parezca a los colores del producto.">
-                        <select value={row.tone} onChange={(e) => patch(key, 'tone', e.target.value)}
-                          className="font-body text-[13px] text-ink bg-cream-50 border rounded-sm px-2 py-1.5 outline-none focus:border-sage-700 transition-colors"
-                          style={{ borderColor: 'var(--line)' }}>
-                          {TONE_OPTIONS.map((t) => (
-                            <option key={t.value} value={t.value}>{t.label}</option>
-                          ))}
-                        </select>
-                      </Field>
-                      <Field label="Proporción imagen" tooltip="Controla la altura del placeholder de imagen. 1.3 = más alto que ancho (cuadros verticales). 1 = cuadrado. 0.9 = más ancho que alto.">
-                        <input type="number" step="0.05" min={0.5} max={2.5}
-                          value={row.tall}
-                          onChange={(e) => patch(key, 'tall', parseFloat(e.target.value) || 1.3)}
-                          className={inputCls} style={inputStyle} />
-                      </Field>
-                      <Field label="Orden en tienda" tooltip="Número que define el orden de aparición. Menor número = aparece primero. Usá múltiplos de 10 para poder intercalar fácilmente.">
-                        <input type="number" min={0} value={row.sort_order}
-                          onChange={(e) => patch(key, 'sort_order', parseInt(e.target.value, 10) || 0)}
-                          className={inputCls} style={inputStyle} />
-                      </Field>
-                      <div className="flex items-center gap-3 mt-5">
-                        <input type="checkbox" id={`demand-${key}`} checked={row.on_demand}
-                          onChange={(e) => patch(key, 'on_demand', e.target.checked)}
-                          className="accent-sage-700 w-4 h-4 cursor-pointer" />
-                        <label htmlFor={`demand-${key}`}
-                          className="font-body text-[13px] text-ink cursor-pointer flex items-center">
-                          Bajo pedido
-                          <Tooltip text="Marcá esto si el producto no está físicamente disponible pero se puede encargar con anticipación." />
-                        </label>
+                  {/* TAB · AVANZADO */}
+                  {activeTab[key] === 'avanzado' && (
+                    <div>
+                      <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-4">Opciones avanzadas</p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <Field label="Tono placeholder" tooltip="Color del fondo de espera mientras carga la imagen.">
+                          <select value={row.tone} onChange={(e) => patch(key, 'tone', e.target.value)}
+                            className="font-body text-[13px] text-ink bg-cream-50 border rounded-sm px-2 py-1.5 outline-none focus:border-sage-700 transition-colors"
+                            style={{ borderColor: 'var(--line)' }}>
+                            {TONE_OPTIONS.map((t) => (
+                              <option key={t.value} value={t.value}>{t.label}</option>
+                            ))}
+                          </select>
+                        </Field>
+                        <Field label="Proporción imagen" tooltip="1.3 = vertical · 1 = cuadrado · 0.9 = horizontal.">
+                          <input type="number" step="0.05" min={0.5} max={2.5}
+                            value={row.tall}
+                            onChange={(e) => patch(key, 'tall', parseFloat(e.target.value) || 1.3)}
+                            className={inputCls} style={inputStyle} />
+                        </Field>
+                        <Field label="Orden en tienda" tooltip="Menor número = aparece primero. Usá múltiplos de 10.">
+                          <input type="number" min={0} value={row.sort_order}
+                            onChange={(e) => patch(key, 'sort_order', parseInt(e.target.value, 10) || 0)}
+                            className={inputCls} style={inputStyle} />
+                        </Field>
+                        <div className="flex items-center gap-3 mt-5">
+                          <input type="checkbox" id={`demand-${key}`} checked={row.on_demand}
+                            onChange={(e) => patch(key, 'on_demand', e.target.checked)}
+                            className="accent-sage-700 w-4 h-4 cursor-pointer" />
+                          <label htmlFor={`demand-${key}`}
+                            className="font-body text-[13px] text-ink cursor-pointer flex items-center">
+                            Bajo pedido
+                            <Tooltip text="Marcá esto si el producto no está físicamente disponible pero se puede encargar." />
+                          </label>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
 
-                  {/* Acciones */}
+                  {/* Error */}
                   {saveErrors[key] && (
                     <p className="font-mono text-[11px]" style={{ color: '#a8503f' }}>{saveErrors[key]}</p>
                   )}
+                  </div>
+
+                  {/* Action bar sticky bottom */}
                   <div
-                    className="flex items-center justify-between pt-4"
-                    style={{ borderTop: '1px solid var(--line-soft)' }}
+                    className="sticky bottom-0 flex flex-wrap items-center justify-between gap-3 px-4 md:px-5 py-3 z-10"
+                    style={{ background: 'var(--cream-100, #f5f0eb)', borderTop: '1px solid var(--line-soft)' }}
                   >
                     <div className="flex items-center gap-3">
-                      {!row.isNew && !row.confirmDelete && (
-                        <button
-                          type="button"
-                          onClick={() => setRows((prev) => prev.map((r) => r.slug === row.slug ? { ...r, confirmDelete: true } : r))}
-                          className="font-mono text-[10px] uppercase tracking-[0.1em] transition-colors hover:underline"
-                          style={{ color: '#a8503f' }}
-                        >
-                          Eliminar
-                        </button>
-                      )}
-                      {row.confirmDelete && (
-                        <div className="flex items-center gap-3">
-                          <span className="font-mono text-[10px] text-ink-soft">¿Segura?</span>
-                          <button type="button" onClick={() => deleteRow(row.slug)}
-                            className="font-mono text-[10px] uppercase tracking-[0.1em] hover:underline"
-                            style={{ color: '#a8503f' }}>
-                            Sí, eliminar
-                          </button>
-                          <button type="button"
-                            onClick={() => setRows((prev) => prev.map((r) => r.slug === row.slug ? { ...r, confirmDelete: false } : r))}
-                            className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft hover:text-ink">
-                            Cancelar
-                          </button>
-                        </div>
+                      {!row.isNew && (
+                        <ConfirmDeleteInline onConfirm={() => deleteRow(row.slug, row.title)} />
                       )}
                     </div>
                     <button

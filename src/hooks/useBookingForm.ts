@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { compressImage } from '@/lib/imageCompression'
 
 export type ArrayField = 'workTypes' | 'days' | 'timeSlots'
 
@@ -50,13 +50,13 @@ const INITIAL: BookingFields = {
   notes: '',
 }
 
+
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => {
       const result = reader.result as string
-      const base64 = result.split(',')[1] ?? ''
-      resolve(base64)
+      resolve(result.split(',')[1] ?? '')
     }
     reader.onerror = () => reject(reader.error)
     reader.readAsDataURL(file)
@@ -197,13 +197,21 @@ export function useBookingForm() {
     setSendError(null)
 
     try {
+      // Comprimir imágenes antes de convertir a base64 (evita el 413 de Vercel)
       const attachments = await Promise.all(
-        fields.references.map(async (file) => ({
-          name: file.name,
-          mimeType: file.type,
-          size: file.size,
-          base64: await fileToBase64(file),
-        }))
+        fields.references.map(async (file) => {
+          const compressed = await compressImage(file, {
+            maxDimension: 1200,
+            quality: 0.8,
+            skipUnderBytes: 300_000,
+          })
+          return {
+            name: compressed.name,
+            mimeType: compressed.type || 'image/jpeg',
+            size: compressed.size,
+            base64: await fileToBase64(compressed),
+          }
+        })
       )
 
       const payload = {
@@ -220,11 +228,16 @@ export function useBookingForm() {
         attachments,
       }
 
-      const { error } = await supabase.functions.invoke('send-booking-email', {
-        body: payload,
+      const emailRes = await fetch('/api/send-booking-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       })
 
-      if (error) throw error
+      if (!emailRes.ok) {
+        const errData = await emailRes.json().catch(() => ({})) as { error?: string }
+        throw new Error(errData.error ?? 'email_send_failed')
+      }
 
       setSubmitted(true)
     } catch (err) {

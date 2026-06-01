@@ -1,0 +1,33 @@
+[
+  {
+    "id": "75eb4d85-1c16-4e3d-a80a-ab6e178daaa8",
+    "created_at": "2026-05-07 14:48:34.332031+00",
+    "status": "pendiente",
+    "customer_name": "Lautaro Hudson",
+    "customer_email": "lautarohudson@gmail.com",
+    "customer_phone": "0111566191209",
+    "delivery_mode": "envio",
+    "street": "Remedios de Escalada de San Martin 573",
+    "city": "Ciudad Autónoma de Buenos Aires",
+    "postal_code": "1416",
+    "payment_method": "transferencia",
+    "total": 4002,
+    "mp_preference_id": null,
+    "mp_payment_id": null,
+    "mp_payment_status": null,
+    "shipping_cost": 4000,
+    "tracking_number": null,
+    "items": [
+      {
+        "id": "457c7b53-4dff-43ad-a8bd-d1ccf7c8683c",
+        "order_id": "75eb4d85-1c16-4e3d-a80a-ab6e178daaa8",
+        "product_slug": "print1",
+        "product_title": "print1",
+        "selected_size": null,
+        "has_frame": false,
+        "unit_price": 2,
+        "quantity": 1
+      }
+    ]
+  }
+]

@@ -65,7 +65,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
         {product.images.length > 0 ? (
           <img
             src={product.images[0]}
-            alt={`${product.title} — ${product.catLabel}, ${product.medium}`}
+            alt={`${product.title} — ${product.catLabel}`}
             width={400}
             height={Math.round(400 * product.tall)}
             loading={priority ? 'eager' : 'lazy'}

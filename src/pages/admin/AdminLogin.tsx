@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
+import { pb } from '@/lib/pocketbase'
 
 const AdminLogin: React.FC = () => {
   const navigate = useNavigate()
@@ -10,22 +10,20 @@ const AdminLogin: React.FC = () => {
   const [loading, setLoading]   = useState(false)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate('/admin', { replace: true })
-    })
+    if (pb.authStore.isValid) navigate('/admin', { replace: true })
   }, [navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
-    setLoading(false)
-    if (authError) {
-      setError('Email o contraseña incorrectos.')
-    } else {
+    try {
+      await pb.collection('_superusers').authWithPassword(email, password)
       navigate('/admin', { replace: true })
+    } catch {
+      setError('Email o contraseña incorrectos.')
     }
+    setLoading(false)
   }
 
   return (

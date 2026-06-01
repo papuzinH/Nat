@@ -23,7 +23,17 @@
       "Bash(npm run *)",
       "Bash(npx tsc *)",
       "Bash(rtk grep *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\(p.scripts\\)\")",
+      "Bash(node scripts/add-media-collection.mjs)",
+      "Bash(curl -s -i 'https://nat.lhstudio.com.ar/api/collections/orders/records?page=1&perPage=5')",
+      "Bash(curl -s -i 'https://nat.lhstudio.com.ar/api/collections/orders/records?page=1&perPage=1000&skipTotal=1&sort=-created')",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" 'https://nat.lhstudio.com.ar/api/collections/orders/records?sort=-created')",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" 'https://nat.lhstudio.com.ar/api/collections/orders/records?skipTotal=1')",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" 'https://nat.lhstudio.com.ar/api/collections/orders/records?sort=-id')",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" 'https://nat.lhstudio.com.ar/api/collections/orders/records?sort=-status')",
+      "Bash(curl -s -o /dev/null -w '%{http_code}\\\\n' https://nat.lhstudio.com.ar/api/collections/__TRACKED_VAR__/records?sort=-created)",
+      "Bash(echo \"EXIT=$?\")"
     ]
   }
 }

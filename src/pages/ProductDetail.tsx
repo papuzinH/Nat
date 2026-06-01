@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useParams, Navigate } from 'react-router-dom'
-import { getVariantPrice } from '@/data/products'
+import { getVariantPrice, descriptionToPlainText } from '@/data/products'
 import { useProducts } from '@/hooks/useProducts'
 import { useCart } from '@/context/CartContext'
 import {
@@ -45,9 +45,11 @@ const ProductDetail: React.FC = () => {
     setToastVisible(true)
   }
 
+  const descriptionText = descriptionToPlainText(product.description)
+
   const productSchema = {
     name: product.title,
-    description: product.description,
+    description: descriptionText,
     image: product.images[0] ?? `${BASE_URL}/og-placeholder.webp`,
     url: `${BASE_URL}/tienda/${product.slug}`,
     brand: { '@type': 'Brand', name: 'Natalia Heller' },
@@ -98,7 +100,10 @@ const ProductDetail: React.FC = () => {
     ],
   }
 
-  const metaDescription = `${product.description} ${product.medium}. ${product.edition}. A domicilio - Retiro en persona.`
+  const specsLine = product.specs.map((s) => `${s.label}: ${s.value}`).join('. ')
+  const metaDescription = [descriptionText, specsLine, 'A domicilio - Retiro en persona.']
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <>
@@ -113,7 +118,7 @@ const ProductDetail: React.FC = () => {
 
       <main className="min-h-screen bg-cream-50">
         {/* Breadcrumb */}
-        <div className="max-w-5xl mx-auto px-6 md:px-12 pt-8 pb-6">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 pt-8 pb-6">
           <Breadcrumb
             items={[
               { label: 'tienda', href: '/tienda' },
@@ -124,9 +129,11 @@ const ProductDetail: React.FC = () => {
         </div>
 
         {/* Layout principal */}
-        <section className="max-w-5xl mx-auto px-6 md:px-12 pb-16">
+        <section className="max-w-7xl mx-auto px-6 md:px-12 pb-16">
           <div className="grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-10 md:gap-16 items-start">
-            <ProductGallery product={product} />
+            <div className="md:sticky md:top-[100px] md:h-[calc(100dvh-100px)]">
+              <ProductGallery product={product} sticky />
+            </div>
             <ProductInfo product={product} onAddToCart={handleAddToCart} />
           </div>
         </section>

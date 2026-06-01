@@ -112,6 +112,24 @@
   .animate-slide-in-left {
     animation: slide-in-left 0.5s ease-out;
   }
+
+  /* Focus ring unificado para admin — accesibilidad keyboard */
+  .focus-ring:focus-visible {
+    outline: 2px solid rgba(96, 108, 56, 0.45);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* Focus visible global para inputs y botones dentro del admin */
+[class*="admin"] button:focus-visible,
+[class*="admin"] input:focus-visible,
+[class*="admin"] select:focus-visible,
+[class*="admin"] textarea:focus-visible,
+[class*="admin"] [role="button"]:focus-visible,
+[class*="admin"] [role="tab"]:focus-visible {
+  outline: 2px solid rgba(96, 108, 56, 0.55);
+  outline-offset: 2px;
 }
 
 /* ── TipTap: área editable (admin) ─────────────────────────────────────────── */
@@ -169,10 +187,10 @@
 
 /* ── TipTap: rendering público (blog) ──────────────────────────────────────── */
 .tiptap-content p {
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.75;
   color: var(--ink);
-  margin-bottom: 22px;
+  margin-bottom: 0.75rem;
 }
 .tiptap-content h2 {
   font-family: var(--font-display, 'Aboreto', serif);
@@ -209,9 +227,9 @@
 .tiptap-content ul li {
   display: flex;
   gap: 14px;
-  padding: 10px 0;
+  padding-top: 10px;
   border-bottom: 1px solid var(--cream-200, #ede8e0);
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.6;
   color: var(--ink);
 }

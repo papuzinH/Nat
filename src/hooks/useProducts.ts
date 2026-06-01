@@ -1,27 +1,35 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
-import type { Product, ProductCategory, ProductStatus, ProductTone, ProductVariant } from '@/data/products'
+import { pb } from '@/lib/pocketbase'
+import {
+  normalizeDescription,
+  type Product,
+  type ProductCategory,
+  type ProductSpec,
+  type ProductStatus,
+  type ProductTone,
+  type ProductVariant,
+} from '@/data/products'
 
-type RawProduct = {
-  slug: string
-  title: string
-  category: string
-  cat_label: string
-  base_price: number
-  size: string
-  tone: string
-  tall: number
-  medium: string
-  edition: string
-  description: string
-  images: string[]
-  tags: string[]
-  variants: ProductVariant[] | null
-  has_frame: boolean
-  frame_price: number
-  on_demand: boolean
-  sort_order: number
-  created_at: string | null
+function buildSpecs(p: Record<string, unknown>): ProductSpec[] {
+  const raw = p.specs
+  let specs: ProductSpec[] = []
+  if (Array.isArray(raw)) {
+    specs = (raw as ProductSpec[]).filter(
+      (s) => s && typeof s === 'object' && typeof s.label === 'string' && typeof s.value === 'string'
+    )
+  } else if (typeof raw === 'string' && raw.trim().startsWith('[')) {
+    try {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) {
+        specs = parsed.filter((s) => s?.label && s?.value)
+      }
+    } catch { /* ignore */ }
+  }
+  if (specs.length === 0) {
+    if (p.medium) specs.push({ label: 'Técnica', value: String(p.medium) })
+    if (p.edition) specs.push({ label: 'Edición', value: String(p.edition) })
+  }
+  return specs
 }
 
 export function useProducts() {
@@ -30,45 +38,42 @@ export function useProducts() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from('products').select('*').order('sort_order'),
-      supabase.from('product_stock').select('slug, stock, status'),
-    ]).then(([{ data: rawProducts }, { data: stockData }]) => {
+      pb.collection('products').getFullList({ sort: 'sort_order', requestKey: null }),
+      pb.collection('product_stock').getFullList({ fields: 'slug,stock,status', requestKey: null }),
+    ]).then(([rawProducts, stockData]) => {
       const stockMap: Record<string, { stock: number | null; status: string }> = {}
-      if (stockData) {
-        for (const row of stockData) stockMap[row.slug] = { stock: row.stock, status: row.status }
-      }
+      for (const row of stockData) stockMap[row.slug] = { stock: row.stock, status: row.status }
 
-      if (rawProducts) {
-        setProducts(
-          (rawProducts as RawProduct[]).map((p) => {
-            const s = stockMap[p.slug]
-            return {
-              slug: p.slug,
-              title: p.title,
-              category: p.category as ProductCategory,
-              catLabel: p.cat_label,
-              basePrice: p.base_price,
-              size: p.size,
-              tone: p.tone as ProductTone,
-              tall: p.tall,
-              medium: p.medium,
-              edition: p.edition,
-              description: p.description,
-              images: p.images ?? [],
-              tags: p.tags ?? [],
-              variants: p.variants ?? null,
-              hasFrame: p.has_frame,
-              framePrice: p.frame_price,
-              onDemand: p.on_demand,
-              status: (s?.status ?? 'active') as ProductStatus,
-              stock: s?.stock ?? null,
-              createdAt: p.created_at ?? null,
-            }
-          })
-        )
-      }
+      setProducts(
+        rawProducts.map((p) => {
+          const s = stockMap[p.slug]
+          return {
+            slug:        p.slug,
+            title:       p.title,
+            category:    p.category as ProductCategory,
+            catLabel:    p.cat_label,
+            basePrice:   p.base_price,
+            size:        p.size,
+            tone:        p.tone as ProductTone,
+            tall:        p.tall,
+            description: normalizeDescription(p.description),
+            specs:       buildSpecs(p as Record<string, unknown>),
+            medium:      p.medium ?? undefined,
+            edition:     p.edition ?? undefined,
+            images:      p.images ?? [],
+            tags:        p.tags ?? [],
+            variants:    (p.variants as ProductVariant[] | null) ?? null,
+            hasFrame:    p.has_frame,
+            framePrice:  p.frame_price,
+            onDemand:    p.on_demand,
+            status:      (s?.status ?? 'active') as ProductStatus,
+            stock:       s?.stock ?? null,
+            createdAt:   p.created ?? null,
+          }
+        })
+      )
       setLoading(false)
-    })
+    }).catch(() => setLoading(false))
   }, [])
 
   const getProduct = (slug: string): Product | undefined =>
