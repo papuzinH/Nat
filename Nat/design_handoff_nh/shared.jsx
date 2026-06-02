@@ -231,7 +231,7 @@ function NHFooter({ go, variant = 'desktop' }) {
         <div>
           <div className="nh-eyebrow-ink" style={{ marginBottom: 12 }}>Estudio</div>
           <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--ink-soft)' }}>
-            Villa Crespo<br/>Buenos Aires, AR<br/>
+            Desde el estudio<br/>Buenos Aires, AR<br/>
             <span style={{ color: 'var(--sage-700)' }}>Con turno previo</span>
           </div>
         </div>

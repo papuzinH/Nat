@@ -160,7 +160,7 @@ async function sendConfirmationEmail(order: OrderRow) {
           <p style="margin:0;font-family:Arial,sans-serif;font-size:13px;color:#b8a898">Cualquier consulta, respondé este mail. · <a href="https://instagram.com/nataliaceller_art" style="color:#4a7c59">@nataliaceller_art</a></p>
         </td></tr>
         <tr><td style="padding:20px 40px;border-top:1px solid #ede4d5">
-          <p style="margin:0;font-family:monospace;font-size:11px;color:#b8a898">Villa Crespo · Buenos Aires · Con turno previo</p>
+          <p style="margin:0;font-family:monospace;font-size:11px;color:#b8a898">Desde el estudio · Buenos Aires · Con turno previo</p>
         </td></tr>
       </table>
     </td></tr>

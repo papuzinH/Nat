@@ -58,7 +58,7 @@ function NHHome({ go, onAdd, isMobile }) {
               maxWidth: 480, color: 'var(--ink-soft)',
             }}>
               Obra en papel, cerámica, textiles y tatuaje de línea fina. Cada pieza
-              nace despacio en el estudio del barrio Villa Crespo, rodeada de plantas.
+              nace despacio en el estudio del barrio Desde el estudio, rodeada de plantas.
             </p>
 
             <div style={{ display: 'flex', gap: 12, marginTop: isMobile ? 26 : 36, flexWrap: 'wrap' }}>

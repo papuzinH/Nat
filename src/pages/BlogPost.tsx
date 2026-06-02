@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useMemo } from 'react'
 import { useParams, useSearchParams, Link } from 'react-router-dom'
+import { Pen } from 'lucide-react'
 import { NHLeafMark, NHDivider, SchemaMarkup, NHFlower } from '@/components/shared'
 import BlogCard from '@/components/blog/BlogCard'
 import BlogPlaceholder from '@/components/blog/BlogPlaceholder'
@@ -213,7 +214,7 @@ const BlogPost: React.FC = () => {
             {post.title}
           </h1>
 
-          <p className="post-lead font-display italic text-[18px] md:text-[22px] text-ink-soft mt-[18px] leading-[1.5] max-w-[600px]">
+          <p className="post-lead font-body text-[18px] md:text-[22px] text-ink-soft mt-[18px] leading-[1.5] max-w-[600px]">
             {post.subtitle}
           </p>
         </div>
@@ -246,14 +247,14 @@ const BlogPost: React.FC = () => {
         {/* Author strip */}
         <div className="flex items-center gap-3.5 py-[18px] border-b border-cream-300 mb-10">
           <div className="w-10 h-10 rounded-full bg-sage-500 flex items-center justify-center flex-shrink-0">
-            <NHLeafMark size={22} color="#fdfcfb" />
+            <Pen className="w-5 h-5 text-white" />
           </div>
           <div>
             <div className="font-display text-[15px] font-medium text-ink leading-tight">
               Natalia Heller
             </div>
             <div className="font-mono text-[10px] text-ink-soft tracking-[0.1em] uppercase mt-0.5">
-              Villa Crespo · <time dateTime={post.isoDate}>{post.date}</time>
+              Desde el estudio · <time dateTime={post.isoDate}>{post.date}</time>
             </div>
           </div>
         </div>
@@ -261,15 +262,7 @@ const BlogPost: React.FC = () => {
         {/* Body */}
         {post.bodyJson && <TipTapRenderer content={post.bodyJson} />}
 
-        {/* Signature */}
-        <div className="mt-14 pt-8 border-t border-cream-300 flex items-center gap-3.5">
-          <span className="text-sage-500" aria-hidden="true">
-            <NHFlower size={32} />
-          </span>
-          <p className="font-display italic text-[14px] text-ink-soft m-0">
-            Natalia Heller — escrito desde el estudio, Villa Crespo.
-          </p>
-        </div>
+       
       </article>
 
       {/* ── Related posts ── */}

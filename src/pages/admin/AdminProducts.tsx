@@ -652,6 +652,35 @@ const AdminProducts: React.FC = () => {
     }
   }
 
+  const duplicateRow = (row: ProductRow) => {
+    if (rows.some((r) => r.isNew)) {
+      toast.info('Guardá o descartá el producto nuevo antes de duplicar')
+      return
+    }
+
+    const baseTitle = row.title.replace(/\s+\(\d+\)$/, '')
+    const baseSlug  = row.slug.replace(/-\d+$/, '')
+
+    let n = 2
+    while (rows.some((r) => r.slug === `${baseSlug}-${n}` || r.title === `${baseTitle} (${n})`)) {
+      n++
+    }
+
+    const newRow: ProductRow = {
+      ...row,
+      slug:          `${baseSlug}-${n}`,
+      title:         `${baseTitle} (${n})`,
+      tagsInput:     row.tags.join(', '),
+      isNew:         true,
+      dirty:         true,
+      saving:        false,
+      confirmDelete: false,
+    }
+
+    setRows((prev) => [newRow, ...prev])
+    setExpanded('__new__')
+  }
+
   if (loading) {
     return <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">Cargando productos…</p>
   }
@@ -982,7 +1011,17 @@ const AdminProducts: React.FC = () => {
                   >
                     <div className="flex items-center gap-3">
                       {!row.isNew && (
-                        <ConfirmDeleteInline onConfirm={() => deleteRow(row.slug, row.title)} />
+                        <>
+                          <ConfirmDeleteInline onConfirm={() => deleteRow(row.slug, row.title)} />
+                          <button
+                            type="button"
+                            onClick={() => duplicateRow(row)}
+                            className="font-mono text-[10px] uppercase tracking-[0.1em] transition-colors hover:underline"
+                            style={{ color: 'var(--ink-soft)' }}
+                          >
+                            Duplicar
+                          </button>
+                        </>
                       )}
                     </div>
                     <button

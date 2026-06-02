@@ -15,7 +15,7 @@ const homeSchema = {
   priceRange: '$$',
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'Villa Crespo',
+    streetAddress: 'Desde el estudio',
     addressLocality: 'Ciudad Autónoma de Buenos Aires',
     addressRegion: 'Buenos Aires',
     addressCountry: 'AR',

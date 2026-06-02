@@ -268,7 +268,7 @@ function NHContacto({ isMobile }) {
               {[
                 ['Correo', 'hola@nataliaheller.ar'],
                 ['Instagram', '@nataliaceller_art'],
-                ['Estudio', 'Villa Crespo · CABA\nCon turno previo'],
+                ['Estudio', 'Desde el estudio · CABA\nCon turno previo'],
                 ['Horario', 'Mar a Sáb · 11:00 — 19:00'],
               ].map(([k, v]) => (
                 <div key={k}>

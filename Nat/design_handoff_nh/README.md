@@ -46,7 +46,7 @@ Los archivos de este paquete son **referencias de diseño en HTML/React** — pr
   - Confirmación con icono de hoja y mensaje personalizado.
 
 ### 5. Contacto (`/contacto`)
-- Split: info de contacto a la izquierda (correo, IG, estudio Villa Crespo, horarios) + formulario a la derecha (nombre, email, motivo pills, mensaje).
+- Split: info de contacto a la izquierda (correo, IG, estudio Desde el estudio, horarios) + formulario a la derecha (nombre, email, motivo pills, mensaje).
 - Confirmación con icono de hoja.
 
 ## Interactions & Behavior

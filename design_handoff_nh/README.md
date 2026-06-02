@@ -62,15 +62,15 @@ Ver `RUNNING.md` para más opciones (Python, Live Server) y notas de implementac
 - Hero (max-width 760px): pills de categoría + meta (`fecha · X min lectura`), H1 68px desktop / 36px mobile, lead serif itálico 22px soft.
 - Imagen de portada (max-width 860px), aspect ratio 1/0.55, shadow suave.
 - **Body** (max-width 720px):
-  - Author strip arriba: avatar circular sage 40px con leaf SVG cream + nombre `Natalia Heller` serif + meta mono `Villa Crespo · fecha`.
+  - Author strip arriba: avatar circular sage 40px con leaf SVG cream + nombre `Natalia Heller` serif + meta mono `Desde el estudio · fecha`.
   - `<p>`: 18px / 1.75 line-height, margin-bottom 22px.
   - `<h2>`: serif 32px, weight 400, letter-spacing -0.01em, margin 48px 0 18px.
   - `<ul>`: items con border-bottom soft, viñeta = doble-círculo SVG sage-500 (10×10).
-- Firma al final: divider line + flor prensada sage-500 + frase serif itálica `Natalia Heller — escrito desde el estudio, Villa Crespo.`
+- Firma al final: divider line + flor prensada sage-500 + frase serif itálica `Natalia Heller — escrito desde el estudio, Desde el estudio.`
 - **Posts relacionados** (2): divider `seguir leyendo` + grid de cards (mismo `NHBlogCard`).
 
 ### 7. Contacto (`/contacto`)
-- Split: info de contacto a la izquierda (correo, IG, estudio Villa Crespo, horarios) + formulario a la derecha (nombre, email, motivo pills, mensaje).
+- Split: info de contacto a la izquierda (correo, IG, estudio Desde el estudio, horarios) + formulario a la derecha (nombre, email, motivo pills, mensaje).
 - Confirmación con icono de hoja.
 
 ## Interactions & Behavior

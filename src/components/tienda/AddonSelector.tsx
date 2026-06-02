@@ -33,10 +33,10 @@ const AddonSelector: React.FC<AddonSelectorProps> = ({
         />
         <div>
           <p className="font-body text-[14px] font-semibold text-ink leading-tight">
-            Sumar marco de roble
+           Sumar enmarcado
           </p>
           <p className="font-body text-[12px] text-ink-soft mt-[3px]">
-            Marco artesanal con vidrio antirreflejo · +{formatARS(product.framePrice)}
+            Marco industrial con vidrio protector · +{formatARS(product.framePrice)}
           </p>
         </div>
       </label>

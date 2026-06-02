@@ -9,7 +9,7 @@ import ContactEstudioSection from '@/components/estudio/ContactEstudioSection'
 
 const schemaData = {
   name: 'El Estudio — Natalia Heller',
-  description: 'Tatuajes de línea fina, botánica y diseño personalizado en Villa Crespo, Buenos Aires.',
+  description: 'Tatuajes de línea fina, botánica y diseño personalizado en Desde el estudio, Buenos Aires.',
   url: 'https://tatuajesnaty.com/estudio',
 }
 

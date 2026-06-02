@@ -9,9 +9,9 @@ async function main() {
   )
 
   await pb.collection('shipping_zones').create({
-    name: 'Villa crespo', price: 0, active: true, postal_codes: [],
+    name: 'Desde el estudio', price: 0, active: true, postal_codes: [],
   })
-  console.log('✓ shipping_zones: Villa crespo')
+  console.log('✓ shipping_zones: Desde el estudio')
 
   await pb.collection('shipping_config').create({
     price: 0,

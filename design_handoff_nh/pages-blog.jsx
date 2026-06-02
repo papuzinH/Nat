@@ -220,7 +220,7 @@ function NHPost({ slug, go, isMobile }) {
           <div>
             <div className="nh-serif" style={{ fontSize: 15, fontWeight: 500 }}>Natalia Heller</div>
             <div className="nh-mono" style={{ fontSize: 10, color: 'var(--ink-soft)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-              Villa Crespo · {post.date}
+              Desde el estudio · {post.date}
             </div>
           </div>
         </div>
@@ -270,7 +270,7 @@ function NHPost({ slug, go, isMobile }) {
             <NHFlower size={32} />
           </div>
           <div className="nh-serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--ink-soft)' }}>
-            Natalia Heller — escrito desde el estudio, Villa Crespo.
+            Natalia Heller — escrito desde el estudio, Desde el estudio.
           </div>
         </div>
       </article>
