@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect, useMemo } from 'react'
+import React, { useRef, useLayoutEffect, useMemo } from 'react'
 import { generateHTML } from '@tiptap/html'
 import StarterKit from '@tiptap/starter-kit'
 import LinkExt from '@tiptap/extension-link'
@@ -9,7 +9,7 @@ import Highlight from '@tiptap/extension-highlight'
 import Typography from '@tiptap/extension-typography'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import { flyToCart } from '@/lib/animations'
-import { type Product, getVariantPrice, formatARS } from '@/data/products'
+import { type Product, getVariantPrice, getFramePrice, formatARS } from '@/data/products'
 import VariantSelector from './VariantSelector'
 import AddonSelector from './AddonSelector'
 
@@ -25,21 +25,32 @@ const DESC_RENDERER_EXTENSIONS = [
 
 interface ProductInfoProps {
   product: Product
-  onAddToCart: (selectedSize: string | null, hasFrame: boolean) => void
+  onAddToCart: () => void
+  selectedSize: string | null
+  onSizeChange: (size: string) => void
+  frameSelected: boolean
+  onFrameToggle: () => void
+  selectedFrameColor: string | null
+  onFrameColorChange: (color: string) => void
 }
 
 const WHATSAPP_NUMBER = '5491166191209'
 
-const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
-  const [selectedSize, setSelectedSize] = useState<string | null>(
-    product.variants?.[0]?.label ?? null
-  )
-  const [frameSelected, setFrameSelected] = useState(false)
+const ProductInfo: React.FC<ProductInfoProps> = ({
+  product,
+  onAddToCart,
+  selectedSize,
+  onSizeChange,
+  frameSelected,
+  onFrameToggle,
+  selectedFrameColor,
+  onFrameColorChange,
+}) => {
   const priceRef = useRef<HTMLParagraphElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
 
   const variantPrice = getVariantPrice(product, selectedSize)
-  const displayPrice = variantPrice + (frameSelected ? product.framePrice : 0)
+  const displayPrice = variantPrice + (frameSelected ? getFramePrice(product, selectedSize) : 0)
 
   useLayoutEffect(() => {
     if (!shouldAnimate() || !priceRef.current) return
@@ -68,7 +79,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
         })
       }
     }
-    onAddToCart(selectedSize, frameSelected)
+    onAddToCart()
   }
 
   const waMessage = encodeURIComponent(
@@ -126,13 +137,16 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
       <VariantSelector
         product={product}
         selectedVariant={selectedSize}
-        onSelect={setSelectedSize}
+        onSelect={onSizeChange}
       />
 
       <AddonSelector
         product={product}
         frameSelected={frameSelected}
-        onToggle={() => setFrameSelected((prev) => !prev)}
+        onToggle={onFrameToggle}
+        selectedSize={selectedSize}
+        selectedFrameColor={selectedFrameColor}
+        onFrameColorChange={onFrameColorChange}
       />
 
       <div className="flex gap-[10px] mt-7">

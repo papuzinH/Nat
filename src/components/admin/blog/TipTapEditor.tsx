@@ -47,7 +47,7 @@ const TipTapEditor: React.FC<TipTapEditorProps> = ({ value, onChange, placeholde
 
   return (
     <div
-      className="tiptap-editor rounded-sm overflow-hidden"
+      className="tiptap-editor rounded-sm overflow-hidden [&_.ProseMirror]:min-h-[400px]"
       style={{ border: '1px solid var(--line)' }}
     >
       <EditorToolbar editor={editor} />

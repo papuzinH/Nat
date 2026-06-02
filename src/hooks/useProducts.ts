@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { pb } from '@/lib/pocketbase'
 import {
   normalizeDescription,
+  type FrameOption,
+  type FrameVariant,
   type Product,
   type ProductCategory,
   type ProductSpec,
@@ -9,6 +11,29 @@ import {
   type ProductTone,
   type ProductVariant,
 } from '@/data/products'
+
+function normalizeFrameVariants(raw: unknown): FrameVariant[] | null {
+  if (!Array.isArray(raw) || raw.length === 0) return null
+  const result = (raw as Record<string, unknown>[])
+    .filter((v) => typeof v === 'object' && v !== null && typeof v.label === 'string' && v.label)
+    .map((v) => ({
+      label: String(v.label),
+      price: Number(v.price ?? 0),
+      image: typeof v.image === 'string' && v.image ? v.image : null,
+    }))
+  return result.length > 0 ? result : null
+}
+
+function normalizeFrameOptions(raw: unknown): FrameOption[] | null {
+  if (!Array.isArray(raw) || raw.length === 0) return null
+  const result = (raw as Record<string, unknown>[])
+    .filter((v) => typeof v === 'object' && v !== null && typeof v.label === 'string' && v.label)
+    .map((v) => ({
+      label: String(v.label),
+      image: typeof v.image === 'string' && v.image ? v.image : null,
+    }))
+  return result.length > 0 ? result : null
+}
 
 function normalizeVariants(raw: unknown, basePrice: number): ProductVariant[] | null {
   if (!Array.isArray(raw) || raw.length === 0) return null
@@ -77,9 +102,11 @@ export function useProducts() {
             images:      p.images ?? [],
             tags:        p.tags ?? [],
             variants:    normalizeVariants(p.variants, p.base_price),
-            hasFrame:    p.has_frame,
-            framePrice:  p.frame_price,
-            onDemand:    p.on_demand,
+            hasFrame:       p.has_frame,
+            framePrice:     p.frame_price,
+            frameVariants:  normalizeFrameVariants(p.frame_variants),
+            frameOptions:   normalizeFrameOptions(p.frame_options),
+            onDemand:       p.on_demand,
             status:      (s?.status ?? 'active') as ProductStatus,
             stock:       s?.stock ?? null,
             createdAt:   p.created ?? null,

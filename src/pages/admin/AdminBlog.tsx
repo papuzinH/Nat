@@ -36,7 +36,7 @@ const AdminBlog: React.FC = () => {
 
   useEffect(() => {
     pb.collection('blog_posts')
-      .getFullList({ sort: '-date', fields: 'id,slug,title,category,date,published' })
+      .getFullList({ sort: '-date', fields: 'id,slug,title,category,date,published', requestKey: null })
       .then((data) => {
         setRows(
           data.map((d) => ({

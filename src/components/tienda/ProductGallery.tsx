@@ -8,16 +8,19 @@ import ProductImagePlaceholder from './ProductImagePlaceholder'
 interface ProductGalleryProps {
   product: Product
   sticky?: boolean
+  frameImage?: string | null
 }
 
-const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky }) => {
+const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameImage }) => {
   const mainRef = useRef<HTMLDivElement>(null)
   const thumbsContainerRef = useRef<HTMLDivElement>(null)
   const [activeThumb, setActiveThumb] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   const hasImages = product.images.length > 0
-  const showArrows = product.images.length > 1
+  // Cuando hay imagen de marco activa, se muestra solo esa imagen (sin flechas ni lightbox de marco)
+  const displaySrc = frameImage ?? product.images[activeThumb] ?? product.images[0]
+  const showArrows = !frameImage && product.images.length > 1
   const aspectRatio = `1 / ${product.tall}`
 
   useLayoutEffect(() => {
@@ -99,9 +102,19 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky }) => {
         tabIndex={hasImages ? 0 : undefined}
         aria-label={hasImages ? 'Ampliar imagen' : undefined}
       >
-        {hasImages ? (
+        {frameImage ? (
           <img
-            src={product.images[activeThumb] ?? product.images[0]}
+            src={frameImage}
+            alt={`${product.title} — enmarcado`}
+            loading="eager"
+            fetchPriority="high"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ display: 'block' }}
+            data-product-main-image
+          />
+        ) : hasImages ? (
+          <img
+            src={displaySrc}
             alt={`${product.title} — ${product.catLabel}`}
             loading="eager"
             fetchPriority="high"

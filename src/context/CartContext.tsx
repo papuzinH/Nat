@@ -8,6 +8,7 @@ export interface CartItem {
   image: string
   selectedSize: string | null
   hasFrame: boolean
+  frameColor: string | null
   unitPrice: number
   quantity: number
 }
@@ -41,7 +42,10 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | null>(null)
 
 function makeId(item: Omit<CartItem, 'id' | 'quantity'>): string {
-  return `${item.slug}-${item.selectedSize ?? 'orig'}-${item.hasFrame ? 'f' : 'n'}`
+  const colorSuffix = item.frameColor
+    ? `-${item.frameColor.toLowerCase().replace(/\s+/g, '_')}`
+    : ''
+  return `${item.slug}-${item.selectedSize ?? 'orig'}-${item.hasFrame ? 'f' : 'n'}${colorSuffix}`
 }
 
 function cartReducer(state: CartState, action: CartAction): CartState {

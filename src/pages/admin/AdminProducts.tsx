@@ -24,6 +24,19 @@ interface VariantRow {
   price: number | null  // null = mismo precio que el base
 }
 
+interface FrameVariantRow {
+  label: string        // coincide con VariantRow.label
+  price: number
+  image: string | null
+  uploading?: boolean
+}
+
+interface FrameOptionRow {
+  label: string
+  image: string | null
+  uploading?: boolean
+}
+
 interface ProductRow {
   slug: string
   title: string
@@ -41,6 +54,8 @@ interface ProductRow {
   variants: VariantRow[]
   has_frame: boolean
   frame_price: number
+  frame_variants: FrameVariantRow[]
+  frame_options: FrameOptionRow[]
   on_demand: boolean
   sort_order: number
   isNew?: boolean
@@ -262,6 +277,81 @@ const ImageUploader: React.FC<{
   )
 }
 
+// ─── Subida de imagen individual ─────────────────────────────────────────────
+
+const SingleImageField: React.FC<{
+  value: string | null
+  onChange: (url: string | null) => void
+  disabled?: boolean
+}> = ({ value, onChange, disabled }) => {
+  const [uploading, setUploading] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleFile = async (file: File | null) => {
+    if (!file) return
+    setUploading(true)
+    try {
+      const optimized = await compressImage(file)
+      const url = await uploadToMedia(optimized)
+      if (url) onChange(url)
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+        disabled={disabled || uploading}
+      />
+      {value ? (
+        <>
+          <img
+            src={value}
+            alt="preview"
+            className="w-12 h-12 object-cover rounded-sm border flex-shrink-0"
+            style={{ borderColor: 'var(--line)' }}
+          />
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={uploading}
+            className="font-mono text-[10px] uppercase tracking-[0.1em] px-2 py-1 border rounded-sm transition-colors hover:border-sage-700 hover:text-sage-700"
+            style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)', cursor: 'pointer' }}
+          >
+            {uploading ? '…' : 'Cambiar'}
+          </button>
+          <button
+            type="button"
+            onClick={() => onChange(null)}
+            disabled={uploading}
+            className="w-6 h-6 flex items-center justify-center rounded-sm hover:bg-[#f5e6e6] transition-colors flex-shrink-0"
+            style={{ color: '#a8503f', cursor: 'pointer', border: 'none', background: 'none' }}
+            aria-label="Eliminar imagen"
+          >
+            ×
+          </button>
+        </>
+      ) : (
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={uploading}
+          className="font-mono text-[10px] uppercase tracking-[0.1em] px-3 py-1.5 border rounded-sm transition-colors hover:border-sage-700 hover:text-sage-700"
+          style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)', cursor: 'pointer' }}
+        >
+          {uploading ? 'Subiendo…' : '+ Subir imagen'}
+        </button>
+      )}
+    </div>
+  )
+}
+
 // ─── Editor de variantes ───────────────────────────────────────────────────────
 
 const VariantsEditor: React.FC<{
@@ -427,7 +517,9 @@ function emptyRow(): ProductRow {
     base_price: 0, size: '', tone: 'a', tall: 1.3,
     description: EMPTY_DESCRIPTION, specs: [],
     images: [], tags: [], tagsInput: '', variants: [],
-    has_frame: false, frame_price: 0, on_demand: false, sort_order: 0,
+    has_frame: false, frame_price: 0,
+    frame_variants: [], frame_options: [],
+    on_demand: false, sort_order: 0,
     isNew: true, dirty: true, saving: false, confirmDelete: false,
   }
 }
@@ -467,6 +559,29 @@ function rawToRow(p: Record<string, unknown>): ProductRow {
     if (p.edition) specs.push({ label: 'Edición', value: String(p.edition) })
   }
 
+  // Normalizar frame_variants
+  let frameVariants: FrameVariantRow[] = []
+  if (Array.isArray(p.frame_variants)) {
+    frameVariants = (p.frame_variants as Record<string, unknown>[])
+      .filter((v) => typeof v === 'object' && v !== null && typeof v.label === 'string' && v.label)
+      .map((v) => ({
+        label: String(v.label),
+        price: Number(v.price ?? 0),
+        image: typeof v.image === 'string' && v.image ? v.image : null,
+      }))
+  }
+
+  // Normalizar frame_options
+  let frameOptions: FrameOptionRow[] = []
+  if (Array.isArray(p.frame_options)) {
+    frameOptions = (p.frame_options as Record<string, unknown>[])
+      .filter((v) => typeof v === 'object' && v !== null && typeof v.label === 'string' && v.label)
+      .map((v) => ({
+        label: String(v.label),
+        image: typeof v.image === 'string' && v.image ? v.image : null,
+      }))
+  }
+
   return {
     slug: p.slug as string,
     title: p.title as string,
@@ -484,6 +599,8 @@ function rawToRow(p: Record<string, unknown>): ProductRow {
     variants,
     has_frame: p.has_frame as boolean,
     frame_price: p.frame_price as number,
+    frame_variants: frameVariants,
+    frame_options: frameOptions,
     on_demand: p.on_demand as boolean,
     sort_order: p.sort_order as number,
     dirty: false, saving: false, confirmDelete: false,
@@ -616,6 +733,12 @@ const AdminProducts: React.FC = () => {
       variants: row.variants.length > 0 ? row.variants : null,
       has_frame: row.has_frame,
       frame_price: row.frame_price,
+      frame_variants: row.frame_variants.length > 0
+        ? row.frame_variants.map(({ label, price, image }) => ({ label, price, image }))
+        : null,
+      frame_options: row.frame_options.length > 0
+        ? row.frame_options.map(({ label, image }) => ({ label, image }))
+        : null,
       on_demand: row.on_demand,
       sort_order: row.sort_order,
     }
@@ -928,7 +1051,8 @@ const AdminProducts: React.FC = () => {
 
                       <div>
                         <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-4">Marco</p>
-                        <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-5">
+                          {/* Checkbox */}
                           <div className="flex items-center gap-3">
                             <input type="checkbox" id={`frame-${key}`} checked={row.has_frame}
                               onChange={(e) => patch(key, 'has_frame', e.target.checked)}
@@ -937,13 +1061,116 @@ const AdminProducts: React.FC = () => {
                               Ofrece opción de enmarcado
                             </label>
                           </div>
+
                           {row.has_frame && (
-                            <Field label="Precio del marco (ARS)">
-                              <input type="number" min={0} value={row.frame_price || ''}
-                                placeholder="12000"
-                                onChange={(e) => patch(key, 'frame_price', parseInt(e.target.value, 10) || 0)}
-                                className={`${inputCls} max-w-[160px]`} style={inputStyle} />
-                            </Field>
+                            <>
+                              {/* Precio base del marco */}
+                              <Field label="Precio base del marco (ARS)" tooltip="Se usa cuando no hay precio específico por variante de tamaño.">
+                                <input type="number" min={0} value={row.frame_price || ''}
+                                  placeholder="12000"
+                                  onChange={(e) => patch(key, 'frame_price', parseInt(e.target.value, 10) || 0)}
+                                  className={`${inputCls} max-w-[160px]`} style={inputStyle} />
+                              </Field>
+
+                              {/* Precio e imagen por variante de tamaño */}
+                              {row.variants.length > 0 && (
+                                <div>
+                                  <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft mb-3 flex items-center">
+                                    Precio e imagen por tamaño
+                                    <Tooltip text="Configura precio e imagen del marco para cada variante de tamaño del producto. Sobreescribe el precio base." />
+                                  </p>
+                                  <div className="flex flex-col gap-3">
+                                    <div className="grid grid-cols-[100px_120px_1fr] gap-3 px-1">
+                                      <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">Tamaño</span>
+                                      <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">Precio marco</span>
+                                      <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">Imagen enmarcada</span>
+                                    </div>
+                                    {row.variants.map((variant) => {
+                                      const fv = row.frame_variants.find((v) => v.label === variant.label)
+                                      const fvPrice = fv?.price ?? row.frame_price
+                                      const fvImage = fv?.image ?? null
+                                      const updateFv = (field: 'price' | 'image', val: number | string | null) => {
+                                        const updated = row.frame_variants.filter((v) => v.label !== variant.label)
+                                        updated.push({ label: variant.label, price: field === 'price' ? (val as number) : fvPrice, image: field === 'image' ? (val as string | null) : fvImage })
+                                        patch(key, 'frame_variants', updated)
+                                      }
+                                      return (
+                                        <div key={variant.label} className="grid grid-cols-[100px_120px_1fr] gap-3 items-center">
+                                          <span className="font-body text-[13px] text-ink">{variant.label}</span>
+                                          <input
+                                            type="number" min={0} step={100}
+                                            value={fvPrice || ''}
+                                            placeholder={String(row.frame_price || '')}
+                                            onChange={(e) => updateFv('price', parseInt(e.target.value, 10) || 0)}
+                                            className={inputCls} style={inputStyle}
+                                          />
+                                          <SingleImageField
+                                            value={fvImage}
+                                            onChange={(url) => updateFv('image', url)}
+                                          />
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Opciones del marco (color, estilo, etc.) */}
+                              <div>
+                                <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft mb-3 flex items-center">
+                                  Opciones del marco
+                                  <Tooltip text="Variantes del marco como color o estilo. No afectan el precio. Cada opción puede tener su propia imagen de previsualización." />
+                                </p>
+                                <div className="flex flex-col gap-3">
+                                  {row.frame_options.length > 0 && (
+                                    <div className="flex flex-col gap-2">
+                                      <div className="grid grid-cols-[1fr_140px_32px] gap-3 px-1">
+                                        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">Etiqueta</span>
+                                        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">Imagen</span>
+                                        <span />
+                                      </div>
+                                      {row.frame_options.map((opt, idx) => (
+                                        <div key={idx} className="grid grid-cols-[1fr_140px_32px] gap-3 items-center">
+                                          <input
+                                            type="text"
+                                            value={opt.label}
+                                            placeholder="Negro, Madera, Blanco…"
+                                            onChange={(e) => {
+                                              const updated = row.frame_options.map((o, i) => i === idx ? { ...o, label: e.target.value } : o)
+                                              patch(key, 'frame_options', updated)
+                                            }}
+                                            className="font-body text-[13px] text-ink bg-transparent border-b outline-none focus:border-sage-700 py-1 transition-colors"
+                                            style={{ borderColor: 'var(--line)' }}
+                                          />
+                                          <SingleImageField
+                                            value={opt.image}
+                                            onChange={(url) => {
+                                              const updated = row.frame_options.map((o, i) => i === idx ? { ...o, image: url } : o)
+                                              patch(key, 'frame_options', updated)
+                                            }}
+                                          />
+                                          <button
+                                            type="button"
+                                            onClick={() => patch(key, 'frame_options', row.frame_options.filter((_, i) => i !== idx))}
+                                            className="w-8 h-8 flex items-center justify-center rounded-sm hover:bg-[#f5e6e6] transition-colors"
+                                            style={{ color: '#a8503f', cursor: 'pointer', border: 'none', background: 'none' }}
+                                            aria-label="Eliminar opción"
+                                          >×</button>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => patch(key, 'frame_options', [...row.frame_options, { label: '', image: null }])}
+                                    className="self-start font-mono text-[10px] uppercase tracking-[0.1em] px-3 py-1.5 rounded-pill border transition-all hover:border-sage-700 hover:text-sage-700"
+                                    style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)', cursor: 'pointer' }}
+                                  >
+                                    + Agregar opción
+                                  </button>
+                                </div>
+                              </div>
+                            </>
                           )}
                         </div>
                       </div>

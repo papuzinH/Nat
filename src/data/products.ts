@@ -13,6 +13,17 @@ export interface ProductVariant {
   price: number | null // null = usa el basePrice del producto
 }
 
+export interface FrameVariant {
+  label: string        // coincide con ProductVariant.label ('A4', 'A3', etc.)
+  price: number        // precio del marco para este tamaño específico
+  image: string | null // URL de imagen del producto enmarcado en este tamaño
+}
+
+export interface FrameOption {
+  label: string        // 'Negro', 'Madera natural', 'Blanco', etc.
+  image: string | null // imagen del producto con ese color de marco
+}
+
 export interface ProductSpec {
   label: string            // 'Técnica', 'Edición', 'Origen', etc.
   value: string            // 'Impresión giclée sobre papel Hahnemühle 308g'
@@ -33,7 +44,9 @@ export interface Product {
   tags: string[]
   variants: ProductVariant[] | null
   hasFrame: boolean
-  framePrice: number       // precio del addon de marco en ARS
+  framePrice: number       // precio del addon de marco en ARS (fallback cuando no hay frame_variants)
+  frameVariants: FrameVariant[] | null  // precio e imagen del marco por tamaño
+  frameOptions: FrameOption[] | null    // opciones del marco (ej. color) con imagen opcional
   onDemand: boolean
   status: ProductStatus
   stock?: number | null    // de product_stock (null = ilimitado)
@@ -79,6 +92,35 @@ export const PRODUCT_CATEGORIES: ProductCategoryMeta[] = [
 ]
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/** Precio del marco según el tamaño elegido. Fallback a framePrice si no hay variante específica. */
+export function getFramePrice(product: Product, size: string | null): number {
+  if (product.frameVariants && size) {
+    const fv = product.frameVariants.find((v) => v.label === size)
+    if (fv) return fv.price
+  }
+  return product.framePrice
+}
+
+/**
+ * Imagen que muestra el producto enmarcado.
+ * Prioridad: imagen del color seleccionado → imagen del tamaño seleccionado → null.
+ */
+export function getFrameImage(
+  product: Product,
+  size: string | null,
+  color: string | null
+): string | null {
+  if (color && product.frameOptions) {
+    const opt = product.frameOptions.find((o) => o.label === color)
+    if (opt?.image) return opt.image
+  }
+  if (size && product.frameVariants) {
+    const fv = product.frameVariants.find((v) => v.label === size)
+    if (fv?.image) return fv.image
+  }
+  return null
+}
 
 export function getVariantPrice(product: Product, label: string | null): number {
   if (!product.variants || !label) return product.basePrice

@@ -124,7 +124,7 @@ const CoverImageUploader: React.FC<{
           <button
             type="button"
             onClick={() => onChange(null)}
-            className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[13px]"
+            className="absolute top-1 right-1 w-11 h-11 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[16px]"
             style={{ background: '#a8503f', color: '#fff' }}
             aria-label="Quitar imagen"
           >
@@ -165,6 +165,88 @@ const CoverImageUploader: React.FC<{
   )
 }
 
+// ─── RelatedSelector ─────────────────────────────────────────────────────────
+
+interface PostMeta { id: string; slug: string; title: string }
+
+const RelatedSelector: React.FC<{
+  value: string[]
+  onChange: (slugs: string[]) => void
+  allPosts: PostMeta[]
+  currentSlug: string
+}> = ({ value, onChange, allPosts, currentSlug }) => {
+  const [query, setQuery] = useState('')
+  const available = allPosts.filter((p) => p.slug !== currentSlug && !value.includes(p.slug))
+  const filtered = query
+    ? available.filter(
+        (p) =>
+          p.title.toLowerCase().includes(query.toLowerCase()) ||
+          p.slug.toLowerCase().includes(query.toLowerCase())
+      )
+    : available
+
+  return (
+    <div className="flex flex-col gap-2">
+      {value.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {value.map((slug) => {
+            const post = allPosts.find((p) => p.slug === slug)
+            return (
+              <span
+                key={slug}
+                className="flex items-center gap-1 font-mono text-[10px] px-2 py-0.5 rounded-pill"
+                style={{ background: 'var(--sage-100, #dff0e6)', color: 'var(--sage-700)' }}
+              >
+                {post?.title ?? slug}
+                <button
+                  type="button"
+                  onClick={() => onChange(value.filter((s) => s !== slug))}
+                  className="ml-0.5 font-mono text-[11px] leading-none"
+                  aria-label={`Quitar ${slug}`}
+                >
+                  ×
+                </button>
+              </span>
+            )
+          })}
+        </div>
+      )}
+      <div className="relative">
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={allPosts.length ? 'Buscar post…' : 'Cargando posts…'}
+          disabled={!allPosts.length}
+          className={`${inputCls} disabled:opacity-50`}
+          style={inputStyle}
+        />
+        {query && filtered.length > 0 && (
+          <div
+            className="absolute top-full left-0 right-0 z-20 flex flex-col mt-1 rounded-sm overflow-hidden max-h-48 overflow-y-auto"
+            style={{ border: '1px solid var(--line)', background: 'var(--cream-50)' }}
+          >
+            {filtered.slice(0, 6).map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => { onChange([...value, p.slug]); setQuery('') }}
+                className="text-left px-3 py-2 transition-colors"
+                style={{ borderBottom: '1px solid var(--line-soft)' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--cream-100)' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+              >
+                <p className="font-body text-[12px] text-ink leading-tight">{p.title}</p>
+                <p className="font-mono text-[10px] text-ink-soft">{p.slug}</p>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 function countWordsInDoc(doc: JSONContent): number {
@@ -184,6 +266,9 @@ const AdminBlogEditor: React.FC = () => {
   const [state, setState] = useState<BlogEditorState>(emptyState())
   const { confirmExit } = useUnsavedWarning(state.dirty, 'Tenés cambios sin guardar. ¿Salir igual?')
   const [readingTimeAuto, setReadingTimeAuto] = useState(true)
+  const [mobileTab, setMobileTab] = useState<'contenido' | 'meta' | 'seo'>('contenido')
+  const [allPosts, setAllPosts] = useState<PostMeta[]>([])
+  const saveRef = useRef<(() => Promise<void>) | null>(null)
 
   const goBack = () => {
     if (confirmExit()) navigate('/admin/blog')
@@ -211,6 +296,29 @@ const AdminBlogEditor: React.FC = () => {
     }
   }, [wordCount, readingTimeAuto]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Mantener saveRef actualizado para el autosave (evita stale closure)
+  useEffect(() => { saveRef.current = () => save() })
+
+  // Autosave: 30s después del último cambio en posts existentes
+  useEffect(() => {
+    if (!state.dirty || state.saving || state.isNew || !state.id) return
+    const handle = setTimeout(() => { saveRef.current?.() }, 30_000)
+    return () => clearTimeout(handle)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.dirty, state.saving, state.isNew, state.id, state.body, state.title, state.subtitle, state.category])
+
+  // Lista de todos los posts para el selector de relacionados
+  useEffect(() => {
+    pb.collection('blog_posts')
+      .getFullList({ fields: 'id,slug,title', sort: '-date', requestKey: 'related-list' })
+      .then((data) =>
+        setAllPosts(
+          data.map((d) => ({ id: d.id as string, slug: d.slug as string, title: d.title as string }))
+        )
+      )
+      .catch(() => {/* degrada silenciosamente — el selector queda deshabilitado */})
+  }, [])
+
   // Carga del post existente
   useEffect(() => {
     if (!id) return
@@ -223,7 +331,7 @@ const AdminBlogEditor: React.FC = () => {
         title: data.title as string,
         subtitle: (data.subtitle as string) ?? '',
         category: (data.category as string) ?? 'Estudio',
-        date: (data.date as string) ?? TODAY,
+        date: data.date ? (data.date as string).slice(0, 10) : TODAY,
         reading_time: (data.reading_time as string) ?? '5 min',
         cover_image: (data.cover_image as string | null) ?? null,
         body: (data.body as JSONContent) ?? EMPTY_BODY,
@@ -240,6 +348,7 @@ const AdminBlogEditor: React.FC = () => {
         saving: false,
         saveError: null,
       })
+      setReadingTimeAuto(false)
     })
   }, [id])
 
@@ -257,6 +366,10 @@ const AdminBlogEditor: React.FC = () => {
   }
 
   const save = async (publishOverride?: boolean) => {
+    // Parsear desde los inputs por si onBlur no disparó todavía
+    const tags = state.tagsInput.split(',').map((t) => t.trim()).filter(Boolean)
+    const related = state.relatedInput.split(',').map((s) => s.trim()).filter(Boolean)
+
     const published = publishOverride !== undefined ? publishOverride : state.published
     if (!state.slug || !state.title) {
       setState((prev) => ({ ...prev, saveError: 'El slug y el título son obligatorios.' }))
@@ -279,8 +392,8 @@ const AdminBlogEditor: React.FC = () => {
       cover_image: state.cover_image || null,
       body: state.body,
       excerpt: state.excerpt,
-      tags: state.tags,
-      related: state.related,
+      tags,
+      related,
       published,
       seo_title: state.seo_title || null,
       seo_description: state.seo_description || null,
@@ -370,23 +483,72 @@ const AdminBlogEditor: React.FC = () => {
         </div>
       </div>
 
+      {/* Tab bar — solo mobile */}
+      <div
+        className="lg:hidden flex mb-4"
+        style={{ borderBottom: '1px solid var(--line-soft)' }}
+      >
+        {(['contenido', 'meta', 'seo'] as const).map((tab) => {
+          const label = tab === 'contenido' ? 'Contenido' : tab === 'meta' ? 'Metadatos' : 'SEO'
+          const active = mobileTab === tab
+          return (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setMobileTab(tab)}
+              className="flex-1 font-mono text-[10px] uppercase tracking-[0.1em] py-2.5 transition-colors"
+              style={{
+                color: active ? 'var(--sage-700)' : 'var(--ink-soft)',
+                borderBottom: active ? '2px solid var(--sage-700)' : '2px solid transparent',
+                marginBottom: '-1px',
+              }}
+            >
+              {label}
+            </button>
+          )
+        })}
+      </div>
+
       {/* Layout: editor + sidebar */}
       <div className="flex flex-col lg:flex-row gap-8 items-start">
 
         {/* ── Editor principal ── */}
-        <div className="flex-1 min-w-0">
-          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-3">
-            Contenido
-          </p>
-          <TipTapEditor
-            value={state.body}
-            onChange={(v) => patch('body', v)}
-            placeholder="Escribí el contenido del post aquí…"
-          />
+        <div className={`flex-1 min-w-0 flex flex-col gap-4 ${mobileTab !== 'contenido' ? 'hidden lg:flex' : ''}`}>
+          {/* Título prominente */}
+          <div className="flex flex-col gap-1">
+            <input
+              type="text"
+              value={state.title}
+              placeholder="Título del post *"
+              onChange={(e) => handleTitleChange(e.target.value)}
+              required
+              className="w-full font-display text-[26px] md:text-[32px] text-ink bg-transparent outline-none placeholder:text-ink-soft/40 pb-2"
+              style={{ borderBottom: '1.5px solid var(--line-soft)' }}
+            />
+            {state.slug && (
+              <p className="font-mono text-[10px] text-ink-soft">
+                tatuajesnaty.com/blog/<span className="text-ink">{state.slug}</span>
+              </p>
+            )}
+          </div>
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-3">
+              Contenido
+            </p>
+            <TipTapEditor
+              key={state.id ?? '__new__'}
+              value={state.body}
+              onChange={(v) => patch('body', v)}
+              placeholder="Escribí el contenido del post aquí…"
+            />
+          </div>
         </div>
 
         {/* ── Sidebar de metadatos ── */}
-        <div className="w-full lg:w-[320px] flex-shrink-0 flex flex-col gap-6">
+        <div className={`w-full lg:w-[320px] flex-shrink-0 flex flex-col gap-6 ${mobileTab === 'contenido' ? 'hidden lg:flex' : ''}`}>
+
+          {/* Bloque META: visible cuando tab=meta o en desktop */}
+          <div className={mobileTab === 'seo' ? 'hidden lg:contents' : 'lg:contents'}>
 
           {/* Identificación */}
           <section className="flex flex-col gap-4">
@@ -394,26 +556,17 @@ const AdminBlogEditor: React.FC = () => {
               Identificación
             </p>
             <Field
-              label={state.isNew ? 'Slug' : 'Slug · 🔒 fijo'}
-              hint={state.isNew ? 'Se genera desde el título. No se puede cambiar después.' : 'El slug es la URL del post — no se modifica luego de crear.'}
+              label={state.isNew ? 'Slug *' : 'Slug · 🔒 fijo'}
+              hint={state.isNew ? 'Se genera desde el título. Solo editable antes del primer guardado.' : 'El slug es la URL del post — no se modifica luego de crear.'}
             >
               <input
                 type="text"
                 value={state.slug}
                 disabled={!state.isNew}
+                required={state.isNew}
                 placeholder="mi-primer-post"
                 onChange={(e) => patch('slug', e.target.value.toLowerCase().replace(/\s+/g, '-'))}
                 className={`${inputCls} disabled:opacity-50 disabled:cursor-not-allowed`}
-                style={inputStyle}
-              />
-            </Field>
-            <Field label="Título">
-              <input
-                type="text"
-                value={state.title}
-                placeholder="El título del post"
-                onChange={(e) => handleTitleChange(e.target.value)}
-                className={inputCls}
                 style={inputStyle}
               />
             </Field>
@@ -459,7 +612,7 @@ const AdminBlogEditor: React.FC = () => {
                 />
               </Field>
               <Field
-                label={readingTimeAuto ? `Lectura · auto · ${wordCount}p` : 'Lectura'}
+                label={readingTimeAuto ? `Lectura · auto · ${wordCount} pal.` : 'Lectura'}
                 hint={readingTimeAuto ? 'Calculado automáticamente. Editá para personalizar.' : undefined}
               >
                 <input
@@ -514,23 +667,19 @@ const AdminBlogEditor: React.FC = () => {
             <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft">
               Posts relacionados
             </p>
-            <Field
-              label="Slugs separados por coma"
-              hint="Ejemplo: cicatrizar-despacio, plantas-que-tatuo"
-            >
-              <input
-                type="text"
-                value={state.relatedInput}
-                placeholder="slug-uno, slug-dos"
-                onChange={(e) => patch('relatedInput', e.target.value)}
-                onBlur={(e) => {
-                  const parsed = e.target.value.split(',').map((s) => s.trim()).filter(Boolean)
-                  setState((prev) => ({ ...prev, related: parsed, relatedInput: parsed.join(', '), dirty: true }))
-                }}
-                className={inputCls}
-                style={inputStyle}
-              />
-            </Field>
+            <RelatedSelector
+              value={state.related}
+              onChange={(slugs) =>
+                setState((prev) => ({
+                  ...prev,
+                  related: slugs,
+                  relatedInput: slugs.join(', '),
+                  dirty: true,
+                }))
+              }
+              allPosts={allPosts}
+              currentSlug={state.slug}
+            />
           </section>
 
           <div style={{ borderTop: '1px solid var(--line-soft)' }} />
@@ -552,7 +701,25 @@ const AdminBlogEditor: React.FC = () => {
                 style={inputStyle}
               />
             </Field>
+            {state.tagsInput.split(',').map((t) => t.trim()).filter(Boolean).length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {state.tagsInput.split(',').map((t) => t.trim()).filter(Boolean).map((tag) => (
+                  <span
+                    key={tag}
+                    className="font-mono text-[10px] px-2 py-0.5 rounded-pill"
+                    style={{ background: 'var(--cream-200, #ede8e0)', color: 'var(--ink-soft)' }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </section>
+
+          </div>{/* /bloque META */}
+
+          {/* Bloque SEO: visible cuando tab=seo o en desktop */}
+          <div className={mobileTab === 'meta' ? 'hidden lg:contents' : 'lg:contents'}>
 
           <div style={{ borderTop: '1px solid var(--line-soft)' }} />
 
@@ -593,22 +760,16 @@ const AdminBlogEditor: React.FC = () => {
             </Field>
           </section>
 
-          <div style={{ borderTop: '1px solid var(--line-soft)' }} />
+          </div>{/* /bloque SEO */}
 
-          {/* Estado de publicación */}
-          <section className="flex items-center gap-3 py-2">
-            <input
-              type="checkbox"
-              id="post-published"
-              checked={state.published}
-              onChange={(e) => patch('published', e.target.checked)}
-              className="accent-sage-700 w-4 h-4 cursor-pointer"
-            />
-            <label htmlFor="post-published" className="font-body text-[13px] text-ink cursor-pointer">
-              Publicado
-            </label>
+          {/* Estado de publicación (solo lectura — controlado por los botones del header) */}
+          <section
+            className="flex items-center justify-between py-2"
+            style={{ borderTop: '1px solid var(--line-soft)' }}
+          >
+            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft">Estado</p>
             <span
-              className="font-mono text-[10px] uppercase tracking-[0.1em] px-2 py-0.5 rounded-pill ml-auto"
+              className="font-mono text-[10px] uppercase tracking-[0.1em] px-2 py-0.5 rounded-pill"
               style={{
                 background: state.published ? 'var(--sage-100, #dff0e6)' : 'var(--cream-200, #ede8e0)',
                 color: state.published ? 'var(--sage-700)' : 'var(--ink-soft)',
@@ -622,36 +783,43 @@ const AdminBlogEditor: React.FC = () => {
 
       {/* Sticky action bar mobile */}
       <div
-        className="md:hidden fixed bottom-0 inset-x-0 z-40 flex items-center gap-2 px-4 py-3"
+        className="md:hidden fixed bottom-0 inset-x-0 z-40 flex flex-col"
         style={{ background: 'var(--cream-50)', borderTop: '1px solid var(--line-soft)', boxShadow: '0 -4px 12px rgba(0,0,0,0.04)' }}
       >
-        <button
-          type="button"
-          onClick={openPreview}
-          className="font-mono text-[10px] uppercase tracking-[0.1em] px-3 py-2 rounded-pill border"
-          style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)' }}
-          aria-label="Vista previa"
-        >
-          ↗
-        </button>
-        <button
-          type="button"
-          disabled={state.saving}
-          onClick={() => save(false)}
-          className="flex-1 font-mono text-[11px] uppercase tracking-[0.1em] px-3 py-2 rounded-pill border transition-all disabled:opacity-40"
-          style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)' }}
-        >
-          {state.saving && !state.published ? 'Guardando…' : 'Borrador'}
-        </button>
-        <button
-          type="button"
-          disabled={state.saving}
-          onClick={() => save(true)}
-          className="flex-1 font-mono text-[11px] uppercase tracking-[0.1em] px-3 py-2 rounded-pill transition-all disabled:opacity-40"
-          style={{ background: 'var(--sage-700)', color: 'var(--cream-50)', border: '1px solid var(--sage-700)' }}
-        >
-          {state.saving && state.published ? 'Publicando…' : state.published ? 'Actualizar' : 'Publicar'}
-        </button>
+        {state.saveError && (
+          <p className="font-mono text-[10px] px-4 pt-2" style={{ color: '#a8503f' }}>
+            {state.saveError}
+          </p>
+        )}
+        <div className="flex items-center gap-2 px-4 py-3">
+          <button
+            type="button"
+            onClick={openPreview}
+            className="font-mono text-[10px] uppercase tracking-[0.1em] px-3 py-2 rounded-pill border"
+            style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)' }}
+            aria-label="Vista previa"
+          >
+            ↗
+          </button>
+          <button
+            type="button"
+            disabled={state.saving}
+            onClick={() => save(false)}
+            className="flex-1 font-mono text-[11px] uppercase tracking-[0.1em] px-3 py-2 rounded-pill border transition-all disabled:opacity-40"
+            style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)' }}
+          >
+            {state.saving && !state.published ? 'Guardando…' : 'Borrador'}
+          </button>
+          <button
+            type="button"
+            disabled={state.saving}
+            onClick={() => save(true)}
+            className="flex-1 font-mono text-[11px] uppercase tracking-[0.1em] px-3 py-2 rounded-pill transition-all disabled:opacity-40"
+            style={{ background: 'var(--sage-700)', color: 'var(--cream-50)', border: '1px solid var(--sage-700)' }}
+          >
+            {state.saving && state.published ? 'Publicando…' : state.published ? 'Actualizar' : 'Publicar'}
+          </button>
+        </div>
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useParams, Navigate } from 'react-router-dom'
-import { getVariantPrice, descriptionToPlainText } from '@/data/products'
+import { getVariantPrice, getFramePrice, getFrameImage, descriptionToPlainText } from '@/data/products'
 import { useProducts } from '@/hooks/useProducts'
 import { useCart } from '@/context/CartContext'
 import {
@@ -20,6 +20,9 @@ const ProductDetail: React.FC = () => {
   const product = getProduct(slug ?? '')
 
   const [toastVisible, setToastVisible] = useState(false)
+  const [selectedSize, setSelectedSize] = useState<string | null>(null)
+  const [frameSelected, setFrameSelected] = useState(false)
+  const [selectedFrameColor, setSelectedFrameColor] = useState<string | null>(null)
   const { addItem } = useCart()
 
   if (loading) return (
@@ -30,16 +33,25 @@ const ProductDetail: React.FC = () => {
 
   if (!product) return <Navigate to="/tienda" replace />
 
-  const handleAddToCart = (selectedSize: string | null, hasFrame: boolean) => {
+  // Inicializar selectedSize con la primera variante si aún no se estableció
+  const effectiveSize = selectedSize ?? (product.variants?.[0]?.label ?? null)
+
+  const frameImage = frameSelected
+    ? getFrameImage(product, effectiveSize, selectedFrameColor)
+    : null
+
+  const handleAddToCart = () => {
     const unitPrice =
-      getVariantPrice(product, selectedSize) + (hasFrame ? (product.framePrice ?? 0) : 0)
+      getVariantPrice(product, effectiveSize) +
+      (frameSelected ? getFramePrice(product, effectiveSize) : 0)
     addItem({
       slug: product.slug,
       title: product.title,
       catLabel: product.catLabel,
       image: product.images[0] ?? '',
-      selectedSize,
-      hasFrame,
+      selectedSize: effectiveSize,
+      hasFrame: frameSelected,
+      frameColor: selectedFrameColor,
       unitPrice,
     })
     setToastVisible(true)
@@ -132,9 +144,20 @@ const ProductDetail: React.FC = () => {
         <section className="max-w-7xl mx-auto px-6 md:px-12 pb-16">
           <div className="grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-10 md:gap-16 items-start">
             <div className="md:sticky md:top-[100px] md:h-[calc(100dvh-100px)]">
-              <ProductGallery product={product} sticky />
+              <ProductGallery product={product} sticky frameImage={frameImage} />
             </div>
-            <ProductInfo product={product} onAddToCart={handleAddToCart} />
+            <ProductInfo
+              product={product}
+              onAddToCart={handleAddToCart}
+              selectedSize={effectiveSize}
+              onSizeChange={setSelectedSize}
+              frameSelected={frameSelected}
+              onFrameToggle={() => setFrameSelected((p) => !p)}
+              selectedFrameColor={selectedFrameColor}
+              onFrameColorChange={(color) => {
+                setSelectedFrameColor(color)
+              }}
+            />
           </div>
         </section>
 

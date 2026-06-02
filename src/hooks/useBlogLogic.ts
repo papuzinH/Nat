@@ -42,6 +42,7 @@ export const useBlogLogic = () => {
         filter: 'published = true',
         sort:   '-date',
         fields: 'slug,title,subtitle,category,date,reading_time,cover_image,related',
+        requestKey: null,
       })
       .then((data) => {
         setAllPosts(data.map((r) => rowToPost(r as Record<string, unknown>)))

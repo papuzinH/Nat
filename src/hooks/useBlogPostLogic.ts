@@ -24,7 +24,7 @@ export const useBlogPostLogic = (slug: string | undefined, preview = false) => {
     // En preview, traemos también borradores (requiere superuser auth).
     const filter = preview ? `slug = "${slug}"` : `slug = "${slug}" && published = true`
     pb.collection('blog_posts')
-      .getFirstListItem(filter)
+      .getFirstListItem(filter, { requestKey: null })
       .then(async (data) => {
         const base = rowToPost(data as Record<string, unknown>)
         setPost({
@@ -39,6 +39,7 @@ export const useBlogPostLogic = (slug: string | undefined, preview = false) => {
           const relData = await pb.collection('blog_posts').getFullList({
             filter: `(${filter}) && published = true`,
             fields: 'slug,title,subtitle,category,date,reading_time,cover_image,related',
+            requestKey: null,
           })
           setRelated(relData.map((r) => rowToPost(r as Record<string, unknown>)))
         }
