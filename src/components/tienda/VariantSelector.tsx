@@ -3,41 +3,34 @@ import { type Product, type ProductVariant, getVariantPrice, formatARS } from '@
 
 interface VariantSelectorProps {
   product: Product
-  selectedSize: string | null
-  onSelect: (size: string) => void
+  selectedVariant: string | null
+  onSelect: (label: string) => void
   priceRef?: React.RefObject<HTMLElement | null>
 }
 
 const VariantSelector: React.FC<VariantSelectorProps> = ({
   product,
-  selectedSize,
+  selectedVariant,
   onSelect,
 }) => {
   if (!product.variants) return null
 
   return (
     <div className="mt-6">
-      <p
-        className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft mb-3"
-        id="variant-label"
-      >
-        Tamaño
-      </p>
       <div
         role="radiogroup"
-        aria-labelledby="variant-label"
         className="flex flex-wrap gap-2"
       >
         {product.variants.map((variant: ProductVariant) => {
-          const isActive = selectedSize === variant.size
-          const price = getVariantPrice(product, variant.size)
+          const isActive = selectedVariant === variant.label
+          const price = getVariantPrice(product, variant.label)
 
           return (
             <button
-              key={variant.size}
+              key={variant.label}
               role="radio"
               aria-checked={isActive}
-              onClick={() => onSelect(variant.size)}
+              onClick={() => onSelect(variant.label)}
               className={[
                 'font-mono text-[12px] px-[12px] py-[8px] rounded-pill border transition-all duration-200',
                 isActive
@@ -46,7 +39,7 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
               ].join(' ')}
               style={{ cursor: 'pointer', background: isActive ? undefined : 'transparent' }}
             >
-              {variant.size}
+              {variant.label}
               <span className="ml-[6px] opacity-70">{formatARS(price)}</span>
             </button>
           )

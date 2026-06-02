@@ -19,10 +19,13 @@ interface PostListItem {
 
 const BLOG_CATEGORIES = ['Estudio', 'Botánica', 'Cerámica', 'Dibujo', 'Textiles']
 
-function formatDate(iso: string): string {
+function formatDate(raw: string): string {
+  if (!raw) return ''
+  const d = new Date(raw.slice(0, 10) + 'T12:00:00')
+  if (isNaN(d.getTime())) return raw
   return new Intl.DateTimeFormat('es-AR', {
     day: 'numeric', month: 'short', year: 'numeric',
-  }).format(new Date(iso + 'T12:00:00')).replace('.', '')
+  }).format(d).replace('.', '')
 }
 
 const AdminBlog: React.FC = () => {
@@ -33,7 +36,7 @@ const AdminBlog: React.FC = () => {
 
   useEffect(() => {
     pb.collection('blog_posts')
-      .getFullList({ sort: '-created', fields: 'id,slug,title,category,date,published', requestKey: null })
+      .getFullList({ sort: '-date', fields: 'id,slug,title,category,date,published' })
       .then((data) => {
         setRows(
           data.map((d) => ({

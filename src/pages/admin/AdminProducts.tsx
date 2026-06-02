@@ -7,19 +7,21 @@ import {
   normalizeDescription,
   EMPTY_DESCRIPTION,
 } from '@/data/products'
-import type { ProductCategory, ProductSpec, ProductTone } from '@/data/products'
+import type { ProductSpec, ProductTone } from '@/data/products'
 import TipTapEditor from '@/components/admin/blog/TipTapEditor'
 import Tooltip from '@/components/admin/shared/Tooltip'
 import ConfirmDeleteInline from '@/components/admin/shared/ConfirmDeleteInline'
+import AdminCategoriesModal from '@/components/admin/shared/AdminCategoriesModal'
 import Tabs from '@/components/admin/shared/Tabs'
 import { useToast } from '@/context/ToastContext'
 import { useTableFilter } from '@/hooks/useTableFilter'
+import { useCategories } from '@/hooks/useCategories'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
 interface VariantRow {
-  size: string
-  priceMultiplier: number
+  label: string
+  price: number | null  // null = mismo precio que el base
 }
 
 interface ProductRow {
@@ -49,19 +51,6 @@ interface ProductRow {
 }
 
 // ─── Opciones ─────────────────────────────────────────────────────────────────
-
-const CATEGORY_OPTIONS: { value: ProductCategory; label: string }[] = [
-  { value: 'laminas',     label: 'Láminas' },
-  { value: 'ceramica',    label: 'Cerámica' },
-  { value: 'acuarela',    label: 'Acuarelas' },
-  { value: 'gouache',     label: 'Gouache' },
-  { value: 'textil',      label: 'Textiles' },
-  { value: 'ilustracion', label: 'Ilustraciones' },
-  { value: 'mixta',       label: 'Técnica mixta' },
-  { value: 'stickers',    label: 'Stickers' },
-  { value: 'mandalas',    label: 'Mandalas' },
-  { value: 'abanicos',    label: 'Abanicos' },
-]
 
 const TONE_OPTIONS: { value: ProductTone; label: string }[] = [
   { value: 'a', label: 'A — crema cálido' },
@@ -94,6 +83,7 @@ const ImageUploader: React.FC<{
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [hoverIndex, setHoverIndex] = useState<number | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const uploadFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return
@@ -138,6 +128,25 @@ const ImageUploader: React.FC<{
     next.splice(target, 0, moved)
     onChange(next)
     setDragIndex(null); setHoverIndex(null)
+  }
+
+  const getClosestIndex = (e: React.DragEvent): number => {
+    if (!containerRef.current) return images.length
+    const items = Array.from(containerRef.current.children) as HTMLElement[]
+    let closest = dragIndex ?? 0
+    let closestDist = Infinity
+    items.forEach((item, i) => {
+      if (i === dragIndex) return
+      const rect = item.getBoundingClientRect()
+      const cx = rect.left + rect.width / 2
+      const cy = rect.top + rect.height / 2
+      const dist = Math.hypot(e.clientX - cx, e.clientY - cy)
+      if (dist < closestDist) {
+        closestDist = dist
+        closest = i
+      }
+    })
+    return closest
   }
 
   return (
@@ -191,7 +200,12 @@ const ImageUploader: React.FC<{
           <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-ink-soft mb-2">
             Arrastrá para reordenar · la primera es la principal en la tienda
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div
+            ref={containerRef}
+            className="flex flex-wrap gap-3"
+            onDragOver={(e) => { e.preventDefault(); if (dragIndex !== null) setHoverIndex(getClosestIndex(e)) }}
+            onDrop={(e) => { e.preventDefault(); if (hoverIndex !== null) handleReorderDrop(hoverIndex) }}
+          >
             {images.map((url, i) => {
               const isMain = i === 0
               const isHover = hoverIndex === i && dragIndex !== null && dragIndex !== i
@@ -200,9 +214,6 @@ const ImageUploader: React.FC<{
                   key={url}
                   draggable
                   onDragStart={() => setDragIndex(i)}
-                  onDragEnter={() => setHoverIndex(i)}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={() => handleReorderDrop(i)}
                   onDragEnd={() => { setDragIndex(null); setHoverIndex(null) }}
                   className={`relative group flex-shrink-0 transition-opacity ${dragIndex === i ? 'opacity-40' : 'opacity-100'}`}
                   style={isHover ? { outline: '2px solid var(--sage-700)', outlineOffset: 2, borderRadius: 4 } : undefined}
@@ -258,10 +269,12 @@ const VariantsEditor: React.FC<{
   basePrice: number
   onChange: (variants: VariantRow[]) => void
 }> = ({ variants, basePrice, onChange }) => {
-  const add = () => onChange([...variants, { size: '', priceMultiplier: 1 }])
+  const add = () => onChange([...variants, { label: '', price: null }])
   const remove = (i: number) => onChange(variants.filter((_, idx) => idx !== i))
-  const update = (i: number, field: keyof VariantRow, value: string | number) =>
-    onChange(variants.map((v, idx) => (idx === i ? { ...v, [field]: value } : v)))
+  const updateLabel = (i: number, value: string) =>
+    onChange(variants.map((v, idx) => (idx === i ? { ...v, label: value } : v)))
+  const updatePrice = (i: number, value: number | null) =>
+    onChange(variants.map((v, idx) => (idx === i ? { ...v, price: value } : v)))
 
   return (
     <div className="flex flex-col gap-3">
@@ -271,53 +284,57 @@ const VariantsEditor: React.FC<{
         </p>
       ) : (
         <div className="flex flex-col gap-2">
-          {/* Header */}
-          <div className="grid grid-cols-[1fr_140px_100px_32px] gap-3 px-1">
-            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">Tamaño</span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">Multiplicador</span>
+          <div className="grid grid-cols-[1fr_1fr_32px] gap-3 px-1">
+            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">Variante</span>
             <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">Precio</span>
             <span />
           </div>
 
-          {variants.map((v, i) => {
-            const price = basePrice && v.priceMultiplier ? Math.round(basePrice * v.priceMultiplier) : null
-            return (
-              <div key={i} className="grid grid-cols-[1fr_140px_100px_32px] gap-3 items-center">
-                <input
-                  type="text"
-                  value={v.size}
-                  placeholder="A4"
-                  onChange={(e) => update(i, 'size', e.target.value)}
-                  className="font-body text-[13px] text-ink bg-transparent border-b outline-none focus:border-sage-700 py-1 transition-colors"
-                  style={{ borderColor: 'var(--line)' }}
-                />
-                <div className="flex items-center gap-1.5">
+          {variants.map((v, i) => (
+            <div key={i} className="grid grid-cols-[1fr_1fr_32px] gap-3 items-center">
+              <input
+                type="text"
+                value={v.label}
+                placeholder="Ej: A4, Azul, Tela"
+                onChange={(e) => updateLabel(i, e.target.value)}
+                className="font-body text-[13px] text-ink bg-transparent border-b outline-none focus:border-sage-700 py-1 transition-colors"
+                style={{ borderColor: 'var(--line)' }}
+              />
+              <div className="flex flex-col gap-1">
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={v.price === null}
+                    onChange={(e) => updatePrice(i, e.target.checked ? null : (basePrice || 0))}
+                    className="accent-sage-700"
+                  />
+                  <span className="font-mono text-[10px] text-ink-soft">
+                    {v.price === null ? `Mismo precio (${basePrice ? formatARS(basePrice) : '—'})` : 'Mismo precio'}
+                  </span>
+                </label>
+                {v.price !== null && (
                   <input
                     type="number"
-                    step="0.05"
-                    min={0.1}
-                    value={v.priceMultiplier}
-                    onChange={(e) => update(i, 'priceMultiplier', parseFloat(e.target.value) || 1)}
-                    className="w-full font-body text-[13px] text-ink bg-transparent border-b outline-none focus:border-sage-700 py-1 transition-colors"
+                    min={0}
+                    step={100}
+                    value={v.price}
+                    onChange={(e) => updatePrice(i, parseFloat(e.target.value) || 0)}
+                    className="font-body text-[13px] text-ink bg-transparent border-b outline-none focus:border-sage-700 py-1 transition-colors"
                     style={{ borderColor: 'var(--line)' }}
                   />
-                  <span className="font-mono text-[10px] text-ink-soft">×</span>
-                </div>
-                <span className="font-mono text-[12px] text-ink-soft">
-                  {price ? formatARS(price) : '—'}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => remove(i)}
-                  className="w-8 h-8 flex items-center justify-center rounded-sm hover:bg-[#f5e6e6] transition-colors"
-                  style={{ color: '#a8503f' }}
-                  aria-label="Eliminar variante"
-                >
-                  ×
-                </button>
+                )}
               </div>
-            )
-          })}
+              <button
+                type="button"
+                onClick={() => remove(i)}
+                className="w-8 h-8 flex items-center justify-center rounded-sm hover:bg-[#f5e6e6] transition-colors"
+                style={{ color: '#a8503f' }}
+                aria-label="Eliminar variante"
+              >
+                ×
+              </button>
+            </div>
+          ))}
         </div>
       )}
 
@@ -327,14 +344,8 @@ const VariantsEditor: React.FC<{
         className="self-start font-mono text-[10px] uppercase tracking-[0.1em] px-3 py-1.5 rounded-pill border transition-all hover:border-sage-700 hover:text-sage-700"
         style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)' }}
       >
-        + Agregar tamaño
+        + Agregar variante
       </button>
-
-      {variants.length > 0 && (
-        <p className="font-mono text-[10px] text-ink-soft">
-          El multiplicador 1 = precio base. 0.75 = 75% del precio base. 1.6 = 60% más caro.
-        </p>
-      )}
     </div>
   )
 }
@@ -424,9 +435,19 @@ function emptyRow(): ProductRow {
 function rawToRow(p: Record<string, unknown>): ProductRow {
   let variants: VariantRow[] = []
   if (Array.isArray(p.variants)) {
-    variants = (p.variants as VariantRow[]).filter(
-      (v) => typeof v === 'object' && 'size' in v && 'priceMultiplier' in v
-    )
+    const basePrice = Number(p.base_price ?? 0)
+    variants = (p.variants as Record<string, unknown>[])
+      .filter((v) => typeof v === 'object' && v !== null)
+      .map((v) => {
+        if (typeof v.label === 'string') {
+          return { label: v.label, price: v.price as number | null }
+        }
+        // Formato legacy {size, priceMultiplier}
+        const legacyLabel = String(v.size ?? '')
+        const multiplier = Number(v.priceMultiplier ?? 1)
+        const computedPrice = multiplier === 1 ? null : Math.round(basePrice * multiplier)
+        return { label: legacyLabel, price: computedPrice }
+      })
   }
 
   // Specs: usa el array si existe; si no, reconstruye desde medium/edition legacy.
@@ -504,6 +525,14 @@ const AdminProducts: React.FC = () => {
   const [expanded, setExpanded] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<Record<string, string>>({})
   const [saveErrors, setSaveErrors] = useState<Record<string, string>>({})
+  const [showCatModal, setShowCatModal] = useState(false)
+
+  const {
+    categories,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+  } = useCategories()
 
   useEffect(() => {
     pb.collection('products')
@@ -695,14 +724,25 @@ const AdminProducts: React.FC = () => {
             {dirtyCount > 0 && ` · ${dirtyCount} sin guardar`}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={addNew}
-          className="font-mono text-[11px] uppercase tracking-[0.1em] px-4 py-2 rounded-pill border transition-all hover:bg-sage-700 hover:text-cream-50 hover:border-sage-700"
-          style={{ borderColor: 'var(--sage-700)', color: 'var(--sage-700)' }}
-        >
-          + Nuevo
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowCatModal(true)}
+            className="font-mono text-[11px] uppercase tracking-[0.1em] px-4 py-2 rounded-pill border transition-all hover:bg-cream-100"
+            style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)' }}
+            title="Gestionar categorías"
+          >
+            Categorías
+          </button>
+          <button
+            type="button"
+            onClick={addNew}
+            className="font-mono text-[11px] uppercase tracking-[0.1em] px-4 py-2 rounded-pill border transition-all hover:bg-sage-700 hover:text-cream-50 hover:border-sage-700"
+            style={{ borderColor: 'var(--sage-700)', color: 'var(--sage-700)' }}
+          >
+            + Nuevo
+          </button>
+        </div>
       </div>
 
       {/* Toolbar filtros */}
@@ -725,8 +765,8 @@ const AdminProducts: React.FC = () => {
             aria-label="Filtrar por categoría"
           >
             <option value="all">Todas las categorías</option>
-            {CATEGORY_OPTIONS.map((c) => (
-              <option key={c.value} value={c.value}>{c.label}</option>
+            {categories.map((c) => (
+              <option key={c.slug} value={c.slug}>{c.label}</option>
             ))}
           </select>
           <label className="inline-flex items-center gap-2 font-mono text-[11px] text-ink whitespace-nowrap">
@@ -784,7 +824,7 @@ const AdminProducts: React.FC = () => {
                         {row.isNew ? '— nuevo —' : row.slug}
                       </span>
                       <span className="font-mono text-[10px] text-ink-soft hidden sm:inline">
-                        · {CATEGORY_OPTIONS.find((c) => c.value === row.category)?.label ?? row.category}
+                        · {categories.find((c) => c.slug === row.category)?.label ?? row.category}
                       </span>
                     </div>
                   </div>
@@ -848,8 +888,8 @@ const AdminProducts: React.FC = () => {
                             <select value={row.category} onChange={(e) => patch(key, 'category', e.target.value)}
                               className="font-body text-[13px] text-ink bg-cream-50 border rounded-sm px-2 py-1.5 outline-none focus:border-sage-700 transition-colors"
                               style={{ borderColor: 'var(--line)' }}>
-                              {CATEGORY_OPTIONS.map((c) => (
-                                <option key={c.value} value={c.value}>{c.label}</option>
+                              {categories.map((c) => (
+                                <option key={c.slug} value={c.slug}>{c.label}</option>
                               ))}
                             </select>
                           </Field>
@@ -876,8 +916,8 @@ const AdminProducts: React.FC = () => {
 
                       <div>
                         <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-1 flex items-center">
-                          Variantes de tamaño
-                          <Tooltip text="Usá variantes si el producto existe en varios tamaños con distintos precios. Dejalo vacío si es una sola versión." />
+                          Variantes
+                          <Tooltip text="Usá variantes si el producto existe en varias opciones (tamaño, color, material, etc.) con precios iguales o distintos. Dejalo vacío si es una sola versión." />
                         </p>
                         <VariantsEditor
                           variants={row.variants}
@@ -1044,6 +1084,15 @@ const AdminProducts: React.FC = () => {
           )
         })}
       </div>
+
+      <AdminCategoriesModal
+        open={showCatModal}
+        onClose={() => setShowCatModal(false)}
+        categories={categories}
+        onCreateCategory={createCategory}
+        onUpdateCategory={updateCategory}
+        onDeleteCategory={deleteCategory}
+      />
     </div>
   )
 }

@@ -10,6 +10,20 @@ import {
   type ProductVariant,
 } from '@/data/products'
 
+function normalizeVariants(raw: unknown, basePrice: number): ProductVariant[] | null {
+  if (!Array.isArray(raw) || raw.length === 0) return null
+  return raw.map((v: Record<string, unknown>) => {
+    if (typeof v.label === 'string') {
+      return { label: v.label, price: v.price as number | null }
+    }
+    // Formato legacy {size, priceMultiplier}
+    const legacyLabel = String(v.size ?? '')
+    const multiplier = Number(v.priceMultiplier ?? 1)
+    const computedPrice = multiplier === 1 ? null : Math.round(basePrice * multiplier)
+    return { label: legacyLabel, price: computedPrice }
+  })
+}
+
 function buildSpecs(p: Record<string, unknown>): ProductSpec[] {
   const raw = p.specs
   let specs: ProductSpec[] = []
@@ -62,7 +76,7 @@ export function useProducts() {
             edition:     p.edition ?? undefined,
             images:      p.images ?? [],
             tags:        p.tags ?? [],
-            variants:    (p.variants as ProductVariant[] | null) ?? null,
+            variants:    normalizeVariants(p.variants, p.base_price),
             hasFrame:    p.has_frame,
             framePrice:  p.frame_price,
             onDemand:    p.on_demand,

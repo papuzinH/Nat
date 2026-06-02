@@ -15,7 +15,7 @@ const Tienda: React.FC = () => {
     useTiendaLogic(products)
 
   const handleCategorySelect = (slug: string) => {
-    setActiveCategory(slug as Parameters<typeof setActiveCategory>[0])
+    setActiveCategory(slug)
     requestAnimationFrame(() => {
       document.getElementById('product-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     })

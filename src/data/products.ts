@@ -4,23 +4,13 @@ import type { JSONContent } from '@tiptap/core'
 
 export type ProductTone = 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
 
-export type ProductCategory =
-  | 'laminas'
-  | 'ceramica'
-  | 'acuarela'
-  | 'textil'
-  | 'gouache'
-  | 'abanicos'
-  | 'stickers'
-  | 'mandalas'
-  | 'ilustracion'
-  | 'mixta'
+export type ProductCategory = string
 
 export type ProductStatus = 'active' | 'coming-soon' | 'out-of-stock'
 
 export interface ProductVariant {
-  size: string            // 'A6' | 'A5' | 'A4' | 'A3'
-  priceMultiplier: number // 0.55 | 0.75 | 1 | 1.6
+  label: string       // libre: 'A4', 'Azul marino', 'Tela', etc.
+  price: number | null // null = usa el basePrice del producto
 }
 
 export interface ProductSpec {
@@ -90,10 +80,11 @@ export const PRODUCT_CATEGORIES: ProductCategoryMeta[] = [
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-export function getVariantPrice(product: Product, size: string | null): number {
-  if (!product.variants || !size) return product.basePrice
-  const variant = product.variants.find((v) => v.size === size)
-  return variant ? Math.round(product.basePrice * variant.priceMultiplier) : product.basePrice
+export function getVariantPrice(product: Product, label: string | null): number {
+  if (!product.variants || !label) return product.basePrice
+  const variant = product.variants.find((v) => v.label === label)
+  if (!variant) return product.basePrice
+  return variant.price ?? product.basePrice
 }
 
 export function formatARS(price: number): string {

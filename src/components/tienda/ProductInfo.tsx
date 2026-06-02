@@ -32,7 +32,7 @@ const WHATSAPP_NUMBER = '5491166191209'
 
 const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
   const [selectedSize, setSelectedSize] = useState<string | null>(
-    product.variants?.[2]?.size ?? null
+    product.variants?.[0]?.label ?? null
   )
   const [frameSelected, setFrameSelected] = useState(false)
   const priceRef = useRef<HTMLParagraphElement>(null)
@@ -125,7 +125,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product, onAddToCart }) => {
 
       <VariantSelector
         product={product}
-        selectedSize={selectedSize}
+        selectedVariant={selectedSize}
         onSelect={setSelectedSize}
       />
 
