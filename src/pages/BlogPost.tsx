@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useMemo } from 'react'
 import { useParams, useSearchParams, Link } from 'react-router-dom'
 import { Pen } from 'lucide-react'
-import { NHLeafMark, NHDivider, SEOMeta } from '@/components/shared'
+import { NHDivider, SEOMeta } from '@/components/shared'
 import BlogCard from '@/components/blog/BlogCard'
 import BlogPlaceholder from '@/components/blog/BlogPlaceholder'
 import { useBlogPostLogic } from '@/hooks/useBlogPostLogic'

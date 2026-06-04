@@ -29,6 +29,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
       image: product.images[0] ?? '',
       selectedSize: null,
       hasFrame: false,
+      frameColor: null,
       unitPrice: product.basePrice,
     })
     setToastVisible(true)

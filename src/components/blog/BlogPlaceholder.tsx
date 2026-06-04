@@ -1,7 +1,7 @@
 import React from 'react'
 
 interface BlogPlaceholderProps {
-  aspect?: '4/5' | '16/9'
+  aspect?: '4/5' | '16/9' | '3/2'
   label?: string
   className?: string
   style?: React.CSSProperties
@@ -15,7 +15,7 @@ const BlogPlaceholder: React.FC<BlogPlaceholderProps> = ({
 }) => (
   <div
     className={`relative w-full overflow-hidden bg-cream-200 ${className}`}
-    style={{ aspectRatio: aspect === '4/5' ? '4/5' : '16/9', ...style }}
+    style={{ aspectRatio: aspect ?? '4/5', ...style }}
     aria-hidden="true"
   >
     <div
