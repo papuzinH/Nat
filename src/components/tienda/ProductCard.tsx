@@ -36,7 +36,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
 
   return (
     <article
-      className="product-card group relative break-inside-avoid mb-3 md:mb-4 bg-cream-50 rounded-card overflow-hidden hover:-translate-y-1 active:scale-[0.98] active:opacity-90 transition-[transform,opacity] duration-[260ms] ease-out"
+      className="product-card group relative bg-cream-50 rounded-card overflow-hidden hover:-translate-y-1 active:scale-[0.98] active:opacity-90 transition-[transform,opacity] duration-[260ms] ease-out"
       style={{
         boxShadow:
           '0 1px 2px rgba(44,44,44,0.04), 0 8px 24px rgba(74,124,89,0.06)',

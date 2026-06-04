@@ -26,7 +26,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   ariaLabel = 'Catálogo filtrado',
 }) => {
   const gridRef = useRef<HTMLDivElement>(null)
-  const mergedGridClassName = ['[column-count:2] md:[column-count:3] lg:[column-count:4]', gridClassName]
+  const mergedGridClassName = ['grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 items-start', gridClassName]
     .filter(Boolean)
     .join(' ')
 
@@ -97,7 +97,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       role="region"
       aria-label={ariaLabel}
       className={mergedGridClassName}
-      style={{ columnGap: '12px' }}
     >
       {products.map((product, i) => (
         <ProductCard key={product.slug} product={product} priority={i < 3} />
