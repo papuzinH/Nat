@@ -3,27 +3,27 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Layout, ScrollToTop, GTMTag, NoscriptGTM, Header, Footer } from './components/shared';
 import { CartProvider } from './context/CartContext';
 import { CartDrawer } from './components/cart';
-import Home from './pages/Home';
-import Tienda from './pages/Tienda';
+import Home from './screens/Home';
+import Tienda from './screens/Tienda';
 
-const ProductDetail        = lazy(() => import('./pages/ProductDetail'));
-const Checkout             = lazy(() => import('./pages/Checkout'));
-const CheckoutConfirmacion = lazy(() => import('./pages/CheckoutConfirmacion'));
-const CheckoutError        = lazy(() => import('./pages/CheckoutError'));
-const Estudio          = lazy(() => import('./pages/Estudio'));
-const EstudioReservar  = lazy(() => import('./pages/EstudioReservar'));
-const Blog          = lazy(() => import('./pages/Blog'));
-const BlogPost      = lazy(() => import('./pages/BlogPost'));
-const Contacto      = lazy(() => import('./pages/Contacto'));
-const AdminLogin     = lazy(() => import('./pages/admin/AdminLogin'));
-const AdminLayout    = lazy(() => import('./pages/admin/AdminLayout'));
-const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
-const AdminOrders    = lazy(() => import('./pages/admin/AdminOrders'));
-const AdminStock    = lazy(() => import('./pages/admin/AdminStock'));
-const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
-const AdminEnvios   = lazy(() => import('./pages/admin/AdminEnvios'))
-const AdminBlog       = lazy(() => import('./pages/admin/AdminBlog'))
-const AdminBlogEditor = lazy(() => import('./pages/admin/AdminBlogEditor'));
+const ProductDetail        = lazy(() => import('./screens/ProductDetail'));
+const Checkout             = lazy(() => import('./screens/Checkout'));
+const CheckoutConfirmacion = lazy(() => import('./screens/CheckoutConfirmacion'));
+const CheckoutError        = lazy(() => import('./screens/CheckoutError'));
+const Estudio          = lazy(() => import('./screens/Estudio'));
+const EstudioReservar  = lazy(() => import('./screens/EstudioReservar'));
+const Blog          = lazy(() => import('./screens/Blog'));
+const BlogPost      = lazy(() => import('./screens/BlogPost'));
+const Contacto      = lazy(() => import('./screens/Contacto'));
+const AdminLogin     = lazy(() => import('./screens/admin/AdminLogin'));
+const AdminLayout    = lazy(() => import('./screens/admin/AdminLayout'));
+const AdminDashboard = lazy(() => import('./screens/admin/AdminDashboard'));
+const AdminOrders    = lazy(() => import('./screens/admin/AdminOrders'));
+const AdminStock    = lazy(() => import('./screens/admin/AdminStock'));
+const AdminProducts = lazy(() => import('./screens/admin/AdminProducts'));
+const AdminEnvios   = lazy(() => import('./screens/admin/AdminEnvios'))
+const AdminBlog       = lazy(() => import('./screens/admin/AdminBlog'))
+const AdminBlogEditor = lazy(() => import('./screens/admin/AdminBlogEditor'));
 
 const PageFallback = () => (
   <div className="min-h-[60vh] flex items-center justify-center bg-cream-50" aria-live="polite">
