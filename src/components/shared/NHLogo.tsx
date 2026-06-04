@@ -7,7 +7,7 @@ interface NHLogoProps {
   onClick?: () => void
 }
 
-const NHLogo: React.FC<NHLogoProps> = ({ size = 32, onClick }) => {
+const NHLogo: React.FC<NHLogoProps> = ({ /*size = 32,*/ onClick }) => {
   // const logoHeight = size * 2
   return (
     <Link
