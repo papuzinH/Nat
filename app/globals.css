@@ -1,0 +1,327 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+    --line: rgba(44, 44, 44, 0.12);
+    --line-soft: rgba(44, 44, 44, 0.06);
+    --header-h: 72px;
+
+    /* Fuente display (Fraunces vía next/font). El tiptap-content la usa con
+       var(--font-display); apuntamos a la variable que inyecta next/font. */
+    --font-display: var(--font-fraunces, 'Georgia', serif);
+
+    /* Design tokens (paleta) — usados por estilos inline del admin y toasts. */
+    --cream-50: #fdfcfb;
+    --cream-100: #faf6f0;
+    --cream-200: #f5efe6;
+    --cream-300: #ede4d5;
+    --taupe-300: #d4c5b0;
+    --taupe-500: #b8a898;
+    --taupe-700: #8a7a6a;
+    --sage-200: #c8d5b9;
+    --sage-400: #9bb89f;
+    --sage-500: #7a9e7e;
+    --sage-700: #4a7c59;
+    --sage-900: #2f4a37;
+    --ink: #2c2c2c;
+    --ink-soft: #5a5350;
+  }
+  @media (min-width: 768px) {
+    :root { --header-h: 80px; }
+  }
+  body {
+    font-family: theme('fontFamily.body');
+    background-color: theme('colors.cream.100');
+    color: theme('colors.ink.DEFAULT');
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer utilities {
+  .animation-delay-150 {
+    animation-delay: 150ms;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .animation-delay-450 {
+    animation-delay: 450ms;
+  }
+
+  .animation-delay-600 {
+    animation-delay: 600ms;
+  }
+
+  /* Ocultar scrollbar para carrusel */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Utilidad para truncar texto con ellipsis */
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  /* Transiciones suaves */
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Animaciones para el carrusel del blog */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-in-right {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slide-in-left {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out;
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.5s ease-out;
+  }
+
+  .animate-slide-in-left {
+    animation: slide-in-left 0.5s ease-out;
+  }
+
+  /* Focus ring unificado para admin — accesibilidad keyboard */
+  .focus-ring:focus-visible {
+    outline: 2px solid rgba(96, 108, 56, 0.45);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* Focus visible global para inputs y botones dentro del admin */
+[class*="admin"] button:focus-visible,
+[class*="admin"] input:focus-visible,
+[class*="admin"] select:focus-visible,
+[class*="admin"] textarea:focus-visible,
+[class*="admin"] [role="button"]:focus-visible,
+[class*="admin"] [role="tab"]:focus-visible {
+  outline: 2px solid rgba(96, 108, 56, 0.55);
+  outline-offset: 2px;
+}
+
+/* ── TipTap: área editable (admin) ─────────────────────────────────────────── */
+.tiptap-editor .ProseMirror {
+  min-height: 420px;
+  padding: 20px;
+  outline: none;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+.tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--ink-soft);
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+.tiptap-editor .ProseMirror h2 { font-size: 22px; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+.tiptap-editor .ProseMirror h3 { font-size: 18px; margin-top: 1.25rem; margin-bottom: 0.4rem; }
+.tiptap-editor .ProseMirror h4 { font-size: 15px; margin-top: 1rem; margin-bottom: 0.3rem; }
+.tiptap-editor .ProseMirror p  { margin-bottom: 0.75rem; }
+.tiptap-editor .ProseMirror ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+.tiptap-editor .ProseMirror ol { list-style: decimal; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+.tiptap-editor .ProseMirror li { margin-bottom: 0.2rem; }
+.tiptap-editor .ProseMirror blockquote {
+  border-left: 3px solid var(--sage-700);
+  padding-left: 1rem;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin: 1rem 0;
+}
+.tiptap-editor .ProseMirror a  { color: var(--sage-700); text-decoration: underline; }
+.tiptap-editor .ProseMirror img { max-width: 100%; border-radius: 4px; margin: 0.75rem 0; }
+.tiptap-editor .ProseMirror code {
+  background: var(--cream-200, #ede8e0);
+  padding: 0 4px;
+  border-radius: 3px;
+  font-size: 13px;
+}
+.tiptap-editor .ProseMirror pre {
+  background: var(--cream-200, #ede8e0);
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin-bottom: 0.75rem;
+}
+.tiptap-editor .ProseMirror pre code { background: none; padding: 0; }
+.tiptap-editor .ProseMirror hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 1.5rem 0;
+}
+.tiptap-editor .ProseMirror mark { background: #fef08a; border-radius: 2px; padding: 0 2px; }
+
+/* ── TipTap: rendering público (blog) ──────────────────────────────────────── */
+.tiptap-content p {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--ink);
+  margin-bottom: 0.75rem;
+}
+.tiptap-content h2 {
+  font-family: var(--font-display, 'Aboreto', serif);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-top: 3rem;
+  margin-bottom: 18px;
+}
+.tiptap-content h3 {
+  font-family: var(--font-display, 'Aboreto', serif);
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--ink);
+  margin-top: 2.5rem;
+  margin-bottom: 16px;
+}
+.tiptap-content h4 {
+  font-family: var(--font-display, 'Aboreto', serif);
+  font-weight: 400;
+  font-size: 17px;
+  color: var(--ink);
+  margin-top: 2rem;
+  margin-bottom: 12px;
+}
+.tiptap-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+}
+.tiptap-content ul li {
+  display: flex;
+  gap: 14px;
+  padding-top: 10px;
+  border-bottom: 1px solid var(--cream-200, #ede8e0);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.tiptap-content ul li::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--sage-500, #7aab8a);
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+.tiptap-content ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.tiptap-content ol li {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.tiptap-content blockquote {
+  border-left: 4px solid var(--sage-700);
+  padding-left: 1rem;
+  font-style: italic;
+  color: var(--ink-soft);
+  margin: 1.5rem 0;
+}
+.tiptap-content a {
+  color: var(--sage-700);
+  text-decoration: underline;
+}
+.tiptap-content a:hover { opacity: 0.8; }
+.tiptap-content strong { font-weight: 600; }
+.tiptap-content em { font-style: italic; }
+.tiptap-content s  { text-decoration: line-through; }
+.tiptap-content u  { text-decoration: underline; }
+.tiptap-content mark { background: #fef08a; border-radius: 2px; padding: 0 2px; }
+.tiptap-content code {
+  font-size: 13px;
+  background: var(--cream-200, #ede8e0);
+  padding: 0 4px;
+  border-radius: 3px;
+}
+.tiptap-content pre {
+  font-size: 13px;
+  background: var(--cream-200, #ede8e0);
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+.tiptap-content pre code { background: none; padding: 0; }
+.tiptap-content img {
+  max-width: 100%;
+  border-radius: 6px;
+  margin: 1.5rem 0;
+}
+.tiptap-content hr {
+  border: none;
+  border-top: 1px solid var(--cream-300, #d8cfc6);
+  margin: 2.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .tiptap-content p       { font-size: 18px; }
+  .tiptap-content h2      { font-size: 32px; }
+  .tiptap-content h3      { font-size: 26px; }
+  .tiptap-content h4      { font-size: 20px; }
+  .tiptap-content ul li   { font-size: 17px; }
+  .tiptap-content ol li   { font-size: 17px; }
+}

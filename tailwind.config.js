@@ -2,6 +2,7 @@
 export default {
   content: [
     "./index.html",
+    "./app/**/*.{js,ts,jsx,tsx}",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
@@ -48,9 +49,10 @@ export default {
         },
       },
       fontFamily: {
-        display: ['Fraunces', 'Georgia', 'serif'],
-        body:    ['Nunito', 'system-ui', 'sans-serif'],
-        mono:    ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        // Variables inyectadas por next/font/google (ver app/layout.tsx)
+        display: ['var(--font-fraunces)', 'Georgia', 'serif'],
+        body:    ['var(--font-nunito)', 'system-ui', 'sans-serif'],
+        mono:    ['var(--font-jetbrains)', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
         pill: '999px',

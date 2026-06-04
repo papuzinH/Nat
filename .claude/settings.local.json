@@ -34,7 +34,12 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" 'https://nat.lhstudio.com.ar/api/collections/orders/records?sort=-status')",
       "Bash(curl -s -o /dev/null -w '%{http_code}\\\\n' https://nat.lhstudio.com.ar/api/collections/__TRACKED_VAR__/records?sort=-created)",
       "Bash(echo \"EXIT=$?\")",
-      "PowerShell(npx tsc --noEmit)"
+      "PowerShell(npx tsc --noEmit)",
+      "Bash(git checkout *)",
+      "Bash(node -p \"require\\('next/package.json'\\).version\")",
+      "Bash(npx next *)",
+      "Bash(git mv *)",
+      "PowerShell(Get-Process node -ErrorAction SilentlyContinue | Select-Object Id, StartTime, @{N='CPU';E={$_.CPU}} | Format-Table -AutoSize; Write-Output \"---\"; Get-Process | Where-Object { $_.ProcessName -match 'esbuild|vite|next' } | Select-Object Id, ProcessName)"
     ]
   }
 }
