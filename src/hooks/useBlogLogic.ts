@@ -25,9 +25,7 @@ export function rowToPost(row: Record<string, unknown>): BlogPost {
     category: row.category as string,
     date:     formatDate(row.date as string),
     reading:  row.reading_time as string,
-    image:    row.cover_image
-      ? `${pb.baseUrl}/api/files/blog_posts/${row.id as string}/${row.cover_image as string}`
-      : undefined,
+    image:    (row.cover_image as string | null) ?? undefined,
     body:     [],
     related:  (row.related as string[]) ?? [],
   }
@@ -43,7 +41,7 @@ export const useBlogLogic = () => {
       .getFullList({
         filter: 'published = true',
         sort:   '-date',
-        fields: 'slug,title,subtitle,category,date,reading_time,cover_image,related',
+        fields: 'id,slug,title,subtitle,category,date,reading_time,cover_image,related',
         requestKey: null,
       })
       .then((data) => {

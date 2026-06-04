@@ -8,7 +8,7 @@ interface NHLogoProps {
 }
 
 const NHLogo: React.FC<NHLogoProps> = ({ size = 32, onClick }) => {
-  const logoHeight = size * 2
+  // const logoHeight = size * 2
   return (
     <Link
       to="/"
@@ -17,12 +17,12 @@ const NHLogo: React.FC<NHLogoProps> = ({ size = 32, onClick }) => {
       aria-label="Natalia Heller — inicio"
       className='hover:opacity-80 transition-all hover:scale-[1.02] '
     >
-      <img
+      {/* <img
         src="/Logo.svg"
         alt="Natalia Heller"
         height={logoHeight}
         style={{ height: logoHeight, width: 'auto', display: 'block' }}
-      />
+      /> */}
       <span
         style={{
           fontFamily: 'Fraunces, Georgia, serif',

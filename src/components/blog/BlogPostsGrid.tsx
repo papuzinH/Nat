@@ -1,6 +1,6 @@
 import React from 'react'
 import type { BlogPost } from '@/data/blog-posts'
-import { NHDivider } from '@/components/shared'
+import { SectionContainer, NHDivider } from '@/components/shared'
 import BlogCard from './BlogCard'
 
 interface BlogPostsGridProps {
@@ -13,17 +13,19 @@ const BlogPostsGrid: React.FC<BlogPostsGridProps> = ({ posts, containerRef }) =>
 
   return (
     <>
-      <NHDivider label="mas notas" className="my-8 md:my-[52px]" />
-      <div
-        ref={containerRef}
-        className="grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-10 mb-20 max-w-7xl mx-auto"
-      >
-        {posts.map((post) => (
-          <div key={post.slug} className="blog-card-item">
-            <BlogCard post={post} />
-          </div>
-        ))}
-      </div>
+      <NHDivider label="más notas" />
+      <SectionContainer aria-label="Más notas">
+        <div
+          ref={containerRef}
+          className="grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-10 mb-20 max-w-7xl mx-auto"
+        >
+          {posts.map((post) => (
+            <div key={post.slug} className="blog-card-item">
+              <BlogCard post={post} />
+            </div>
+          ))}
+        </div>
+      </SectionContainer>
     </>
   )
 }

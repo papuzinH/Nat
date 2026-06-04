@@ -129,22 +129,22 @@ const ProductDetail: React.FC = () => {
       />
 
       <main className="min-h-screen bg-cream-50">
-        {/* Breadcrumb */}
-        <div className="max-w-7xl mx-auto px-6 md:px-12 pt-8 pb-6">
-          <Breadcrumb
-            items={[
-              { label: 'tienda', href: '/tienda' },
-              { label: product.catLabel, href: `/tienda?cat=${product.category}` },
-              { label: product.title },
-            ]}
-          />
-        </div>
-
         {/* Layout principal */}
-        <section className="max-w-7xl mx-auto px-6 md:px-12 pb-16">
+        <section className="max-w-7xl mx-auto px-6 md:px-12 pt-8 pb-16">
           <div className="grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-10 md:gap-16 items-start">
-            <div className="md:sticky md:top-[100px] md:h-[calc(100dvh-100px)]">
-              <ProductGallery product={product} sticky frameImage={frameImage} />
+            <div className="md:sticky md:top-[100px]">
+              <div className="pb-4">
+                <Breadcrumb
+                  items={[
+                    { label: 'tienda', href: '/tienda' },
+                    { label: product.catLabel, href: `/tienda?cat=${product.category}` },
+                    { label: product.title },
+                  ]}
+                />
+              </div>
+              <div className="md:h-[min(580px,calc(100dvh-140px))]">
+                <ProductGallery product={product} sticky frameImage={frameImage} />
+              </div>
             </div>
             <ProductInfo
               product={product}

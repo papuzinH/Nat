@@ -161,7 +161,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
       {hasImages && (
         <div
           ref={thumbsContainerRef}
-          className={`flex gap-[12px] mt-[12px] overflow-x-auto [&::-webkit-scrollbar]:hidden${sticky ? ' md:flex-shrink-0' : ''}`}
+          className={`flex gap-[8px] mt-[8px] overflow-x-auto [&::-webkit-scrollbar]:hidden${sticky ? ' md:flex-shrink-0' : ''}`}
           style={{ scrollbarWidth: 'none' }}
         >
           {product.images.map((src, i) => (
@@ -169,7 +169,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
               key={i}
               onClick={() => handleThumbClick(i)}
               className={[
-                'relative flex-shrink-0 w-[calc(25%-9px)] rounded-[3px] overflow-hidden transition-all duration-150',
+                'relative flex-shrink-0 w-[58px] rounded-[3px] overflow-hidden transition-all duration-150',
                 activeThumb === i
                   ? 'ring-2 ring-sage-700 ring-offset-1 opacity-100'
                   : 'opacity-60 hover:opacity-100',
