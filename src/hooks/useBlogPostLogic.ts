@@ -21,7 +21,26 @@ export const useBlogPostLogic = (slug: string | undefined, preview = false) => {
     setRelated([])
     setLoading(true)
 
-    // En preview, traemos también borradores (requiere superuser auth).
+    // En preview, intentar cargar desde el localStorage que escribe AdminBlogEditor.
+    if (preview) {
+      try {
+        const raw = localStorage.getItem('__blog_preview__')
+        if (raw) {
+          const draft = JSON.parse(raw) as Record<string, unknown>
+          if (draft.slug === slug) {
+            const base = rowToPost(draft)
+            setPost({
+              ...base,
+              bodyJson: (draft.body as JSONContent) ?? null,
+              isoDate:  draft.date as string,
+            })
+            setLoading(false)
+            return
+          }
+        }
+      } catch { /* continúa al fetch normal */ }
+    }
+
     const filter = preview ? `slug = "${slug}"` : `slug = "${slug}" && published = true`
     pb.collection('blog_posts')
       .getFirstListItem(filter, { requestKey: null })
@@ -35,9 +54,9 @@ export const useBlogPostLogic = (slug: string | undefined, preview = false) => {
 
         const relSlugs = (data.related as string[]) ?? []
         if (relSlugs.length > 0) {
-          const filter = relSlugs.map((s) => `slug = "${s}"`).join(' || ')
+          const relFilter = relSlugs.map((s) => `slug = "${s}"`).join(' || ')
           const relData = await pb.collection('blog_posts').getFullList({
-            filter: `(${filter}) && published = true`,
+            filter: `(${relFilter}) && published = true`,
             fields: 'slug,title,subtitle,category,date,reading_time,cover_image,related',
             requestKey: null,
           })

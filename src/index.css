@@ -8,6 +8,24 @@
     --line: rgba(44, 44, 44, 0.12);
     --line-soft: rgba(44, 44, 44, 0.06);
     --header-h: 72px;
+
+    /* Design tokens (paleta) — usados por estilos inline del admin y toasts.
+       Antes solo existían en design_handoff_nh/styles.css (no importado),
+       por eso var(--sage-700) sin fallback resolvía a transparente. */
+    --cream-50: #fdfcfb;
+    --cream-100: #faf6f0;
+    --cream-200: #f5efe6;
+    --cream-300: #ede4d5;
+    --taupe-300: #d4c5b0;
+    --taupe-500: #b8a898;
+    --taupe-700: #8a7a6a;
+    --sage-200: #c8d5b9;
+    --sage-400: #9bb89f;
+    --sage-500: #7a9e7e;
+    --sage-700: #4a7c59;
+    --sage-900: #2f4a37;
+    --ink: #2c2c2c;
+    --ink-soft: #5a5350;
   }
   @media (min-width: 768px) {
     :root { --header-h: 80px; }

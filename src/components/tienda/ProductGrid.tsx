@@ -26,7 +26,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   ariaLabel = 'Catálogo filtrado',
 }) => {
   const gridRef = useRef<HTMLDivElement>(null)
-  const mergedGridClassName = ['[column-count:2] md:[column-count:3]', gridClassName]
+  const mergedGridClassName = ['[column-count:2] md:[column-count:3] lg:[column-count:4]', gridClassName]
     .filter(Boolean)
     .join(' ')
 

@@ -25,7 +25,9 @@ export function rowToPost(row: Record<string, unknown>): BlogPost {
     category: row.category as string,
     date:     formatDate(row.date as string),
     reading:  row.reading_time as string,
-    image:    (row.cover_image as string) ?? undefined,
+    image:    row.cover_image
+      ? `${pb.baseUrl}/api/files/blog_posts/${row.id as string}/${row.cover_image as string}`
+      : undefined,
     body:     [],
     related:  (row.related as string[]) ?? [],
   }

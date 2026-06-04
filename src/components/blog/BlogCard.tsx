@@ -18,7 +18,17 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => (
       style={{ boxShadow: '0 1px 2px rgba(44,44,44,0.04), 0 8px 24px rgba(74,124,89,0.06)' }}
     >
       <div className="overflow-hidden transition-transform duration-500 group-hover:scale-105">
-        <BlogPlaceholder aspect="4/5" label={`${post.category} · ${post.date}`} />
+        {post.image ? (
+          <img
+            src={post.image}
+            alt={post.title}
+            className="w-full object-cover"
+            style={{ aspectRatio: '3/2' }}
+            loading="lazy"
+          />
+        ) : (
+          <BlogPlaceholder aspect="3/2" />
+        )}
       </div>
     </div>
 

@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useMemo } from 'react'
 import { useParams, useSearchParams, Link } from 'react-router-dom'
 import { Pen } from 'lucide-react'
-import { NHLeafMark, NHDivider, SchemaMarkup, NHFlower } from '@/components/shared'
+import { NHLeafMark, NHDivider, SEOMeta } from '@/components/shared'
 import BlogCard from '@/components/blog/BlogCard'
 import BlogPlaceholder from '@/components/blog/BlogPlaceholder'
 import { useBlogPostLogic } from '@/hooks/useBlogPostLogic'
@@ -141,6 +141,7 @@ const BlogPost: React.FC = () => {
   }
 
   const articleSchema = {
+    '@type': 'Article',
     headline: post.title,
     description: post.subtitle,
     datePublished: post.date,
@@ -155,7 +156,25 @@ const BlogPost: React.FC = () => {
 
   return (
     <>
-      <SchemaMarkup type="Article" data={articleSchema} />
+      <SEOMeta
+        title={`${post.title} — Natalia Heller`}
+        description={post.subtitle}
+        canonical={`https://tatuajesnaty.com/blog/${post.slug}`}
+        ogType="article"
+        ogImage={post.image}
+        noindex={isPreview}
+        schema={articleSchema}
+      />
+
+      {/* Badge de vista previa */}
+      {isPreview && (
+        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[80] flex items-center gap-2 px-4 py-2 rounded-pill shadow-lg pointer-events-none"
+          style={{ background: 'var(--sage-700, #4a7c59)', color: '#fff', whiteSpace: 'nowrap' }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-white opacity-80 animate-pulse" />
+          <span className="font-mono text-[10px] uppercase tracking-[0.14em]">Vista previa</span>
+        </div>
+      )}
 
       {/* Scroll progress bar */}
       <div

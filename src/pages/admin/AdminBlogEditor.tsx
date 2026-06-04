@@ -24,14 +24,11 @@ interface BlogEditorState {
   reading_time: string
   cover_image: string | null
   body: JSONContent
-  excerpt: string
   tags: string[]
   tagsInput: string
   related: string[]
   relatedInput: string
   published: boolean
-  seo_title: string
-  seo_description: string
   isNew: boolean
   dirty: boolean
   saving: boolean
@@ -42,9 +39,9 @@ function emptyState(): BlogEditorState {
   return {
     id: null, slug: '', title: '', subtitle: '',
     category: 'Estudio', date: TODAY, reading_time: '5 min',
-    cover_image: null, body: EMPTY_BODY, excerpt: '',
+    cover_image: null, body: EMPTY_BODY,
     tags: [], tagsInput: '', related: [], relatedInput: '',
-    published: false, seo_title: '', seo_description: '',
+    published: false,
     isNew: true, dirty: false, saving: false, saveError: null,
   }
 }
@@ -87,6 +84,34 @@ const Field: React.FC<{ label: string; hint?: string; children: React.ReactNode 
     )}
   </div>
 )
+
+// Textarea que envuelve el texto y crece en altura según el contenido.
+// Usado para título y subtítulo: bloquea Enter para evitar saltos de línea
+// (solo wrap visual, una "línea lógica").
+const AutoTextarea: React.FC<
+  React.TextareaHTMLAttributes<HTMLTextAreaElement> & { value: string }
+> = ({ value, className, onKeyDown, ...props }) => {
+  const ref = useRef<HTMLTextAreaElement>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${el.scrollHeight}px`
+  }, [value])
+  return (
+    <textarea
+      ref={ref}
+      rows={1}
+      value={value}
+      className={`resize-none overflow-hidden ${className ?? ''}`}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') e.preventDefault()
+        onKeyDown?.(e)
+      }}
+      {...props}
+    />
+  )
+}
 
 // Upload de imagen de portada
 const CoverImageUploader: React.FC<{
@@ -266,7 +291,7 @@ const AdminBlogEditor: React.FC = () => {
   const [state, setState] = useState<BlogEditorState>(emptyState())
   const { confirmExit } = useUnsavedWarning(state.dirty, 'Tenés cambios sin guardar. ¿Salir igual?')
   const [readingTimeAuto, setReadingTimeAuto] = useState(true)
-  const [mobileTab, setMobileTab] = useState<'contenido' | 'meta' | 'seo'>('contenido')
+  const [mobileTab, setMobileTab] = useState<'contenido' | 'meta'>('contenido')
   const [allPosts, setAllPosts] = useState<PostMeta[]>([])
   const saveRef = useRef<(() => Promise<void>) | null>(null)
 
@@ -276,12 +301,21 @@ const AdminBlogEditor: React.FC = () => {
 
   const openPreview = () => {
     if (!state.slug) {
-      toast.error('Guardá el post primero para ver la vista previa.')
+      toast.error('Escribí un título para poder ver la vista previa.')
       return
     }
-    if (state.dirty) {
-      toast.info('La vista previa muestra la versión guardada — guardá para ver tus últimos cambios.')
-    }
+    localStorage.setItem('__blog_preview__', JSON.stringify({
+      slug:         state.slug,
+      title:        state.title,
+      subtitle:     state.subtitle,
+      category:     state.category,
+      date:         state.date,
+      reading_time: state.reading_time,
+      cover_image:  state.cover_image,
+      body:         state.body,
+      tags:         state.tags,
+      related:      state.related,
+    }))
     window.open(`/blog/${state.slug}?preview=true`, '_blank', 'noopener,noreferrer')
   }
 
@@ -335,14 +369,11 @@ const AdminBlogEditor: React.FC = () => {
         reading_time: (data.reading_time as string) ?? '5 min',
         cover_image: (data.cover_image as string | null) ?? null,
         body: (data.body as JSONContent) ?? EMPTY_BODY,
-        excerpt: (data.excerpt as string) ?? '',
         tags: (data.tags as string[]) ?? [],
         tagsInput: ((data.tags as string[]) ?? []).join(', '),
         related: (data.related as string[]) ?? [],
         relatedInput: ((data.related as string[]) ?? []).join(', '),
         published: (data.published as boolean) ?? false,
-        seo_title: (data.seo_title as string) ?? '',
-        seo_description: (data.seo_description as string) ?? '',
         isNew: false,
         dirty: false,
         saving: false,
@@ -391,12 +422,9 @@ const AdminBlogEditor: React.FC = () => {
       reading_time: state.reading_time,
       cover_image: state.cover_image || null,
       body: state.body,
-      excerpt: state.excerpt,
       tags,
       related,
       published,
-      seo_title: state.seo_title || null,
-      seo_description: state.seo_description || null,
     }
     if (!state.isNew && state.id) payload.id = state.id
 
@@ -488,8 +516,8 @@ const AdminBlogEditor: React.FC = () => {
         className="lg:hidden flex mb-4"
         style={{ borderBottom: '1px solid var(--line-soft)' }}
       >
-        {(['contenido', 'meta', 'seo'] as const).map((tab) => {
-          const label = tab === 'contenido' ? 'Contenido' : tab === 'meta' ? 'Metadatos' : 'SEO'
+        {(['contenido', 'meta'] as const).map((tab) => {
+          const label = tab === 'contenido' ? 'Contenido' : 'Metadatos'
           const active = mobileTab === tab
           return (
             <button
@@ -514,19 +542,24 @@ const AdminBlogEditor: React.FC = () => {
 
         {/* ── Editor principal ── */}
         <div className={`flex-1 min-w-0 flex flex-col gap-4 ${mobileTab !== 'contenido' ? 'hidden lg:flex' : ''}`}>
-          {/* Título prominente */}
+          {/* Título prominente + subtítulo (replican la tipografía publicada) */}
           <div className="flex flex-col gap-1">
-            <input
-              type="text"
+            <AutoTextarea
               value={state.title}
               placeholder="Título del post *"
               onChange={(e) => handleTitleChange(e.target.value)}
               required
-              className="w-full font-display text-[26px] md:text-[32px] text-ink bg-transparent outline-none placeholder:text-ink-soft/40 pb-2"
+              className="w-full font-display text-[26px] md:text-[32px] leading-[1.1] text-ink bg-transparent outline-none placeholder:text-ink-soft/40 pb-2"
               style={{ borderBottom: '1.5px solid var(--line-soft)' }}
             />
+            <AutoTextarea
+              value={state.subtitle}
+              placeholder="Subtítulo / bajada"
+              onChange={(e) => patch('subtitle', e.target.value)}
+              className="w-full font-body text-[18px] md:text-[22px] text-ink-soft bg-transparent outline-none placeholder:text-ink-soft/40 mt-2 leading-[1.5]"
+            />
             {state.slug && (
-              <p className="font-mono text-[10px] text-ink-soft">
+              <p className="font-mono text-[10px] text-ink-soft mt-1">
                 tatuajesnaty.com/blog/<span className="text-ink">{state.slug}</span>
               </p>
             )}
@@ -547,42 +580,19 @@ const AdminBlogEditor: React.FC = () => {
         {/* ── Sidebar de metadatos ── */}
         <div className={`w-full lg:w-[320px] flex-shrink-0 flex flex-col gap-6 ${mobileTab === 'contenido' ? 'hidden lg:flex' : ''}`}>
 
-          {/* Bloque META: visible cuando tab=meta o en desktop */}
-          <div className={mobileTab === 'seo' ? 'hidden lg:contents' : 'lg:contents'}>
-
-          {/* Identificación */}
-          <section className="flex flex-col gap-4">
+          {/* Imagen de portada */}
+          <section className="flex flex-col gap-3">
             <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft">
-              Identificación
+              Imagen de portada
             </p>
-            <Field
-              label={state.isNew ? 'Slug *' : 'Slug · 🔒 fijo'}
-              hint={state.isNew ? 'Se genera desde el título. Solo editable antes del primer guardado.' : 'El slug es la URL del post — no se modifica luego de crear.'}
-            >
-              <input
-                type="text"
-                value={state.slug}
-                disabled={!state.isNew}
-                required={state.isNew}
-                placeholder="mi-primer-post"
-                onChange={(e) => patch('slug', e.target.value.toLowerCase().replace(/\s+/g, '-'))}
-                className={`${inputCls} disabled:opacity-50 disabled:cursor-not-allowed`}
-                style={inputStyle}
-              />
-            </Field>
-            <Field label="Subtítulo / bajada">
-              <input
-                type="text"
-                value={state.subtitle}
-                placeholder="Una frase que resume el post"
-                onChange={(e) => patch('subtitle', e.target.value)}
-                className={inputCls}
-                style={inputStyle}
-              />
-            </Field>
+            <CoverImageUploader
+              url={state.cover_image}
+              onChange={(url) => patch('cover_image', url)}
+            />
           </section>
 
           <div style={{ borderTop: '1px solid var(--line-soft)' }} />
+
 
           {/* Categoría y fecha */}
           <section className="flex flex-col gap-4">
@@ -628,36 +638,6 @@ const AdminBlogEditor: React.FC = () => {
                 />
               </Field>
             </div>
-          </section>
-
-          <div style={{ borderTop: '1px solid var(--line-soft)' }} />
-
-          {/* Imagen de portada */}
-          <section className="flex flex-col gap-3">
-            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft">
-              Imagen de portada
-            </p>
-            <CoverImageUploader
-              url={state.cover_image}
-              onChange={(url) => patch('cover_image', url)}
-            />
-          </section>
-
-          <div style={{ borderTop: '1px solid var(--line-soft)' }} />
-
-          {/* Extracto */}
-          <section className="flex flex-col gap-3">
-            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft">
-              Extracto
-            </p>
-            <textarea
-              value={state.excerpt}
-              rows={3}
-              placeholder="Resumen breve que aparece en la lista del blog…"
-              onChange={(e) => patch('excerpt', e.target.value)}
-              className="font-body text-[13px] text-ink bg-transparent border-b outline-none focus:border-sage-700 py-1.5 transition-colors resize-none w-full"
-              style={{ borderColor: 'var(--line)' }}
-            />
           </section>
 
           <div style={{ borderTop: '1px solid var(--line-soft)' }} />
@@ -716,51 +696,27 @@ const AdminBlogEditor: React.FC = () => {
             )}
           </section>
 
-          </div>{/* /bloque META */}
-
-          {/* Bloque SEO: visible cuando tab=seo o en desktop */}
-          <div className={mobileTab === 'meta' ? 'hidden lg:contents' : 'lg:contents'}>
-
-          <div style={{ borderTop: '1px solid var(--line-soft)' }} />
-
-          {/* SEO */}
+           {/* Identificación */}
           <section className="flex flex-col gap-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft">SEO</p>
-            <Field label="Título SEO" hint="Si está vacío, se usa el título del post.">
+            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft">
+              Identificación
+            </p>
+            <Field
+              label={state.isNew ? 'Slug *' : 'Slug · 🔒 fijo'}
+              hint={state.isNew ? 'Se genera desde el título. Solo editable antes del primer guardado.' : 'El slug es la URL del post — no se modifica luego de crear.'}
+            >
               <input
                 type="text"
-                value={state.seo_title}
-                placeholder={state.title || 'Título del post — NatArt'}
-                onChange={(e) => patch('seo_title', e.target.value)}
-                className={inputCls}
+                value={state.slug}
+                disabled={!state.isNew}
+                required={state.isNew}
+                placeholder="mi-primer-post"
+                onChange={(e) => patch('slug', e.target.value.toLowerCase().replace(/\s+/g, '-'))}
+                className={`${inputCls} disabled:opacity-50 disabled:cursor-not-allowed`}
                 style={inputStyle}
               />
             </Field>
-            <Field label="Descripción SEO" hint="Máximo 160 caracteres.">
-              <textarea
-                value={state.seo_description}
-                rows={3}
-                maxLength={160}
-                placeholder={state.subtitle || state.excerpt || 'Descripción del post…'}
-                onChange={(e) => patch('seo_description', e.target.value)}
-                className="font-body text-[13px] text-ink bg-transparent border-b outline-none focus:border-sage-700 py-1.5 transition-colors resize-none w-full"
-                style={{ borderColor: 'var(--line)' }}
-              />
-              <p
-                className="font-mono text-[10px] text-right"
-                style={{
-                  color:
-                    state.seo_description.length >= 160 ? '#a8503f'
-                    : state.seo_description.length > 140 ? '#a87c3f'
-                    : 'var(--ink-soft)',
-                }}
-              >
-                {state.seo_description.length}/160
-              </p>
-            </Field>
           </section>
-
-          </div>{/* /bloque SEO */}
 
           {/* Estado de publicación (solo lectura — controlado por los botones del header) */}
           <section
