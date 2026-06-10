@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useLayoutEffect, useRef } from 'react'
 import NHLeafMark from '@/components/shared/NHLeafMark'
 import HeroEyebrow from '@/components/shared/HeroEyebrow'

@@ -1,7 +1,0 @@
-export { default as Home } from './Home'
-export { default as Tienda } from './Tienda'
-export { default as ProductDetail } from './ProductDetail'
-export { default as Estudio } from './Estudio'
-export { default as Blog } from './Blog'
-export { default as BlogPost } from './BlogPost'
-export { default as Contacto } from './Contacto'

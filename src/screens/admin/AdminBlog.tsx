@@ -1,6 +1,9 @@
+'use client'
+
 import React, { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { pb } from '@/lib/pocketbase'
+import { triggerRevalidate } from '@/lib/revalidate-client'
 import { useToast } from '@/context/ToastContext'
 import { useTableFilter } from '@/hooks/useTableFilter'
 import StatusBadge from '@/components/admin/shared/StatusBadge'
@@ -29,7 +32,7 @@ function formatDate(raw: string): string {
 }
 
 const AdminBlog: React.FC = () => {
-  const navigate = useNavigate()
+  const router = useRouter()
   const toast = useToast()
   const [rows, setRows] = useState<PostListItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -81,6 +84,7 @@ const AdminBlog: React.FC = () => {
         prev.map((r) => r.id === id ? { ...r, published: !current, toggling: false } : r)
       )
       toast.success(!current ? 'Post publicado' : 'Post movido a borrador')
+      triggerRevalidate('blog_posts')
     } catch (e) {
       setRows((prev) => prev.map((r) => r.id === id ? { ...r, toggling: false } : r))
       toast.error('No se pudo cambiar el estado', { detail: e instanceof Error ? e.message : undefined })
@@ -92,6 +96,7 @@ const AdminBlog: React.FC = () => {
       await pb.collection('blog_posts').delete(id)
       setRows((prev) => prev.filter((r) => r.id !== id))
       toast.success('Post eliminado')
+      triggerRevalidate('blog_posts')
     } catch (e) {
       toast.error('No se pudo eliminar', { detail: e instanceof Error ? e.message : undefined })
     }
@@ -112,7 +117,7 @@ const AdminBlog: React.FC = () => {
         </div>
         <button
           type="button"
-          onClick={() => navigate('/admin/blog/nuevo')}
+          onClick={() => router.push('/admin/blog/nuevo')}
           className="font-mono text-[11px] uppercase tracking-[0.1em] px-4 py-2 rounded-pill border transition-all hover:bg-sage-700 hover:text-cream-50 hover:border-sage-700"
           style={{ borderColor: 'var(--sage-700)', color: 'var(--sage-700)' }}
         >
@@ -193,7 +198,7 @@ const AdminBlog: React.FC = () => {
                 <div className="flex items-center gap-3 justify-end">
                   <button
                     type="button"
-                    onClick={() => navigate(`/admin/blog/${row.id}`)}
+                    onClick={() => router.push(`/admin/blog/${row.id}`)}
                     className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft hover:text-ink transition-colors"
                   >
                     Editar
@@ -231,7 +236,7 @@ const AdminBlog: React.FC = () => {
                   <div className="flex items-center gap-3 flex-wrap">
                     <button
                       type="button"
-                      onClick={() => navigate(`/admin/blog/${row.id}`)}
+                      onClick={() => router.push(`/admin/blog/${row.id}`)}
                       className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink hover:underline"
                     >
                       Editar

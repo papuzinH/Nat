@@ -1,5 +1,7 @@
+'use client'
+
 import React, { useLayoutEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import { useProducts } from '@/hooks/useProducts'
 import { ProductGrid } from '@/components/tienda'
 import { SectionContainer, SectionTitle } from '@/components/shared'
@@ -86,7 +88,7 @@ const FeaturedProductsSection: React.FC = () => {
         </div>
         <Link
           ref={ctaRef}
-          to="/tienda"
+          href="/tienda"
           className="font-mono text-[13px] uppercase tracking-[0.14em] text-ink hover:text-sage-700 transition-colors duration-200 mt-2 shrink-0 hidden md:block"
           style={{ textDecoration: 'none' }}
         >
@@ -130,7 +132,7 @@ const FeaturedProductsSection: React.FC = () => {
 
       <div className="mt-8 text-center md:hidden">
         <Link
-          to="/tienda"
+          href="/tienda"
           className="font-mono text-[13px] uppercase tracking-[0.14em] text-ink hover:text-sage-700 transition-colors duration-200"
           style={{ textDecoration: 'none' }}
         >

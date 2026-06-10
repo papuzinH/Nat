@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import { HeroEyebrow, SectionTitle } from '../shared'
 import { gsap, shouldAnimate } from '@/lib/gsap'

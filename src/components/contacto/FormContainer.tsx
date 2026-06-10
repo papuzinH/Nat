@@ -1,5 +1,7 @@
+'use client'
+
 import React, { useLayoutEffect, useRef } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'next/navigation'
 import { ButtonPrimary, ButtonGhost, NHLeafMark } from '../shared'
 import InputField from './InputField'
 import TopicPills from './TopicPills'
@@ -9,7 +11,7 @@ import { tattoos } from '@/assets/tattoo/mock-data'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 
 const FormContainer: React.FC = () => {
-  const [searchParams] = useSearchParams()
+  const searchParams = useSearchParams()
   const designId = searchParams.get('design')
 
   const selectedDesign = designId

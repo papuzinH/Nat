@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import NHLogo from './NHLogo'
 
 const Footer: React.FC = () => {
@@ -48,7 +48,7 @@ const Footer: React.FC = () => {
                 ].map((item) => (
                   <li key={item.to}>
                     <Link
-                      to={item.to}
+                      href={item.to}
                       className="font-body text-[15px] transition-colors duration-200 hover:text-sage-700"
                       style={{ color: 'var(--ink, #2c2c2c)', textDecoration: 'none' }}
                     >

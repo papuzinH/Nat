@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useLayoutEffect, useRef } from 'react'
 import { ButtonPrimary, SectionContainer, SectionTitle } from '@/components/shared'
 import { gsap, ScrollTrigger, shouldAnimate } from '@/lib/gsap'

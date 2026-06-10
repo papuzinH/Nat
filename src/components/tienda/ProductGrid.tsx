@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useLayoutEffect, useRef } from 'react'
 import { gsap, ScrollTrigger, shouldAnimate } from '@/lib/gsap'
 import { type Product } from '@/data/products'

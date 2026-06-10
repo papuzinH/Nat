@@ -1,6 +1,9 @@
+'use client'
+
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import type { JSONContent } from '@tiptap/core'
 import { pb } from '@/lib/pocketbase'
+import { triggerRevalidate } from '@/lib/revalidate-client'
 import { compressImage } from '@/lib/imageCompression'
 import {
   formatARS,
@@ -790,6 +793,7 @@ const AdminProducts: React.FC = () => {
     setRows((prev) => prev.map((r) => matchRow(r) ? { ...r, dirty: false, saving: false, isNew: false } : r))
     if (row.isNew) setExpanded(row.slug)
     toast.success(row.isNew ? 'Producto creado' : 'Producto actualizado', { detail: row.title })
+    triggerRevalidate('products')
   }
 
   const deleteRow = async (slug: string, title: string) => {
@@ -799,6 +803,7 @@ const AdminProducts: React.FC = () => {
       setRows((prev) => prev.filter((r) => r.slug !== slug))
       if (expanded === slug) setExpanded(null)
       toast.success('Producto eliminado', { detail: title })
+      triggerRevalidate('products')
     } catch (e) {
       toast.error('No se pudo eliminar', { detail: e instanceof Error ? e.message : undefined })
     }

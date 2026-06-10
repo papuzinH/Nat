@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 
 interface NHLogoProps {
   size?: number
@@ -11,7 +11,7 @@ const NHLogo: React.FC<NHLogoProps> = ({ size = 16, onClick }) => {
   const logoHeight = size * 2
   return (
     <Link
-      to="/"
+      href="/"
       onClick={onClick}
       style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}
       aria-label="Natalia Heller — inicio"

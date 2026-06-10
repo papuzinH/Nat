@@ -1,4 +1,7 @@
+'use client'
+
 import React, { useLayoutEffect, useRef } from 'react'
+import Image from 'next/image'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import { formatARS } from '@/data/products'
 import type { CartItem } from '@/context/CartContext'
@@ -61,14 +64,16 @@ const CartItemRow: React.FC<CartItemRowProps> = ({ item, onUpdateQty, onRemove }
       style={{ borderBottom: '1px solid var(--line-soft)', willChange: 'transform, opacity' }}
     >
       <div
-        className="flex-shrink-0 rounded-md overflow-hidden"
+        className="relative flex-shrink-0 rounded-md overflow-hidden"
         style={{ width: 64, height: 64, background: TONE_COLORS['a'] }}
       >
         {item.image ? (
-          <img
+          <Image
             src={item.image}
             alt={item.title}
-            className="w-full h-full object-cover"
+            fill
+            sizes="64px"
+            className="object-cover"
           />
         ) : (
           <div className="w-full h-full" />

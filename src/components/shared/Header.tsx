@@ -1,5 +1,8 @@
+'use client'
+
 import React, { useState, useLayoutEffect, useRef, useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import NHLogo from './NHLogo'
 import { useCart } from '@/context/CartContext'
@@ -13,7 +16,7 @@ const navigationItems = [
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const location = useLocation()
+  const pathname = usePathname()
   const { itemCount, openCart } = useCart()
   const menuPanelRef = useRef<HTMLDivElement>(null)
   const bar1Ref = useRef<SVGLineElement>(null)
@@ -24,7 +27,7 @@ const Header: React.FC = () => {
   const badgeMobileRef = useRef<HTMLSpanElement>(null)
   const prevCountRef = useRef(itemCount)
 
-  const isActive = (path: string) => location.pathname === path
+  const isActive = (path: string) => pathname === path
 
   // Close menu on route change
   const handleNavClick = () => setIsMenuOpen(false)
@@ -145,7 +148,7 @@ const Header: React.FC = () => {
           {navigationItems.map((item) => (
             <Link
               key={item.path}
-              to={item.path}
+              href={item.path}
               className="font-body text-sm pb-1 transition-all duration-200"
               style={{
                 color: isActive(item.path) ? 'var(--sage-900, #2f4a37)' : 'var(--ink, #2c2c2c)',
@@ -277,7 +280,7 @@ const Header: React.FC = () => {
           {navigationItems.map((item) => (
             <Link
               key={item.path}
-              to={item.path}
+              href={item.path}
               onClick={handleNavClick}
               className="font-display text-[24px] font-normal"
               style={{

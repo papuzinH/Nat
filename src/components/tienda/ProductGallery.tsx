@@ -1,4 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
 import { gsap, shouldAnimate } from '@/lib/gsap'
@@ -103,23 +104,23 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
         aria-label={hasImages ? 'Ampliar imagen' : undefined}
       >
         {frameImage ? (
-          <img
+          <Image
             src={frameImage}
             alt={`${product.title} — enmarcado`}
-            loading="eager"
-            fetchPriority="high"
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ display: 'block' }}
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover"
             data-product-main-image
           />
         ) : hasImages ? (
-          <img
+          <Image
             src={displaySrc}
             alt={`${product.title} — ${product.catLabel}`}
-            loading="eager"
-            fetchPriority="high"
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ display: 'block' }}
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover"
             data-product-main-image
           />
         ) : (
@@ -183,12 +184,12 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
                 aspectRatio,
               }}
             >
-              <img
+              <Image
                 src={src}
                 alt={`${product.title} — vista ${i + 1}`}
-                loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ display: 'block' }}
+                fill
+                sizes="58px"
+                className="object-cover"
               />
             </button>
           ))}

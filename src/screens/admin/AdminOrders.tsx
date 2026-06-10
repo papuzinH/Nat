@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useEffect, useMemo, useState } from 'react'
 import { pb } from '@/lib/pocketbase'
 import { formatARS } from '@/data/products'

@@ -1,7 +1,10 @@
+'use client'
+
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import type { JSONContent } from '@tiptap/core'
 import { pb } from '@/lib/pocketbase'
+import { triggerRevalidate } from '@/lib/revalidate-client'
 import TipTapEditor from '@/components/admin/blog/TipTapEditor'
 import { useToast } from '@/context/ToastContext'
 import { useUnsavedWarning } from '@/hooks/useUnsavedWarning'
@@ -284,9 +287,8 @@ function countWordsInDoc(doc: JSONContent): number {
   return total
 }
 
-const AdminBlogEditor: React.FC = () => {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
+const AdminBlogEditor: React.FC<{ id?: string }> = ({ id }) => {
+  const router = useRouter()
   const toast = useToast()
   const [state, setState] = useState<BlogEditorState>(emptyState())
   const { confirmExit } = useUnsavedWarning(state.dirty, 'Tenés cambios sin guardar. ¿Salir igual?')
@@ -296,7 +298,7 @@ const AdminBlogEditor: React.FC = () => {
   const saveRef = useRef<(() => Promise<void>) | null>(null)
 
   const goBack = () => {
-    if (confirmExit()) navigate('/admin/blog')
+    if (confirmExit()) router.push('/admin/blog')
   }
 
   const openPreview = () => {
@@ -316,7 +318,7 @@ const AdminBlogEditor: React.FC = () => {
       tags:         state.tags,
       related:      state.related,
     }))
-    window.open(`/blog/${state.slug}?preview=true`, '_blank', 'noopener,noreferrer')
+    window.open(`/blog/${state.slug}/preview`, '_blank', 'noopener,noreferrer')
   }
 
   // Autocalcular reading_time desde el body
@@ -438,8 +440,9 @@ const AdminBlogEditor: React.FC = () => {
         recordId = record.id
       }
       setState((prev) => ({ ...prev, id: recordId, isNew: false, published, dirty: false, saving: false, saveError: null }))
-      if (!id) navigate(`/admin/blog/${recordId}`, { replace: true })
+      if (!id) router.replace(`/admin/blog/${recordId}`)
       toast.success(published ? 'Post publicado' : 'Borrador guardado', { detail: state.title })
+      triggerRevalidate('blog_posts')
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Error al guardar'
       setState((prev) => ({ ...prev, saving: false, saveError: msg }))

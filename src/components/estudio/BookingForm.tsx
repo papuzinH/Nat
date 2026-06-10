@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import { useBookingForm } from '@/hooks/useBookingForm'
 import NHLeafMark from '@/components/shared/NHLeafMark'

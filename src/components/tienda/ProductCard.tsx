@@ -1,5 +1,9 @@
+'use client'
+
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { type Product, formatARS } from '@/data/products'
 import { useCart } from '@/context/CartContext'
 import ProductImagePlaceholder from './ProductImagePlaceholder'
@@ -12,14 +16,14 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) => {
   const { addItem } = useCart()
-  const navigate = useNavigate()
+  const router = useRouter()
   const [toastVisible, setToastVisible] = useState(false)
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     if (product.variants) {
-      navigate(`/tienda/${product.slug}`)
+      router.push(`/tienda/${product.slug}`)
       return
     }
     addItem({
@@ -58,23 +62,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
       </div>
 
       <Link
-        to={`/tienda/${product.slug}`}
+        href={`/tienda/${product.slug}`}
         aria-label={product.title}
         style={{ textDecoration: 'none', display: 'block' }}
       >
         {/* Media */}
         {product.images.length > 0 ? (
-          <img
-            src={product.images[0]}
-            alt={`${product.title} — ${product.catLabel}`}
-            width={400}
-            height={Math.round(400 * product.tall)}
-            loading={priority ? 'eager' : 'lazy'}
-            fetchPriority={priority ? 'high' : 'auto'}
-            decoding={priority ? 'sync' : 'async'}
-            className="w-full object-cover"
-            style={{ display: 'block', aspectRatio: `1 / ${product.tall}` }}
-          />
+          <div className="relative w-full" style={{ aspectRatio: `1 / ${product.tall}` }}>
+            <Image
+              src={product.images[0]}
+              alt={`${product.title} — ${product.catLabel}`}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              priority={priority}
+              className="object-cover"
+            />
+          </div>
         ) : (
           <ProductImagePlaceholder
             tone={product.tone}

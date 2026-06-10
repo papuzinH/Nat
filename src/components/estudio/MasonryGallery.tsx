@@ -1,4 +1,7 @@
+'use client'
+
 import React, { useLayoutEffect, useRef } from 'react'
+import Image from 'next/image'
 import { TATTOO_CARDS } from '@/assets/tattoo/mock-data'
 import type { TatTone } from '@/assets/tattoo/mock-data'
 import { gsap, ScrollTrigger, shouldAnimate } from '@/lib/gsap'
@@ -54,13 +57,15 @@ const MasonryGallery: React.FC = () => {
               style={{ willChange: 'transform' }}
             >
               {card.image ? (
-                <img
-                  src={card.image}
-                  alt={card.kind}
-                  loading="lazy"
-                  className="w-full block"
-                  style={{ aspectRatio: `1 / ${card.tall}`, objectFit: 'cover' }}
-                />
+                <div className="relative w-full" style={{ aspectRatio: `1 / ${card.tall}` }}>
+                  <Image
+                    src={card.image}
+                    alt={card.kind}
+                    fill
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    className="object-cover"
+                  />
+                </div>
               ) : (
                 <div
                   style={{

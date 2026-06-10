@@ -1,5 +1,7 @@
+'use client'
+
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import { pb } from '@/lib/pocketbase'
 import { useProducts } from '@/hooks/useProducts'
 import { formatARS } from '@/data/products'
@@ -47,7 +49,7 @@ const Widget: React.FC<{
     </div>
   )
 
-  if (to) return <Link to={to} className="block">{inner}</Link>
+  if (to) return <Link href={to} className="block">{inner}</Link>
   return inner
 }
 
@@ -152,7 +154,7 @@ const AdminDashboard: React.FC = () => {
       <div>
         <div className="flex items-center justify-between mb-4">
           <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">Últimas órdenes</p>
-          <Link to="/admin/ordenes" className="font-mono text-[10px] uppercase tracking-[0.12em] text-sage-700 hover:underline">
+          <Link href="/admin/ordenes" className="font-mono text-[10px] uppercase tracking-[0.12em] text-sage-700 hover:underline">
             Ver todas →
           </Link>
         </div>
@@ -165,7 +167,7 @@ const AdminDashboard: React.FC = () => {
             {data.recentOrders.map((o, i) => (
               <Link
                 key={o.id}
-                to="/admin/ordenes"
+                href="/admin/ordenes"
                 className="flex items-center justify-between gap-3 px-4 py-3 bg-cream-50 hover:bg-cream-100 transition-colors"
                 style={i > 0 ? { borderTop: '1px solid var(--line-soft)' } : undefined}
               >

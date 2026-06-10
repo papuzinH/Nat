@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useLayoutEffect, useEffect, useRef, useState, useCallback } from 'react'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'

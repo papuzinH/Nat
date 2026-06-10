@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useEffect, useRef } from 'react'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import { useToast, type ToastItem } from '@/context/ToastContext'

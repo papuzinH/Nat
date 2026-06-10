@@ -1,5 +1,6 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import Image from 'next/image'
+import Link from 'next/link'
 import type { BlogPost } from '@/data/blog-posts'
 import BlogPlaceholder from './BlogPlaceholder'
 
@@ -9,7 +10,7 @@ interface BlogCardProps {
 
 const BlogCard: React.FC<BlogCardProps> = ({ post }) => (
   <Link
-    to={`/blog/${post.slug}`}
+    href={`/blog/${post.slug}`}
     className="group block text-inherit no-underline"
     aria-label={`Leer: ${post.title}`}
   >
@@ -19,13 +20,15 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => (
     >
       <div className="overflow-hidden transition-transform duration-500 group-hover:scale-105">
         {post.image ? (
-          <img
-            src={post.image}
-            alt={post.title}
-            className="w-full object-cover"
-            style={{ aspectRatio: '3/2' }}
-            loading="lazy"
-          />
+          <div className="relative w-full" style={{ aspectRatio: '3/2' }}>
+            <Image
+              src={post.image}
+              alt={post.title}
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
+            />
+          </div>
         ) : (
           <BlogPlaceholder aspect="3/2" />
         )}

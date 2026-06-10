@@ -1,17 +1,19 @@
+'use client'
+
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { pb } from '@/lib/pocketbase'
 
 const AdminLogin: React.FC = () => {
-  const navigate = useNavigate()
+  const router = useRouter()
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [error, setError]       = useState<string | null>(null)
   const [loading, setLoading]   = useState(false)
 
   useEffect(() => {
-    if (pb.authStore.isValid) navigate('/admin', { replace: true })
-  }, [navigate])
+    if (pb.authStore.isValid) router.replace('/admin')
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -19,7 +21,7 @@ const AdminLogin: React.FC = () => {
     setLoading(true)
     try {
       await pb.collection('_superusers').authWithPassword(email, password)
-      navigate('/admin', { replace: true })
+      router.replace('/admin')
     } catch {
       setError('Email o contraseña incorrectos.')
     }

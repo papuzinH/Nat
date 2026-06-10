@@ -1,5 +1,8 @@
+'use client'
+
 import React, { useEffect, useMemo, useState } from 'react'
 import { pb } from '@/lib/pocketbase'
+import { triggerRevalidate } from '@/lib/revalidate-client'
 import { useProducts } from '@/hooks/useProducts'
 import { useToast } from '@/context/ToastContext'
 import { useTableFilter } from '@/hooks/useTableFilter'
@@ -96,8 +99,10 @@ const AdminStock: React.FC = () => {
     setRows((prev) =>
       prev.map((r) => (r.slug === slug ? { ...r, dirty: !ok, saving: false } : r))
     )
-    if (ok) toast.success('Stock guardado', { detail: row.title })
-    else toast.error('No se pudo guardar', { detail: row.title })
+    if (ok) {
+      toast.success('Stock guardado', { detail: row.title })
+      triggerRevalidate('products')
+    } else toast.error('No se pudo guardar', { detail: row.title })
   }
 
   const saveAll = async () => {
@@ -122,6 +127,7 @@ const AdminStock: React.FC = () => {
       })
     }
     setBatchSaving(false)
+    if (success > 0) triggerRevalidate('products')
 
     if (failed === 0) toast.success(`${success} producto${success === 1 ? '' : 's'} guardado${success === 1 ? '' : 's'}`)
     else if (success === 0) toast.error(`No se pudo guardar ningún producto (${failed} fallos)`)

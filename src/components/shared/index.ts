@@ -1,10 +1,9 @@
 export { default as Header } from './Header';
 export { default as Footer } from './Footer';
-export { default as Layout } from './Layout';
-export { default as ScrollToTop } from './ScrollToTop';
-export { default as SchemaMarkup } from './SchemaMarkup';
-export { default as GTMTag } from './GTMTag';
-export { default as NoscriptGTM } from './NoscriptGTM';
+// Componentes legacy del stack Vite (Layout, ScrollToTop, SchemaMarkup, GTMTag,
+// NoscriptGTM, SEOMeta) reemplazados en la migración a Next y removidos del
+// barrel para no arrastrar hooks/react-router a contextos server. Se eliminan
+// definitivamente en el cutover (Wave 10).
 export { default as NHLeafMark } from './NHLeafMark';
 export { default as NHDivider } from './NHDivider';
 export { default as NHSprig } from './NHSprig';
@@ -17,5 +16,3 @@ export { default as ButtonPrimary } from './ButtonPrimary';
 export { default as ButtonGhost } from './ButtonGhost';
 export { default as SectionContainer } from './SectionContainer';
 export { default as NHFlower } from './NHFlower';
-export { default as SEOMeta } from './SEOMeta';
-export type { SEOMetaProps } from './SEOMeta';

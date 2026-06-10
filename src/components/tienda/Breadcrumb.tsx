@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 
 interface BreadcrumbItem {
   label: string
@@ -22,7 +22,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items }) => {
             {i > 0 && <span aria-hidden="true" className="opacity-40">/</span>}
             {item.href ? (
               <Link
-                to={item.href}
+                href={item.href}
                 className="hover:text-sage-700 transition-colors duration-150"
                 style={{ textDecoration: 'none' }}
               >

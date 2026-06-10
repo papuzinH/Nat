@@ -1,3 +1,5 @@
+'use client'
+
 import React, { createContext, useContext, useReducer, useEffect } from 'react'
 
 export interface CartItem {
@@ -19,6 +21,7 @@ interface CartState {
 }
 
 type CartAction =
+  | { type: 'HYDRATE'; items: CartItem[] }
   | { type: 'ADD_ITEM'; payload: Omit<CartItem, 'id' | 'quantity'> }
   | { type: 'REMOVE_ITEM'; id: string }
   | { type: 'UPDATE_QTY'; id: string; quantity: number }
@@ -50,6 +53,8 @@ function makeId(item: Omit<CartItem, 'id' | 'quantity'>): string {
 
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
+    case 'HYDRATE':
+      return { ...state, items: action.items }
     case 'ADD_ITEM': {
       const id = makeId(action.payload)
       const existing = state.items.find((i) => i.id === id)
@@ -89,6 +94,8 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 const STORAGE_KEY = 'nh_cart'
 
 function loadItems(): CartItem[] {
+  // Guard SSR: en el render del servidor no existe sessionStorage.
+  if (typeof window === 'undefined') return []
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY)
     return raw ? (JSON.parse(raw) as CartItem[]) : []
@@ -98,12 +105,25 @@ function loadItems(): CartItem[] {
 }
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Estado inicial vacío en server y en el primer render del cliente (evita
+  // hydration mismatch); se hidrata desde sessionStorage tras montar.
   const [state, dispatch] = useReducer(cartReducer, {
-    items: loadItems(),
+    items: [],
     isOpen: false,
   })
+  const hydratedRef = React.useRef(false)
+
+  // Hidratar el carrito persistido una sola vez, ya en el cliente.
+  useEffect(() => {
+    const stored = loadItems()
+    if (stored.length) dispatch({ type: 'HYDRATE', items: stored })
+    hydratedRef.current = true
+  }, [])
 
   useEffect(() => {
+    // No persistir el estado inicial vacío antes de haber hidratado, para no
+    // pisar el carrito guardado en una recarga.
+    if (!hydratedRef.current) return
     try {
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state.items))
     } catch {

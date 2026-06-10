@@ -1,5 +1,6 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import Image from 'next/image'
+import Link from 'next/link'
 import type { BlogPost } from '@/data/blog-posts'
 import { SectionContainer } from '@/components/shared'
 
@@ -13,16 +14,17 @@ const BlogFeaturedPost: React.FC<BlogFeaturedPostProps> = ({ post, containerRef 
 
   return (
     <SectionContainer ref={containerRef} aria-label="Nota destacada">
-      <Link to={`/blog/${post.slug}`} className="group block no-underline text-inherit">
+      <Link href={`/blog/${post.slug}`} className="group block no-underline text-inherit">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-10 items-stretch">
           <div className="overflow-hidden rounded-card h-[240px] md:h-auto md:min-h-0 md:self-stretch">
             <div className="relative overflow-hidden h-full md:min-h-0">
-              <img
+              <Image
                 src={featuredImage}
                 alt={post.title}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                loading="eager"
-                fetchPriority="high"
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
               />
             </div>
           </div>

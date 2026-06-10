@@ -1,3 +1,4 @@
+import type { StaticImageData } from 'next/image';
 import tat1 from './tat1.jpg';
 import tat2 from './tat2.jpg';
 import tat3 from './tat3.jpg';
@@ -11,7 +12,7 @@ export interface TattooCard {
   tall: number
   label: string
   kind: string
-  image?: string
+  image?: string | StaticImageData
 }
 
 export const TATTOO_CARDS: TattooCard[] = [
@@ -34,7 +35,7 @@ export interface Tattoo {
   id: number;
   slug: string;
   title: string;
-  image: string;
+  image: string | StaticImageData;
   category: string;
   location: string;
   description: string[];

@@ -1,5 +1,7 @@
+'use client'
+
 import React, { useLayoutEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import NHLeafMark from '@/components/shared/NHLeafMark'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 
@@ -87,7 +89,7 @@ const EstudioCTA: React.FC = () => {
       </ul>
 
       <Link
-        to="/estudio/reservar"
+        href="/estudio/reservar"
         className="cta-field inline-flex items-center gap-2 bg-sage-700 text-cream-50 rounded-pill px-6 py-3 font-body text-[14px] hover:bg-sage-900 hover:-translate-y-px transition-all duration-200"
       >
         Cotizar mi tatuaje

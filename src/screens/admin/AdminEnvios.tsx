@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useMemo, useState } from 'react'
 import { useShippingZones, type ShippingZone } from '@/hooks/useShippingZones'
 import { useToast } from '@/context/ToastContext'

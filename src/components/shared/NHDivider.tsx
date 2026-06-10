@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useLayoutEffect, useRef } from 'react'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import NHSprig from './NHSprig'

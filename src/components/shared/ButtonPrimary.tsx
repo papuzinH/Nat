@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 
 interface ButtonPrimaryProps {
   children: React.ReactNode
@@ -39,7 +39,7 @@ const ButtonPrimary: React.FC<ButtonPrimaryProps> = ({
 
   if (to) {
     return (
-      <Link to={to} className={cls} onClick={onClick}>
+      <Link href={to} className={cls} onClick={onClick}>
         {children}
       </Link>
     )

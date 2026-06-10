@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useLayoutEffect, useRef } from 'react'
 import HeroEyebrow from '@/components/shared/HeroEyebrow'
 import HeroTitle from '@/components/shared/HeroTitle'

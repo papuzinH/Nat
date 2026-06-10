@@ -4,10 +4,10 @@
 
 **NatArt** = sitio de **Natalia Heller**, artista plástica y tatuadora, Buenos Aires. Dos universos, un dominio:
 
-1. **Obras artísticas** — portfolio + venta arte original (acuarelas, acrílicos, cerámicas, flores prensadas, gouache, ilustraciones, técnicas mixtas, marcadores, stickers).
-2. **Tattoo Studio** — agenda citas tatuajes personalizados (line art, botánico, minimalista, cover up).
+1. **Obras artísticas / Tienda** — e-commerce de arte original (láminas/giclée, cerámicas, stickers, ilustraciones, técnicas mixtas, etc.) con carrito, checkout y pagos por Mercado Pago.
+2. **Estudio (Tattoo)** — sección del estudio + formulario de reserva de tatuajes (line art, botánico, minimalista, cover up).
 
-> ⚠️ **Enfoque cambiando.** App refactorizando hacia e-commerce artístico con tienda como eje. Este doc refleja estado *previo* a refactorización. Ver `REFACTOR_PLAN.md` para plan completo por waves.
+> La tienda es el eje del producto. El contenido (productos, blog, stock, envíos) vive en **PocketBase** y se administra desde el panel `/admin`.
 
 ---
 
@@ -15,163 +15,137 @@
 
 | Tecnología | Versión | Rol |
 |---|---|---|
-| React | 19.1 | UI framework |
-| Vite | 7.0 | Bundler / dev server |
+| Next.js (App Router, Turbopack) | 16.2 | Framework full-stack (SSR/SSG/ISR + Route Handlers) |
+| React | 19.1 | UI |
 | TypeScript | 5.8 | Tipado estático |
-| React Router DOM | 7.6 | Client-side routing |
 | Tailwind CSS | 3.4 | Estilos utility-first |
-| Framer Motion | 12.23 | Animaciones |
+| PocketBase (SDK) | 0.26 | Backend / DB (`https://nat.lhstudio.com.ar`) |
+| GSAP | 3.x | Animaciones |
+| TipTap | 3.x | Editor rich-text (admin) + render server (`@tiptap/html`) |
 | yet-another-react-lightbox | 3.25 | Galería de imágenes |
-| Google Tag Manager | GTM-WXL45DSC | Analytics / tracking |
+| Mercado Pago + Brevo | — | Pagos + emails transaccionales |
+| Google Tag Manager | GTM-WXL45DSC | Analytics (vía `next/script`) |
 
-> **No es Next.js.** SPA con Vite + React Router. Project instructions mencionan Next.js como stack futuro.
+> **Es Next.js App Router.** Migrado desde Vite + React Router (SPA). Objetivo de la migración: SEO + LCP (HTML indexable por ruta, ISR, `next/image`, JSON-LD en el HTML del servidor). Fuentes vía `next/font/google` (Fraunces / Nunito / JetBrains Mono).
 
 ---
 
 ## Estructura de carpetas
 
 ```
+app/                        # App Router (rutas + layouts + handlers)
+├── layout.tsx              # Root: <html>, fuentes, GTM, providers (Cart/Toast), metadata base
+├── globals.css             # Estilos globales (CSS vars, tokens, directivas Tailwind)
+├── (home)/                 # Grupo: home sin padding-top
+│   ├── layout.tsx          #   Header + main + Footer (sin pt)
+│   └── page.tsx            #   Home (server + JSON-LD)
+├── (site)/                 # Grupo: resto del sitio con pt-18
+│   ├── layout.tsx          #   Header + main pt-18 + Footer
+│   ├── tienda/             #   page (ISR) + [slug] (SSG + generateMetadata + Product JSON-LD)
+│   ├── blog/               #   page (ISR) + [slug] (SSG + Article) + [slug]/preview (admin)
+│   ├── estudio/            #   estudio + estudio/reservar
+│   ├── contacto/
+│   └── checkout/           #   checkout + confirmacion + error (noindex)
+├── admin/                  # Panel (Client Components)
+│   ├── layout.tsx          #   noindex
+│   ├── login/
+│   └── (panel)/            #   layout shell (nav + guard) + dashboard/ordenes/stock/envios/productos/blog
+├── api/                    # Route Handlers (create-mp-preference, mp-webhook, send-booking-email, revalidate)
+├── sitemap.ts              # Sitemap dinámico (ISR)
+└── robots.ts               # robots.txt
+
+proxy.ts                    # Auth de /admin/* (convención Next 16, ex-middleware)
+
 src/
-├── assets/
-│   ├── obras/          # Imágenes de obras (jpg, webp)
-│   │   └── obras-data.ts   # Data mock de categorías y obras
-│   ├── tattoo/
-│   │   ├── mock-data.ts    # Data mock de tatuajes (4 items con SEO)
-│   │   └── tat1-4.jpg
-│   └── *.webp / *.mp4      # Assets hero (videos, fotos)
+├── lib/
+│   ├── pocketbase.ts          # Cliente browser (+ sync cookie pb_auth para el proxy)
+│   ├── pocketbase-server.ts   # Cliente/fetch server con ISR (tags + revalidate)
+│   ├── data/                  # Fetchers server (products, blog) + mappers
+│   ├── seo.ts                 # buildMetadata() (reemplaza SEOMeta/react-helmet)
+│   ├── tiptap.ts              # renderTiptapHtml() (TipTap → HTML server-side)
+│   ├── revalidate-client.ts   # triggerRevalidate(tag) llamado desde el admin
+│   └── gsap.ts, animations.ts, imageCompression.ts
 ├── components/
-│   ├── blog/           # BlogPostCard, PostCard
-│   ├── contacto/       # ContactForm, useContactForm hook
-│   ├── faqs/           # FAQAccordion, FAQSearch, useFAQLogic
-│   ├── home/           # ContentHero, FeaturedPortfolio, HomeFAQ, Instagram, SocialProof
-│   ├── obras/          # CategoryNavigation, ObrasGrid
-│   ├── shared/         # Componentes reutilizables (ver abajo)
-│   ├── sobremi/        # AboutSobreMi, ContentImage
-│   └── tattoo/         # CTATattoo, ContenidoText, StudioCTA, TattooGridList
-├── data/
-│   └── obras.ts        # tiposObras: array con las 9 categorías de obras
-├── hooks/
-│   ├── data-loader.ts
-│   ├── useBlogLogic.ts      # Mock data blog (10 posts) + lógica de navegación
-│   └── useBlogPostLogic.ts
-├── pages/
-│   ├── Home.tsx
-│   ├── Obras.tsx
-│   ├── CategoryPage.tsx     # Página dinámica por slug de categoría
-│   ├── Tattoo.tsx
-│   ├── TattooDetail.tsx     # Detalle por ID de tatuaje
-│   ├── SobreMi.tsx
-│   ├── Blog.tsx
-│   ├── BlogPost.tsx
-│   ├── FAQs.tsx
-│   ├── Contacto.tsx
-│   └── obras-tipos/         # Páginas legacy por tipo (Acrilicos, Acuarelas, etc.)
-└── App.tsx                  # Router principal
+│   ├── shared/   # Header, Footer, NHLogo, Button*, JsonLd, tipografía hero, etc.
+│   ├── home/ tienda/ blog/ estudio/ contacto/ cart/ checkout/
+│   └── admin/    # TipTapEditor, toolbar, modales, tabla shared
+├── context/      # CartContext, ToastContext ('use client')
+├── hooks/        # useProducts, useBlogLogic, useCheckoutForm, useShippingZones, useCategories…
+├── data/         # products.ts (tipos/helpers: formatARS, normalize…), blog-posts.ts (tipos)
+├── screens/admin/ # Pantallas del panel ('use client'), renderizadas por app/admin/**
+└── assets/        # Imágenes/SVG (tattoo mock-data con StaticImageData)
 ```
 
 ---
 
-## Routing
+## Routing (App Router)
 
 ```
-/                   → Home (Header manual, sin Layout wrapper)
-/obras              → Obras (grid de categorías)
-/obras/:slug        → CategoryPage (dinámica por slug)
-/tattoo             → Tattoo (portfolio de tatuajes)
-/tattoo/:id         → TattooDetail
-/sobre-mi           → SobreMi
-/blog               → Blog
-/blog/:slug         → BlogPost
-/faqs               → FAQs
-/contacto           → Contacto
+/                      → (home)/page             Home
+/tienda                → (site)/tienda           Catálogo (ISR)
+/tienda/[slug]         → (site)/tienda/[slug]    Detalle producto (SSG + ISR)
+/estudio               → (site)/estudio
+/estudio/reservar      → (site)/estudio/reservar Form reserva tatuaje
+/blog                  → (site)/blog             Listado (ISR)
+/blog/[slug]           → (site)/blog/[slug]      Post (SSG + ISR)
+/blog/[slug]/preview   → vista previa admin (client, noindex)
+/contacto              → (site)/contacto
+/checkout              → (site)/checkout (+ /confirmacion, /error)  noindex
+/admin                 → admin/(panel)           Dashboard (Client)
+/admin/{ordenes,stock,envios,productos,blog,blog/nuevo,blog/[id]}
+/admin/login           → admin/login
+/api/*                 → Route Handlers
 ```
 
-**Patrón de Layout:** Home usa `<Header />` + `<Home />` directo (sin padding-top). Resto rutas usan `<Layout>` (Header + main `pt-18` + Footer).
+**Render:** páginas públicas de datos = **Server Components con ISR** (`export const revalidate`, `fetch` con `next: { tags, revalidate }`). Las secciones interactivas/animadas son **client islands** (`'use client'`). El panel `/admin` es íntegramente Client Components reutilizando el SDK PocketBase.
+
+**Auth admin:** [proxy.ts](proxy.ts) protege `/admin/:path*` (salvo `/admin/login`) leyendo la cookie `pb_auth` (la sincroniza el cliente en [src/lib/pocketbase.ts](src/lib/pocketbase.ts)). La validación fina del token (`pb.authStore.isValid`) ocurre en el shell del panel.
+
+**Revalidación on-demand:** al guardar/publicar en el admin se llama a `/api/revalidate` ([src/lib/revalidate-client.ts](src/lib/revalidate-client.ts)), que hace `revalidateTag(tag, 'max')` para los tags `products` / `blog_posts`. El endpoint autoriza por secreto **o** token de superuser PocketBase.
 
 ---
 
-## Componentes shared clave
+## SEO / Analytics
 
-| Componente | Descripción |
-|---|---|
-| `Header` | Fixed, transparente → blur on scroll. Nav centrada desktop, hamburger mobile con overlay animado (Framer Motion). Active path `text-green-400 border-b-2`. Logo "N" circular verde. |
-| `Footer` | Adaptive: transparente (`/` y `/contacto`), opaco resto. 3 columnas: Brand, Links, Contacto. |
-| `Layout` | Header + `<main pt-18>` + Footer. `bg-cream-50`. |
-| `HeroSection` | Full-height, video o imagen fondo + overlay `bg-black/40`. SVG wave bottom. |
-| `SchemaMarkup` | Inyecta JSON-LD en `<head>` via `useEffect`. Soporta LocalBusiness, Person, Organization, Article, Product, CollectionPage, etc. |
-| `Button` | Variantes: primary, secondary, outline, ghost. Sizes: small, medium, large. Renderiza como `<button>`, `<Link>` o `<a>`. |
-| `GTMTag` / `NoscriptGTM` | Google Tag Manager (GTM-WXL45DSC). |
-| `ScrollToTop` | Reset scroll en navegación. |
+- **Metadata API** por ruta vía `buildMetadata()` ([src/lib/seo.ts](src/lib/seo.ts)) y `generateMetadata` (title/description/canonical/OG/Twitter). Defaults + `metadataBase` en el root layout.
+- **JSON-LD en el HTML del servidor** vía `<JsonLd>` ([src/components/shared/JsonLd.tsx](src/components/shared/JsonLd.tsx)): ArtGallery (home), Product/BreadcrumbList (producto), Article (post), CollectionPage (listados), etc.
+- **`app/sitemap.ts`** (rutas estáticas + slugs de PocketBase) y **`app/robots.ts`** (`Disallow: /admin, /checkout, /api/`).
+- **`next/image`** en componentes públicos (productos, blog, galería estudio) con `priority`/`sizes` para LCP. Excepciones a propósito: SVG (NHLogo), blob URLs (previews de upload).
+- **GTM** vía `next/script` (`afterInteractive`) en el root layout.
 
 ---
 
-## Design System / Tokens
+## Datos / Backend (PocketBase)
 
-### Paleta de colores (Tailwind custom)
+Colecciones: `products`, `product_stock`, `blog_posts`, `orders`, `shipping_zones`, `media`, `_superusers` (admin). Lectura pública abierta en las colecciones de catálogo/blog para permitir SSG/ISR sin autenticar el server. Las imágenes se sirven desde PocketBase (`remotePatterns` en [next.config.ts](next.config.ts)).
 
-| Token | Uso principal |
-|---|---|
-| `cream-*` | Background base (`cream-50 = #fdfcfb`), bordes, secundarios |
-| `green-*` | Acentos activos, CTAs, hover states (`green-400` = mint/lima) |
-| `brown-*` | Tonos cálidos complementarios |
-| `nude-*` | Variantes muy neutras |
-
-### Tipografía
-
-| Variable | Fuente | Uso |
-|---|---|---|
-| `font-title` | Aboreto (serif) | Headings, logo, nav mobile |
-| `font-body` | Gayathri (sans-serif) | Nav desktop, body copy |
-| `body` default | Lato | Texto general |
-
-Fuentes desde Google Fonts en `index.css`.
+> `src/data/blog-posts.ts` y `src/assets/tattoo/mock-data.ts` aún tienen datos mock (tipos + fallbacks); el contenido real de tienda/blog viene de PocketBase.
 
 ---
 
-## Datos / Estado
+## Flujos clave
 
-**Todo contenido = mock data hardcodeada** — sin CMS ni API externa:
-
-- **Obras:** `src/data/obras.ts` (9 categorías) + `src/assets/obras/obras-data.ts` (obras con detalle por categoría)
-- **Tatuajes:** `src/assets/tattoo/mock-data.ts` (4 tattoos con descripciones SEO-optimizadas)
-- **Blog:** en `src/hooks/useBlogLogic.ts` (10 posts mock)
+- **Carrito/Checkout:** carrito en cliente (CartContext, persistido en sessionStorage). Checkout crea la orden en PocketBase y llama a `/api/create-mp-preference`; redirige a Mercado Pago. `/api/mp-webhook` valida HMAC, actualiza la orden y envía email de confirmación (Brevo).
+- **Reserva tatuaje:** [src/components/estudio](src/components/estudio) → `/api/send-booking-email` (Brevo, con adjuntos de referencia).
+- **Blog:** editor TipTap en admin; render público server-side con `renderTiptapHtml`. Preview de borradores vía `/blog/[slug]/preview` (lee localStorage).
 
 ---
 
-## SEO / Analytics implementado
+## Variables de entorno
 
-- **Schema.org JSON-LD** via `SchemaMarkup` (LocalBusiness en Home, Person en SobreMi)
-- **GTM** integrado (GTM-WXL45DSC) con push a `dataLayer` en submit formulario contacto
-- **GTM event:** `form_submitted_success` con `conversion_value`, `lead_type`, `design_id`
-- **`index.html`** aún tiene título default Vite (`Vite + React + TS`) — pendiente actualizar
-- **`lang="en"`** en `<html>` — debe ser `lang="es"`
-
----
-
-## Formulario de Contacto
-
-Hook `useContactForm`, campos: name, email, phone, consultType, message. Soporta pre-llenado con `designId` / `designTitle` (CTAs desde tattoo detail). Submit simulado, sin endpoint real. Dispara evento GTM al submit.
-
----
-
-## Issues conocidos / Deuda técnica
-
-1. `index.html` — título "Vite + React + TS", sin meta SEO, `lang="en"` → debe ser `lang="es"`
-2. Todo contenido **mock data** — sin CMS, API, Supabase ni backend
-3. **No es Next.js** — stack objetivo Next.js App Router (migración pendiente)
-4. `SchemaMarkup` usa `useEffect` para JSON-LD → no SSR-friendly (relevante migración Next.js)
-5. Blog posts tienen `content: 'Contenido completo...'` — placeholder sin contenido real
-6. Páginas `src/pages/obras-tipos/` (Acrilicos.tsx, Acuarelas.tsx, etc.) parecen rutas legacy sin conexión al router actual
-7. `HeroSection` usa `<video>` sin lazy loading ni placeholder — potencial impacto LCP
-8. Formulario contacto sin endpoint real
+`.env.local` (gitignored). En Vercel deben existir:
+- `NEXT_PUBLIC_POCKETBASE_URL`, `POCKETBASE_URL` (server) — URL de PocketBase
+- `REVALIDATE_SECRET` — revalidación server-to-server (opcional; el admin usa su token PB)
+- `MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET` — Mercado Pago
+- `BREVO_API_KEY`, `BOOKING_*`, `SITE_URL` — emails
+- `PB_ADMIN_EMAIL`, `PB_ADMIN_PASSWORD` — auth admin server (webhook)
 
 ---
 
 ## Contexto de negocio
 
 - **Cliente:** Natalia Heller, Buenos Aires, CABA, Argentina
-- **Dominio:** `tatuajesnaty.com` (referenciado en schema data)
-- **Instagram:** `@nataliaceller_art` (referenciado en schema + footer)
+- **Dominio:** `tatuajesnaty.com`
+- **Instagram:** `@nataliaceller_art` (arte) · `@nat.tatt` (tatuajes)
 - **Teléfono:** +54 9 11 6619-1209
-- **Horarios:** Lun-Vie 10:00-19:00, Sáb 11:00-17:00
-- **Precio estimado:** `$$` (schema priceRange)
+- **Deploy:** Vercel (`framework: nextjs`).

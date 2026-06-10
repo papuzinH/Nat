@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useLayoutEffect, useRef } from 'react'
 import { HeroEyebrow, HeroTitle, HeroSubtitle } from '../shared'
 import { animateHero, splitWords } from '@/lib/animations'

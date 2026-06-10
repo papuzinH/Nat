@@ -1,5 +1,7 @@
+'use client'
+
 import React, { useEffect, useLayoutEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
 import { formatARS } from '@/data/products'
 import { gsap, shouldAnimate } from '@/lib/gsap'
@@ -162,7 +164,7 @@ const CartDrawer: React.FC = () => {
             </svg>
             <p className="font-body text-[14px] text-ink-soft text-center">Tu carrito está vacío.</p>
             <Link
-              to="/tienda"
+              href="/tienda"
               onClick={closeCart}
               className="font-body text-[13px] font-semibold text-sage-700 hover:text-sage-900 underline underline-offset-2 transition-colors"
             >
@@ -192,7 +194,7 @@ const CartDrawer: React.FC = () => {
                 <span className="font-display text-[22px] text-sage-900">{formatARS(subtotal)}</span>
               </div>
               <Link
-                to="/checkout"
+                href="/checkout"
                 onClick={closeCart}
                 className="flex items-center justify-center gap-2 w-full bg-sage-700 hover:bg-sage-900 text-cream-50 font-body font-semibold text-[14px] py-[14px] rounded-pill transition-all duration-[220ms] hover:-translate-y-px"
                 style={{ textDecoration: 'none' }}

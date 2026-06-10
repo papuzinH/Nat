@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState, useLayoutEffect, useRef, useEffect, useCallback } from 'react'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import { animateHero, splitWords } from '@/lib/animations'
