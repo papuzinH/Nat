@@ -4,9 +4,10 @@ import React, { useMemo, useState } from 'react'
 import { useShippingZones, type ShippingZone } from '@/hooks/useShippingZones'
 import { useToast } from '@/context/ToastContext'
 import ConfirmDeleteInline from '@/components/admin/shared/ConfirmDeleteInline'
+import { expandCPInput } from '@/lib/shipping'
 
 const AdminEnvios: React.FC = () => {
-  const { zones, loading, addZone, updateZone, deleteZone, addPostalCode, removePostalCode } = useShippingZones()
+  const { zones, loading, addZone, updateZone, deleteZone, addPostalCodes, removePostalCode } = useShippingZones()
   const toast = useToast()
 
   const [query, setQuery] = useState('')
@@ -33,15 +34,26 @@ const AdminEnvios: React.FC = () => {
   }, [zones, query, onlyActive])
 
   const handleAddCP = async (zoneId: string) => {
-    const code = (newCP[zoneId] ?? '').trim()
-    if (!code) return
+    const raw = (newCP[zoneId] ?? '').trim()
+    if (!raw) return
+    const codes = expandCPInput(raw)
+    if (codes.length === 0) {
+      toast.error('No se reconoció ningún CP válido')
+      return
+    }
     setCpAdding((p) => ({ ...p, [zoneId]: true }))
-    const ok = await addPostalCode(zoneId, code)
+    const res = await addPostalCodes(zoneId, codes)
     setCpAdding((p) => ({ ...p, [zoneId]: false }))
-    if (!ok) toast.error('CP duplicado o error al guardar')
-    else {
-      setNewCP((p) => ({ ...p, [zoneId]: '' }))
-      toast.success(`CP ${code} agregado`)
+    if (!res) {
+      toast.error('Error al guardar los CPs')
+      return
+    }
+    setNewCP((p) => ({ ...p, [zoneId]: '' }))
+    if (res.added === 0) {
+      toast.info(`Sin novedades · ${res.dup} ya estaban cargados`)
+    } else {
+      const dupNote = res.dup > 0 ? ` · ${res.dup} duplicado${res.dup === 1 ? '' : 's'} omitido${res.dup === 1 ? '' : 's'}` : ''
+      toast.success(`${res.added} CP${res.added === 1 ? '' : 's'} agregado${res.added === 1 ? '' : 's'}${dupNote}`)
     }
   }
 
@@ -273,7 +285,7 @@ const AdminEnvios: React.FC = () => {
                       </p>
                     ) : (
                       <div className="flex flex-wrap gap-2 mb-3">
-                        {zone.postal_codes.map((cp) => (
+                        {[...zone.postal_codes].sort((a, b) => a.localeCompare(b, 'es', { numeric: true })).map((cp) => (
                           <span key={cp} className="inline-flex items-center gap-1 font-mono text-[11px] px-2 py-0.5 rounded-pill" style={{ border: '1px solid var(--line)', color: 'var(--ink)' }}>
                             {cp}
                             <button
@@ -289,28 +301,28 @@ const AdminEnvios: React.FC = () => {
                       </div>
                     )}
 
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
+                    <div className="flex items-start gap-2">
+                      <textarea
                         value={newCP[zone.id] ?? ''}
                         onChange={(e) => setNewCP((p) => ({ ...p, [zone.id]: e.target.value.toUpperCase() }))}
-                        onKeyDown={(e) => { if (e.key === 'Enter') handleAddCP(zone.id) }}
-                        placeholder="ej. C1414"
-                        className="w-28 font-mono text-[12px] text-ink bg-transparent border-b outline-none focus:border-sage-700 transition-colors py-0.5"
+                        onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleAddCP(zone.id) }}
+                        placeholder="Pegá varios: 1414, 1416, 1420-1425"
+                        rows={2}
+                        className="flex-1 min-w-0 font-mono text-[12px] text-ink bg-cream-50 border rounded-sm outline-none focus:border-sage-700 transition-colors px-2 py-1.5 resize-y"
                         style={{ borderColor: 'var(--line)' }}
                       />
                       <button
                         type="button"
                         disabled={!newCP[zone.id]?.trim() || !!cpAdding[zone.id]}
                         onClick={() => handleAddCP(zone.id)}
-                        className="font-mono text-[10px] uppercase tracking-[0.1em] px-3 py-1 rounded-pill border transition-all disabled:opacity-30"
+                        className="font-mono text-[10px] uppercase tracking-[0.1em] px-3 py-1.5 rounded-pill border transition-all disabled:opacity-30 self-start"
                         style={{ borderColor: 'var(--sage-700)', color: 'var(--sage-700)' }}
                       >
                         {cpAdding[zone.id] ? '…' : 'Agregar'}
                       </button>
                     </div>
                     <p className="font-mono text-[9px] text-ink-soft uppercase tracking-[0.1em] mt-2">
-                      Formato CPA: C1414, C1425… · Un CP pertenece a una sola zona.
+                      Separá por coma/espacio · rangos con guión (1420-1425) · se guardan los 4 dígitos. Un CP pertenece a una sola zona.
                     </p>
                   </div>
                 )}

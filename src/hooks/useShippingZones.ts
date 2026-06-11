@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { pb } from '@/lib/pocketbase'
+import { normalizeCP } from '@/lib/shipping'
 
 export interface ShippingZone {
   id: string   // PocketBase usa strings (era number en Supabase)
@@ -58,30 +59,47 @@ export function useShippingZones() {
     } catch { return false }
   }
 
-  const addPostalCode = async (zoneId: string, code: string): Promise<boolean> => {
-    const normalized = code.trim().toUpperCase()
-    if (!normalized) return false
+  /**
+   * Agrega varios CPs (ya normalizados a 4 dígitos por `expandCPInput`) a una
+   * zona, deduplicando contra los existentes (también normalizados). Devuelve
+   * cuántos se agregaron y cuántos se omitieron por duplicado, o null si falló.
+   */
+  const addPostalCodes = async (
+    zoneId: string,
+    codes: string[],
+  ): Promise<{ added: number; dup: number } | null> => {
+    const incoming = codes.map(normalizeCP).filter(Boolean)
+    if (incoming.length === 0) return { added: 0, dup: 0 }
     try {
       const zone = await pb.collection('shipping_zones').getOne(zoneId)
-      const codes = [...((zone.postal_codes as string[]) ?? []), normalized]
-      await pb.collection('shipping_zones').update(zoneId, { postal_codes: codes })
-      await fetchZones()
-      return true
-    } catch { return false }
+      const existing = ((zone.postal_codes as string[]) ?? []).map(normalizeCP)
+      const set = new Set(existing)
+      let added = 0
+      let dup = 0
+      for (const cp of incoming) {
+        if (set.has(cp)) dup++
+        else { set.add(cp); added++ }
+      }
+      if (added > 0) {
+        await pb.collection('shipping_zones').update(zoneId, { postal_codes: [...set] })
+        await fetchZones()
+      }
+      return { added, dup }
+    } catch { return null }
   }
 
   const removePostalCode = async (zoneId: string, code: string): Promise<boolean> => {
-    const normalized = code.trim().toUpperCase()
+    const normalized = normalizeCP(code)
     try {
       const zone = await pb.collection('shipping_zones').getOne(zoneId)
-      const codes = ((zone.postal_codes as string[]) ?? []).filter((pc) => pc !== normalized)
+      const codes = ((zone.postal_codes as string[]) ?? []).map(normalizeCP).filter((pc) => pc !== normalized)
       await pb.collection('shipping_zones').update(zoneId, { postal_codes: codes })
       await fetchZones()
       return true
     } catch { return false }
   }
 
-  return { zones, loading, addZone, updateZone, deleteZone, addPostalCode, removePostalCode }
+  return { zones, loading, addZone, updateZone, deleteZone, addPostalCodes, removePostalCode }
 }
 
 export function usePublicShippingZones() {

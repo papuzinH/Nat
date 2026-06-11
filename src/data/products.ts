@@ -129,6 +129,15 @@ export function getVariantPrice(product: Product, label: string | null): number 
   return variant.price ?? product.basePrice
 }
 
+/**
+ * Precio unitario de un producto para un tamaño/variante y marco dados.
+ * Fuente única de verdad compartida entre el cliente (carrito/ficha) y el
+ * servidor (validación de precios en el checkout). Combina variante + marco.
+ */
+export function computeUnitPrice(product: Product, size: string | null, hasFrame: boolean): number {
+  return getVariantPrice(product, size) + (hasFrame ? getFramePrice(product, size) : 0)
+}
+
 export function formatARS(price: number): string {
   return new Intl.NumberFormat('es-AR', {
     style: 'currency',

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { pbAdminToken, fetchOrder } from '@/lib/pb-admin'
 
 interface OrderItem {
   product_slug: string
@@ -9,22 +10,36 @@ interface OrderItem {
   quantity: number
 }
 
-interface Payload {
-  orderId: string
-  customer: { name: string; email: string; phone: string }
-  delivery: { mode: string; zoneName: string }
-  items: OrderItem[]
-  shippingCost: number
-}
-
 export async function POST(req: Request) {
-  const payload = (await req.json()) as Payload
+  let payload: { orderId?: string }
+  try {
+    payload = (await req.json()) as { orderId?: string }
+  } catch {
+    return NextResponse.json({ error: 'bad_request' }, { status: 400 })
+  }
   const token = process.env.MP_ACCESS_TOKEN
   if (!token) {
     return NextResponse.json({ error: 'mp_not_configured' }, { status: 500 })
   }
+  if (!payload.orderId) {
+    return NextResponse.json({ error: 'bad_request' }, { status: 400 })
+  }
 
-  const mpItems = payload.items.map((item) => ({
+  // El monto a cobrar sale de la orden guardada en el servidor (autoridad de
+  // precios), nunca de valores enviados por el cliente.
+  const adminToken = await pbAdminToken()
+  if (!adminToken) {
+    return NextResponse.json({ error: 'pb_unavailable' }, { status: 503 })
+  }
+  const order = await fetchOrder(payload.orderId, adminToken)
+  if (!order) {
+    return NextResponse.json({ error: 'order_not_found' }, { status: 404 })
+  }
+
+  const orderItems = (order.items as OrderItem[] | undefined) ?? []
+  const shippingCost = Number(order.shipping_cost ?? 0)
+
+  const mpItems = orderItems.map((item) => ({
     id: item.product_slug,
     title: [item.product_title, item.selected_size, item.has_frame ? 'con marco' : null]
       .filter(Boolean)
@@ -34,12 +49,12 @@ export async function POST(req: Request) {
     currency_id: 'ARS',
   }))
 
-  if (payload.shippingCost > 0) {
+  if (shippingCost > 0) {
     mpItems.push({
       id: 'envio',
-      title: `Costo de envío${payload.delivery.zoneName ? ` – ${payload.delivery.zoneName}` : ''}`,
+      title: 'Costo de envío',
       quantity: 1,
-      unit_price: payload.shippingCost,
+      unit_price: shippingCost,
       currency_id: 'ARS',
     })
   }
@@ -50,9 +65,9 @@ export async function POST(req: Request) {
   const preference = {
     items: mpItems,
     payer: {
-      name: payload.customer.name,
-      email: payload.customer.email,
-      phone: { number: payload.customer.phone },
+      name: String(order.customer_name ?? ''),
+      email: String(order.customer_email ?? ''),
+      phone: { number: String(order.customer_phone ?? '') },
     },
     back_urls: {
       success: `${siteUrl}/checkout/confirmacion?order=${payload.orderId}`,

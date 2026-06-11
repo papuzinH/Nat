@@ -37,6 +37,7 @@ export default {
         // Tokens semánticos para estados (badges de orden, blog, stock). Verificados WCAG AA.
         status: {
           pendingBg:    '#f5efe6', pendingFg:    '#7a5a2c',
+          awaitingBg:   '#eae6f2', awaitingFg:   '#4a3a72',
           paidBg:       '#e6f0eb', paidFg:       '#3a5f48',
           prepBg:       '#eaf0f5', prepFg:       '#2f5a78',
           shippedBg:    '#f0eaf5', shippedFg:    '#5a347a',

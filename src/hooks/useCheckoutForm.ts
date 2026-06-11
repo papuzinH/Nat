@@ -11,6 +11,8 @@ export interface CheckoutFields {
   zoneId: string | null
   zoneName: string
   zonePrice: number
+  /** El CP no cae en ninguna zona con tarifa fija → el envío se coordina aparte. */
+  shippingCoordinate: boolean
   deliveryDay: string
   paymentMethod: 'mercadopago' | 'transferencia' | ''
 }
@@ -41,6 +43,7 @@ const INITIAL: CheckoutFields = {
   zoneId: null as string | null,
   zoneName: '',
   zonePrice: 0,
+  shippingCoordinate: false,
   deliveryDay: '',
   paymentMethod: '',
 }
@@ -56,7 +59,8 @@ function validate(fields: CheckoutFields): CheckoutErrors {
     if (!fields.street.trim()) e.street = 'La dirección es requerida'
     if (!fields.city.trim()) e.city = 'La localidad es requerida'
     if (!fields.postalCode.trim()) e.postalCode = 'El código postal es requerido'
-    if (!fields.zoneId) e.zoneId = 'Seleccioná Retiro en persona o ingresá un código postal de CABA'
+    // El envío está "resuelto" si hay zona con tarifa o si se coordina aparte.
+    else if (!fields.zoneId && !fields.shippingCoordinate) e.zoneId = 'Ingresá un código postal válido'
     if (!fields.deliveryDay) e.deliveryDay = 'Seleccioná el día de entrega preferido'
   }
   if (!fields.paymentMethod) e.paymentMethod = 'Seleccioná un método de pago'

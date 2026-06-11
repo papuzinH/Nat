@@ -1,14 +1,34 @@
 'use client'
 
-import React, { useEffect, useLayoutEffect, useRef } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
 import { formatARS } from '@/data/products'
 import { gsap, shouldAnimate } from '@/lib/gsap'
+import { usePublicShippingZones } from '@/hooks/useShippingZones'
+import { matchZone, normalizeCP } from '@/lib/shipping'
 import CartItemRow from './CartItemRow'
 
 const CartDrawer: React.FC = () => {
   const { items, isOpen, itemCount, subtotal, removeItem, updateQty, closeCart } = useCart()
+  const { zones } = usePublicShippingZones()
+
+  // Estimador de envío: el CP se persiste en sessionStorage para prellenar el checkout.
+  const [cp, setCp] = useState('')
+  useEffect(() => {
+    const saved = typeof window !== 'undefined' ? window.sessionStorage.getItem('checkout_cp') : null
+    if (saved) setCp(saved)
+  }, [])
+  const onCpChange = (value: string) => {
+    setCp(value)
+    if (typeof window === 'undefined') return
+    const norm = normalizeCP(value)
+    if (norm.length === 4) window.sessionStorage.setItem('checkout_cp', norm)
+    else window.sessionStorage.removeItem('checkout_cp')
+  }
+  const cpReady = normalizeCP(cp).length === 4
+  const matchedZone = cpReady ? matchZone(cp, zones) : null
+  const estTotal = subtotal + (matchedZone ? matchedZone.price : 0)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
@@ -189,10 +209,52 @@ const CartDrawer: React.FC = () => {
               className="flex-shrink-0 px-6 py-5"
               style={{ borderTop: '1px solid var(--line-soft)' }}
             >
-              <div className="flex justify-between items-baseline mb-5">
-                <span className="font-body text-[14px] text-ink-soft">Total estimado</span>
-                <span className="font-display text-[22px] text-sage-900">{formatARS(subtotal)}</span>
+              {/* Estimador de envío */}
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <label htmlFor="cart-cp" className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft whitespace-nowrap">
+                  Calculá tu envío
+                </label>
+                <input
+                  id="cart-cp"
+                  type="text"
+                  inputMode="numeric"
+                  value={cp}
+                  onChange={(e) => onCpChange(e.target.value)}
+                  placeholder="Tu CP"
+                  aria-label="Tu código postal"
+                  className="w-24 font-mono text-[12px] text-ink bg-cream-100 border rounded-sm px-2 py-1.5 outline-none focus:border-sage-700 transition-colors text-center"
+                  style={{ borderColor: 'var(--line)' }}
+                />
               </div>
+
+              <div className="flex flex-col gap-1.5 mb-4">
+                <div className="flex justify-between items-baseline">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">Subtotal</span>
+                  <span className="font-body text-[13px] text-ink">{formatARS(subtotal)}</span>
+                </div>
+                {cpReady && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">
+                      {matchedZone ? `Envío · ${matchedZone.name}` : 'Envío'}
+                    </span>
+                    <span className="font-body text-[13px] text-ink">
+                      {matchedZone
+                        ? (matchedZone.price > 0 ? formatARS(matchedZone.price) : 'Gratis')
+                        : 'A coordinar'}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline pt-2" style={{ borderTop: '1px solid var(--line-soft)' }}>
+                  <span className="font-mono text-[12px] uppercase tracking-[0.12em] text-ink font-semibold">Total</span>
+                  <span className="font-display text-[22px] text-sage-900">{formatARS(estTotal)}</span>
+                </div>
+                {!cpReady && (
+                  <p className="font-mono text-[9px] text-ink-soft uppercase tracking-[0.1em]">
+                    Ingresá tu CP para estimar el envío · Retiro gratis
+                  </p>
+                )}
+              </div>
+
               <Link
                 href="/checkout"
                 onClick={closeCart}
@@ -201,9 +263,6 @@ const CartDrawer: React.FC = () => {
               >
                 Proceder al pago
               </Link>
-              <p className="font-mono text-[10px] text-ink-soft text-center mt-3 uppercase tracking-[0.1em]">
-                A domicilio - Retiro en persona
-              </p>
             </div>
           </>
         )}

@@ -2,6 +2,7 @@ import React from 'react'
 
 export type StatusTone =
   | 'pending'
+  | 'awaiting'
   | 'paid'
   | 'prep'
   | 'shipped'
@@ -14,6 +15,7 @@ export type StatusTone =
 
 const TONE_CLASSES: Record<StatusTone, string> = {
   pending:   'bg-status-pendingBg text-status-pendingFg',
+  awaiting:  'bg-status-awaitingBg text-status-awaitingFg',
   paid:      'bg-status-paidBg text-status-paidFg',
   prep:      'bg-status-prepBg text-status-prepFg',
   shipped:   'bg-status-shippedBg text-status-shippedFg',
@@ -38,14 +40,5 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ tone, children, className = '
     {children}
   </span>
 )
-
-export const ORDER_STATUS_TONE: Record<string, StatusTone> = {
-  pendiente:        'pending',
-  pagado:           'paid',
-  'en-preparacion': 'prep',
-  enviado:          'shipped',
-  entregado:        'delivered',
-  cancelado:        'cancelled',
-}
 
 export default StatusBadge

@@ -2,26 +2,14 @@
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCart } from '@/context/CartContext'
 import { formatARS } from '@/data/products'
 import InputField from '@/components/contacto/InputField'
 import { useCheckoutForm } from '@/hooks/useCheckoutForm'
 import { usePublicShippingZones } from '@/hooks/useShippingZones'
-import { pb } from '@/lib/pocketbase'
 import { gsap, shouldAnimate } from '@/lib/gsap'
-
-function normalizeCP(cp: string): string {
-  return cp.trim().toUpperCase()
-}
-
-function isCABA(cp: string): boolean {
-  const s = normalizeCP(cp)
-  if (/^C\d{4}/.test(s)) return true
-  const n = parseInt(s, 10)
-  return /^\d{4}$/.test(s) && n >= 1000 && n <= 1499
-}
+import { isCABA, matchZone } from '@/lib/shipping'
 
 const STUDIO_ADDRESS = 'Parque Chacabuco, CABA. Nos pondremos en contacto para coordinar una vez confirmada la compra!'
 
@@ -44,47 +32,48 @@ const CheckoutContent: React.FC = () => {
   const router = useRouter()
   const { items, subtotal, clearCart } = useCart()
   const { fields, errors, update, updateMany, submit } = useCheckoutForm()
-  const [confirmed, setConfirmed] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [stockError, setStockError] = useState<string | null>(null)
   const firstErrorRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const successRef = useRef<HTMLDivElement>(null)
   const { zones, loading: zonesLoading } = usePublicShippingZones()
 
   // Carrito vacío → volver a la tienda (reemplaza <Navigate> de react-router).
+  // Al confirmar, la navegación se hace con window.location.href, que gana la
+  // carrera contra este efecto (mismo patrón que el flujo de Mercado Pago).
   useEffect(() => {
-    if (items.length === 0 && !confirmed) router.replace('/tienda')
-  }, [items.length, confirmed, router])
+    if (items.length === 0) router.replace('/tienda')
+  }, [items.length, router])
+
+  // Prefill del CP estimado en el carrito (continuidad carrito → checkout).
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const saved = window.sessionStorage.getItem('checkout_cp')
+    if (saved) updateMany({ postalCode: saved, deliveryMode: 'envio' })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (fields.deliveryMode !== 'envio' || !fields.postalCode) {
       if (fields.deliveryMode !== 'envio') {
-        updateMany({ zoneId: null, zoneName: '', zonePrice: 0 })
+        updateMany({ zoneId: null, zoneName: '', zonePrice: 0, shippingCoordinate: false })
       }
       return
     }
-    const cp = normalizeCP(fields.postalCode)
-    const matched = zones.find(
-      (z) => z.active && z.postal_codes.some((pc) => normalizeCP(pc) === cp)
-    )
-    updateMany({
-      zoneId: matched?.id ?? null,
-      zoneName: matched?.name ?? '',
-      zonePrice: matched?.price ?? 0,
-    })
+    const matched = matchZone(fields.postalCode, zones)
+    if (matched) {
+      updateMany({ zoneId: matched.id, zoneName: matched.name, zonePrice: matched.price, shippingCoordinate: false })
+    } else {
+      // CP sin tarifa fija (fuera de CABA o CABA sin zona): se coordina aparte.
+      updateMany({ zoneId: null, zoneName: 'A coordinar', zonePrice: 0, shippingCoordinate: true })
+    }
   }, [fields.postalCode, fields.deliveryMode, zones])  // eslint-disable-line react-hooks/exhaustive-deps
 
-  const cpStatus: 'empty' | 'loading' | 'not-caba' | 'no-zone' | 'matched' = (() => {
+  const cpStatus: 'empty' | 'loading' | 'matched' | 'coordinate' = (() => {
     if (fields.deliveryMode !== 'envio') return 'empty'
     const cp = fields.postalCode ?? ''
     if (cp.length < 4) return 'empty'
     if (zonesLoading) return 'loading'
-    if (!isCABA(cp)) return 'not-caba'
-    const matched = zones.find(
-      (z) => z.active && z.postal_codes.some((pc) => normalizeCP(pc) === normalizeCP(cp))
-    )
-    return matched ? 'matched' : 'no-zone'
+    return matchZone(cp, zones) ? 'matched' : 'coordinate'
   })()
 
   const shippingCost = fields.deliveryMode === 'envio' ? (fields.zonePrice ?? 0) : 0
@@ -92,7 +81,7 @@ const CheckoutContent: React.FC = () => {
 
   useLayoutEffect(() => {
     const container = containerRef.current
-    if (!container || confirmed || !shouldAnimate()) return
+    if (!container || !shouldAnimate()) return
     const ctx = gsap.context(() => {
       const heading = container.querySelector('.checkout-heading')
       const sections = gsap.utils.toArray<HTMLElement>('.checkout-section')
@@ -109,27 +98,9 @@ const CheckoutContent: React.FC = () => {
       if (cta) tl.fromTo(cta, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.45 }, '-=0.3')
     }, container)
     return () => ctx.revert()
-  }, [confirmed])
+  }, [])
 
-  useLayoutEffect(() => {
-    const success = successRef.current
-    if (!confirmed || !success || !shouldAnimate()) return
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        success,
-        { opacity: 0, y: 20, scale: 0.98 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'power3.out' }
-      )
-      gsap.fromTo(
-        success.children,
-        { opacity: 0, y: 12 },
-        { opacity: 1, y: 0, duration: 0.45, stagger: 0.08, ease: 'power2.out', delay: 0.15 }
-      )
-    }, success)
-    return () => ctx.revert()
-  }, [confirmed])
-
-  if (items.length === 0 && !confirmed) return null
+  if (items.length === 0) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -141,68 +112,54 @@ const CheckoutContent: React.FC = () => {
     setSubmitting(true)
     setStockError(null)
 
-    const p_items = items.map((item) => ({
-      product_slug:  item.slug,
-      product_title: item.title,
-      selected_size: item.selectedSize ?? null,
-      has_frame:     item.hasFrame,
-      unit_price:    item.unitPrice,
-      quantity:      item.quantity,
-    }))
-
-    const basePayload = {
+    // El cliente sólo manda QUÉ productos; el servidor recalcula precios y
+    // crea la orden (autoridad de precios). Nada de montos desde el cliente.
+    const orderPayload = {
       customer: { name: fields.name, email: fields.email, phone: fields.phone },
       delivery: {
         mode:        fields.deliveryMode,
         street:      fields.street,
         city:        fields.city,
         postalCode:  fields.postalCode,
-        zoneName:    fields.zoneName,
         deliveryDay: fields.deliveryDay,
       },
-      items:        p_items,
-      shippingCost: shippingCost,
-      total:        grandTotal,
+      paymentMethod: fields.paymentMethod,
+      items: items.map((item) => ({
+        slug:         item.slug,
+        selectedSize: item.selectedSize ?? null,
+        hasFrame:     item.hasFrame,
+        frameColor:   item.frameColor,
+        quantity:     item.quantity,
+      })),
+    }
+
+    let orderId: string
+    let uploadToken: string
+    try {
+      const res = await fetch('/api/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderPayload),
+      })
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string }
+        throw new Error(data.error ?? 'Error al procesar el pedido. Intentá de nuevo.')
+      }
+      const data = (await res.json()) as { orderId: string; uploadToken: string }
+      orderId = data.orderId
+      uploadToken = data.uploadToken
+    } catch (err) {
+      setSubmitting(false)
+      setStockError(err instanceof Error ? err.message : 'Error al procesar el pedido. Intentá de nuevo.')
+      return
     }
 
     // ── Mercado Pago ────────────────────────────────────────────────
     if (fields.paymentMethod === 'mercadopago') {
-      let orderId: string
-      try {
-        const order = await pb.collection('orders').create({
-          status:         'pendiente',
-          customer_name:  fields.name,
-          customer_email: fields.email,
-          customer_phone: fields.phone,
-          delivery_mode:  fields.deliveryMode,
-          street:         fields.street   || '',
-          city:           fields.city     || '',
-          postal_code:    fields.postalCode || '',
-          payment_method: 'mercadopago',
-          shipping_cost:  shippingCost,
-          total:          grandTotal,
-          items:          p_items,
-        })
-        orderId = order.id
-
-        for (const item of p_items) {
-          try {
-            const s = await pb.collection('product_stock').getFirstListItem(`slug = "${item.product_slug}"`)
-            if (s.stock !== null) {
-              await pb.collection('product_stock').update(s.id, { stock: Math.max(0, s.stock - item.quantity) })
-            }
-          } catch {}
-        }
-      } catch {
-        setSubmitting(false)
-        setStockError('Error al procesar el pedido. Intentá de nuevo.')
-        return
-      }
-
       const mpRes = await fetch('/api/create-mp-preference', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...basePayload, orderId }),
+        body: JSON.stringify({ orderId }),
       })
       const data = mpRes.ok ? (await mpRes.json() as { initPoint?: string }) : null
 
@@ -219,91 +176,17 @@ const CheckoutContent: React.FC = () => {
     }
 
     // ── Transferencia bancaria ──────────────────────────────────────
-    try {
-      await pb.collection('orders').create({
-        status:         'pendiente',
-        customer_name:  fields.name,
-        customer_email: fields.email,
-        customer_phone: fields.phone,
-        delivery_mode:  fields.deliveryMode,
-        street:         fields.street   || '',
-        city:           fields.city     || '',
-        postal_code:    fields.postalCode || '',
-        payment_method: 'transferencia',
-        shipping_cost:  shippingCost,
-        total:          grandTotal,
-        items:          p_items,
-      })
+    // Email de respaldo con los datos bancarios (best-effort; keepalive para
+    // que sobreviva a la navegación que sigue).
+    void fetch('/api/send-order-pending-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId }),
+      keepalive: true,
+    }).catch(() => {})
 
-      for (const item of p_items) {
-        try {
-          const s = await pb.collection('product_stock').getFirstListItem(`slug = "${item.product_slug}"`)
-          if (s.stock !== null) {
-            await pb.collection('product_stock').update(s.id, { stock: Math.max(0, s.stock - item.quantity) })
-          }
-        } catch {}
-      }
-    } catch {
-      setSubmitting(false)
-      setStockError('Error al procesar el pedido. Intentá de nuevo.')
-      return
-    }
-
-    setSubmitting(false)
     clearCart()
-    setConfirmed(true)
-  }
-
-  if (confirmed) {
-    return (
-      <main className="min-h-screen bg-cream-50 flex items-center justify-center px-6">
-        <div ref={successRef} className="max-w-md text-center">
-          <div
-            className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-6"
-            style={{ background: 'var(--sage-200, #c8dcd0)' }}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--sage-700, #4a7c59)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-          </div>
-          <h1 className="font-display text-[28px] text-ink font-normal mb-3">
-            ¡Pedido recibido!
-          </h1>
-          <p className="font-body text-[15px] text-ink-soft leading-relaxed mb-8">
-            Natalia se va a comunicar con vos a la brevedad para coordinar el pago y el envío.
-            Gracias por tu compra.
-          </p>
-          <div
-            className="mt-8 p-6 rounded-sm text-left"
-            style={{ background: 'var(--cream-200, #f5efe6)', border: '1px solid var(--line-soft)' }}
-          >
-            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft mb-4">
-              Datos para la transferencia
-            </p>
-            {[
-              ['Alias',    'natalia.arte'],
-              ['CBU',      '0000003100062588008793'],
-              ['Titular',  'Natalia Heller'],
-            ].map(([label, value]) => (
-              <div key={label} className="flex justify-between py-2" style={{ borderBottom: '1px solid var(--line-soft)' }}>
-                <span className="font-mono text-[11px] text-ink-soft">{label}</span>
-                <span className="font-body text-[13px] text-ink font-semibold">{value}</span>
-              </div>
-            ))}
-            <p className="font-body text-[13px] text-ink-soft mt-4 leading-relaxed">
-              Una vez que realices la transferencia, te confirmamos el pedido por mail.
-            </p>
-          </div>
-          <Link
-            href="/tienda"
-            className="inline-flex items-center justify-center font-body font-semibold text-[14px] px-[22px] py-[13px] rounded-pill border transition-all duration-200 hover:bg-ink hover:text-cream-50"
-            style={{ border: '1px solid var(--line)', color: 'var(--ink)', textDecoration: 'none' }}
-          >
-            Volver a la tienda
-          </Link>
-        </div>
-      </main>
-    )
+    window.location.href = `/checkout/confirmacion?order=${orderId}&t=${uploadToken}`
   }
 
   return (
@@ -354,7 +237,7 @@ const CheckoutContent: React.FC = () => {
                 <div className="flex justify-between">
                   <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">Envío</span>
                   <span className="font-body text-[13px] text-ink">
-                    {shippingCost === 0 ? 'Gratis' : formatARS(shippingCost)}
+                    {fields.shippingCoordinate ? 'A coordinar' : shippingCost === 0 ? 'Gratis' : formatARS(shippingCost)}
                   </span>
                 </div>
               )}
@@ -414,6 +297,9 @@ const CheckoutContent: React.FC = () => {
                         {(fields.zonePrice ?? 0) > 0 ? `Envío: ${formatARS(fields.zonePrice ?? 0)}` : 'Envío gratis'}
                       </span>
                     )}
+                    {cpStatus === 'coordinate' && (
+                      <span className="font-body text-[13px] text-ink-soft">Envío a coordinar</span>
+                    )}
                   </div>
                   <div className="flex gap-3 flex-wrap">
                     {DELIVERY_DAYS.map((day) => (
@@ -422,16 +308,20 @@ const CheckoutContent: React.FC = () => {
                       </button>
                     ))}
                   </div>
-                  {cpStatus === 'not-caba' && (
+                  {cpStatus === 'coordinate' && (
                     <p className="font-body text-[12px] text-ink-soft mt-1">
-                      El envío a domicilio es solo dentro de CABA. Si estás fuera, elegí{' '}
-                      <strong className="text-ink">Retiro en persona</strong>.
-                    </p>
-                  )}
-                  {cpStatus === 'no-zone' && (
-                    <p className="font-body text-[12px] text-ink-soft mt-1">
-                      Tu código postal aún no está en nuestras zonas. Podés elegir{' '}
-                      <strong className="text-ink">Retiro en persona</strong>.
+                      {isCABA(fields.postalCode) ? (
+                        <>
+                          Tu CP está en CABA pero todavía sin tarifa fija:{' '}
+                          <strong className="text-ink">coordinamos el envío</strong> con vos por WhatsApp/email y acordamos el costo.
+                        </>
+                      ) : (
+                        <>
+                          Estás fuera de CABA:{' '}
+                          <strong className="text-ink">coordinamos el envío</strong> por WhatsApp/email y acordamos el costo. También podés elegir{' '}
+                          <strong className="text-ink">Retiro en persona</strong>.
+                        </>
+                      )}
                     </p>
                   )}
                   {errors.zoneId && <p className="text-[#a8503f] text-xs font-body">{errors.zoneId}</p>}

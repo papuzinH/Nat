@@ -104,7 +104,9 @@ export function mapProduct(
     frameOptions:   normalizeFrameOptions(p.frame_options),
     onDemand:       p.on_demand,
     status:      (stock?.status ?? 'active') as ProductStatus,
-    stock:       stock?.stock ?? null,
+    // on_demand es la fuente de verdad del stock ilimitado: se lee como null
+    // (infinito) sin importar la cantidad numérica guardada en product_stock.
+    stock:       p.on_demand ? null : (stock?.stock ?? null),
     createdAt:   p.created ?? null,
   }
 }

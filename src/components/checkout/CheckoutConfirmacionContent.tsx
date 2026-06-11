@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation'
 import { pb } from '@/lib/pocketbase'
 import { formatARS } from '@/data/products'
 import { gsap, shouldAnimate } from '@/lib/gsap'
+import BankTransferPanel from './BankTransferPanel'
 
 interface OrderItem {
   id: string
@@ -25,6 +26,7 @@ interface Order {
   shipping_cost:  number
   total:          number
   status:         string
+  payment_proof?: string
   items?:         OrderItem[]
 }
 
@@ -42,9 +44,10 @@ function getBodyMessage(paymentMethod: string, deliveryMode: string, firstName: 
 }
 
 const CheckoutConfirmacionContent: React.FC = () => {
-  const params    = useSearchParams()
-  const orderId   = params.get('order')
-  const isPending = params.get('pending') === 'true'
+  const params      = useSearchParams()
+  const orderId     = params.get('order')
+  const uploadToken = params.get('t') ?? ''
+  const isPending   = params.get('pending') === 'true'
 
   const [order,    setOrder]    = useState<Order | null>(null)
   const [loading,  setLoading]  = useState(true)
@@ -157,18 +160,14 @@ const CheckoutConfirmacionContent: React.FC = () => {
         </div>
 
         {order!.payment_method === 'transferencia' && (
-          <div className="confirm-transfer mb-8 rounded-sm p-6" style={{ border: '1px solid var(--line-soft)', background: 'var(--cream-200, #f5efe6)' }}>
-            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft mb-4">Datos para transferir</p>
-            {[['Alias', 'natalia.arte'], ['CBU', '0000003100062588008793'], ['Titular', 'Natalia Heller']].map(([k, v]) => (
-              <div key={k} className="flex justify-between py-2" style={{ borderBottom: '1px solid var(--line-soft)' }}>
-                <span className="font-mono text-[11px] text-ink-soft">{k}</span>
-                <span className="font-body text-[13px] text-ink font-semibold">{v}</span>
-              </div>
-            ))}
-            <p className="font-body text-[13px] text-ink-soft mt-4 leading-relaxed">
-              Una vez que acreditemos tu pago, te confirmaremos el pedido y coordinaremos{' '}
-              {order!.delivery_mode === 'retiro' ? 'el retiro.' : 'el envío.'}
-            </p>
+          <div className="confirm-transfer mb-8">
+            <BankTransferPanel
+              orderId={order!.id}
+              uploadToken={uploadToken}
+              shortId={shortId}
+              total={order!.total}
+              initialReceived={Boolean(order!.payment_proof) || order!.status === 'comprobante_recibido'}
+            />
           </div>
         )}
 
