@@ -3,7 +3,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { pb } from '@/lib/pocketbase'
 import { formatARS } from '@/data/products'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import BankTransferPanel from './BankTransferPanel'
@@ -20,7 +19,6 @@ interface OrderItem {
 interface Order {
   id:             string
   customer_name:  string
-  customer_email: string
   delivery_mode:  string
   payment_method: string
   shipping_cost:  number
@@ -77,12 +75,12 @@ const CheckoutConfirmacionContent: React.FC = () => {
   }, [loading, notFound])
 
   useEffect(() => {
-    if (!orderId) { setNotFound(true); setLoading(false); return }
-    pb.collection('orders')
-      .getOne(orderId)
-      .then((data) => { setOrder(data as unknown as Order); setLoading(false) })
+    if (!orderId || !uploadToken) { setNotFound(true); setLoading(false); return }
+    fetch(`/api/order?id=${encodeURIComponent(orderId)}&t=${encodeURIComponent(uploadToken)}`)
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error('not_found'))))
+      .then((data: Order) => { setOrder(data); setLoading(false) })
       .catch(() => { setNotFound(true); setLoading(false) })
-  }, [orderId])
+  }, [orderId, uploadToken])
 
   if (loading) return (
     <main className="min-h-[60vh] flex items-center justify-center">

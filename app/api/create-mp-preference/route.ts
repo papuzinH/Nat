@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { pbAdminToken, fetchOrder } from '@/lib/pb-admin'
+import { pbAdminToken, fetchOrder, uploadTokenFor } from '@/lib/pb-admin'
 
 interface OrderItem {
   product_slug: string
@@ -63,6 +63,9 @@ export async function POST(req: Request) {
   const isPublicUrl = siteUrl.startsWith('https://')
   const isSandboxToken = token.startsWith('TEST-')
   const expiry = new Date(Date.now() + 30 * 60 * 1000).toISOString()
+  // Token de lectura de la orden para la pantalla de confirmación (igual que en
+  // el flujo de transferencia). Sin esto, el back_url de MP no podría leerla.
+  const t = uploadTokenFor(payload.orderId)
 
   const preference = {
     items: mpItems,
@@ -76,9 +79,9 @@ export async function POST(req: Request) {
       },
     }),
     back_urls: {
-      success: `${siteUrl}/checkout/confirmacion?order=${payload.orderId}`,
+      success: `${siteUrl}/checkout/confirmacion?order=${payload.orderId}&t=${t}`,
       failure: `${siteUrl}/checkout/error?order=${payload.orderId}`,
-      pending: `${siteUrl}/checkout/confirmacion?order=${payload.orderId}&pending=true`,
+      pending: `${siteUrl}/checkout/confirmacion?order=${payload.orderId}&t=${t}&pending=true`,
     },
     ...(isPublicUrl && { auto_return: 'approved' }),
     notification_url: isPublicUrl ? `${siteUrl}/api/mp-webhook` : undefined,
