@@ -39,7 +39,13 @@
       "Bash(node -p \"require\\('next/package.json'\\).version\")",
       "Bash(npx next *)",
       "Bash(git mv *)",
-      "PowerShell(Get-Process node -ErrorAction SilentlyContinue | Select-Object Id, StartTime, @{N='CPU';E={$_.CPU}} | Format-Table -AutoSize; Write-Output \"---\"; Get-Process | Where-Object { $_.ProcessName -match 'esbuild|vite|next' } | Select-Object Id, ProcessName)"
+      "PowerShell(Get-Process node -ErrorAction SilentlyContinue | Select-Object Id, StartTime, @{N='CPU';E={$_.CPU}} | Format-Table -AutoSize; Write-Output \"---\"; Get-Process | Where-Object { $_.ProcessName -match 'esbuild|vite|next' } | Select-Object Id, ProcessName)",
+      "PowerShell(claude mcp *)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\lauta\\\\.claude\\\\\" -Recurse -Name | Where-Object { $_ -match \"mcp\" } | Select-Object -First 20)",
+      "mcp__mercadopago__application_list",
+      "mcp__mercadopago__get_credentials",
+      "mcp__mercadopago__search_documentation",
+      "Bash(vercel env *)"
     ]
   }
 }

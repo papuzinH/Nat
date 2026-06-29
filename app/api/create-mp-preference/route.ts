@@ -60,22 +60,28 @@ export async function POST(req: Request) {
   }
 
   const siteUrl = process.env.SITE_URL ?? 'https://tatuajesnaty.com'
+  const isPublicUrl = siteUrl.startsWith('https://')
+  const isSandboxToken = token.startsWith('TEST-')
   const expiry = new Date(Date.now() + 30 * 60 * 1000).toISOString()
 
   const preference = {
     items: mpItems,
-    payer: {
-      name: String(order.customer_name ?? ''),
-      email: String(order.customer_email ?? ''),
-      phone: { number: String(order.customer_phone ?? '') },
-    },
+    // En sandbox no mandamos payer: si el email pertenece a una cuenta real
+    // MP bloquea el pago con "una de las partes es de prueba".
+    ...(!isSandboxToken && {
+      payer: {
+        name: String(order.customer_name ?? ''),
+        email: String(order.customer_email ?? ''),
+        phone: { number: String(order.customer_phone ?? '') },
+      },
+    }),
     back_urls: {
       success: `${siteUrl}/checkout/confirmacion?order=${payload.orderId}`,
       failure: `${siteUrl}/checkout/error?order=${payload.orderId}`,
       pending: `${siteUrl}/checkout/confirmacion?order=${payload.orderId}&pending=true`,
     },
-    auto_return: 'approved',
-    notification_url: `${siteUrl}/api/mp-webhook`,
+    ...(isPublicUrl && { auto_return: 'approved' }),
+    notification_url: isPublicUrl ? `${siteUrl}/api/mp-webhook` : undefined,
     external_reference: payload.orderId,
     expires: true,
     expiration_date_to: expiry,
@@ -95,8 +101,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'mp_error' }, { status: 502 })
     }
 
-    const mpData = (await mpRes.json()) as { init_point: string; id: string }
-    return NextResponse.json({ initPoint: mpData.init_point, preferenceId: mpData.id })
+    const mpData = (await mpRes.json()) as { init_point: string; sandbox_init_point: string; id: string }
+    const initPoint = isSandboxToken ? mpData.sandbox_init_point : mpData.init_point
+    console.log('[create-mp-preference] isSandbox:', isSandboxToken, '| URL:', initPoint)
+    return NextResponse.json({ initPoint, preferenceId: mpData.id })
   } catch (err) {
     console.error('[create-mp-preference] fetch error:', err)
     return NextResponse.json({ error: 'internal' }, { status: 500 })

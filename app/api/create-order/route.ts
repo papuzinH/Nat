@@ -42,6 +42,15 @@ function bad(error: string, status = 400) {
 }
 
 export async function POST(req: Request) {
+  try {
+    return await handleCreateOrder(req)
+  } catch (err) {
+    console.error('[create-order] unhandled error:', err)
+    return bad('Error interno al procesar el pedido. Intentá de nuevo.', 500)
+  }
+}
+
+async function handleCreateOrder(req: Request) {
   let body: Body
   try {
     body = (await req.json()) as Body
@@ -104,23 +113,27 @@ export async function POST(req: Request) {
     })
   }
 
+  // ── Admin token (necesario para shipping_zones + crear orden) ────────
+  const token = await pbAdminToken()
+  if (!token) return bad('Servicio no disponible. Probá de nuevo.', 503)
+
   // ── Envío (server) ────────────────────────────────────────────────────
   let shippingCost = 0
   if (delivery.mode === 'envio') {
-    const zones = await pbGetFullList<{ active: boolean; price: number; postal_codes: string[]; name: string }>(
-      'shipping_zones',
-      { filter: 'active=true' },
-      { revalidate: 0 },
+    const zonesRes = await fetch(
+      `${PB_URL}/api/collections/shipping_zones/records?perPage=500&filter=${encodeURIComponent('active=true')}`,
+      { headers: { Authorization: token }, cache: 'no-store' },
     )
-    const matched = matchZone(delivery.postalCode ?? '', zones)
-    shippingCost = matched ? matched.price : 0 // sin zona → 0 (a coordinar)
+    if (zonesRes.ok) {
+      const data = (await zonesRes.json()) as { items: Array<{ active: boolean; price: number; postal_codes: string[]; name: string }> }
+      const matched = matchZone(delivery.postalCode ?? '', data.items ?? [])
+      shippingCost = matched ? matched.price : 0 // sin zona → 0 (a coordinar)
+    }
   }
 
   const total = serverItems.reduce((sum, i) => sum + i.unit_price * i.quantity, 0) + shippingCost
 
   // ── Crear la orden con credenciales admin ─────────────────────────────
-  const token = await pbAdminToken()
-  if (!token) return bad('Servicio no disponible. Probá de nuevo.', 503)
 
   const createRes = await fetch(`${PB_URL}/api/collections/orders/records`, {
     method: 'POST',
@@ -134,6 +147,7 @@ export async function POST(req: Request) {
       street:         delivery.street ?? '',
       city:           delivery.city ?? '',
       postal_code:    delivery.postalCode ?? '',
+      delivery_day:   delivery.deliveryDay ?? '',
       payment_method: paymentMethod,
       shipping_cost:  shippingCost,
       total,
