@@ -10,8 +10,12 @@ export const revalidate = 3600
 
 // Prerender estático de todos los slugs de producto en build (SSG + ISR).
 export async function generateStaticParams() {
-  const products = await getProducts()
-  return products.map((p) => ({ slug: p.slug }))
+  try {
+    const products = await getProducts()
+    return products.map((p) => ({ slug: p.slug }))
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata(

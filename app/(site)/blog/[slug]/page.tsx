@@ -12,8 +12,14 @@ import BlogPostArticle from '@/components/blog/BlogPostArticle'
 export const revalidate = 3600
 
 export async function generateStaticParams() {
-  const posts = await getBlogPosts()
-  return posts.map((p) => ({ slug: p.slug }))
+  try {
+    const posts = await getBlogPosts()
+    return posts.map((p) => ({ slug: p.slug }))
+  } catch {
+    // Si PocketBase no está disponible en build time (env var no configurada),
+    // devuelve [] para que Next.js genere las páginas on-demand (SSR dinámico).
+    return []
+  }
 }
 
 export async function generateMetadata(
