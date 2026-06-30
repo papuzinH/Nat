@@ -9,7 +9,7 @@ import { useCart } from '@/context/CartContext'
 
 const navigationItems = [
   { path: '/tienda', label: 'Tienda' },
-  { path: '/estudio', label: 'El Estudio' },
+  { path: '/estudio', label: 'Tatuajes' },
   { path: '/blog', label: 'Blog' },
   { path: '/contacto', label: 'Contacto' },
 ]

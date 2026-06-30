@@ -42,7 +42,7 @@ const Footer: React.FC = () => {
               <ul className="flex flex-col gap-3 list-none p-0 m-0">
                 {[
                   { to: '/tienda', label: 'Tienda' },
-                  { to: '/estudio', label: 'El Estudio' },
+                  { to: '/estudio', label: 'Tatuajes' },
                   { to: '/blog', label: 'Blog' },
                   { to: '/contacto', label: 'Contacto' },
                 ].map((item) => (
@@ -129,7 +129,7 @@ const Footer: React.FC = () => {
                   style={{ color: 'var(--ink, #2c2c2c)', textDecoration: 'none' }}
                   aria-label="Ver ubicación en Google Maps"
                 >
-                  Parque Chacabuco · Buenos Aires, AR
+                  CABA · Buenos Aires, AR.
                 </a>
               </li>
               <li className="font-body text-[15px] text-sage-700">

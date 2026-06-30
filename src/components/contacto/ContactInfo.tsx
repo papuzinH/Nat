@@ -7,7 +7,7 @@ import { animateHero, splitWords } from '@/lib/animations'
 const INFO_ITEMS = [
   { label: 'Correo', value: 'agendanattatt@gmail.com' },
   { label: 'Instagram', value: '@nat.tatt' },
-  { label: 'Estudio', value: 'Parque Chacabuco · CABA\nCon turno previo' },
+  { label: 'Estudio', value: 'CABA · Buenos Aires, AR.\nCon turno previo' },
   { label: 'Horario', value: 'Lun a Vie - 10 a 18hs / Sab - 15 a 19hs.' },
 ]
 
