@@ -287,7 +287,7 @@ const localBusinessSchema = {
   name: 'Natalia Heller Tattoo Studio',
   image: 'https://tatuajesnaty.com/hero-image.webp',
   url: 'https://tatuajesnaty.com/',
-  telephone: '+54 9 11 6619-1209',
+  telephone: '+54 9 11 3272-2555',
   address: {
     '@type': 'PostalAddress',
     addressLocality: 'Buenos Aires',

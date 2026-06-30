@@ -172,6 +172,6 @@ Hook `useContactForm` con campos: name, email, phone, consultType, message. Sopo
 - **Cliente:** Natalia Heller, Buenos Aires, CABA, Argentina
 - **Dominio:** `tatuajesnaty.com` (referenciado en schema data)
 - **Instagram:** `@nataliaceller_art` (referenciado en schema + footer)
-- **Teléfono:** +54 9 11 6619-1209
+- **Teléfono:** +54 9 11 3272-2555
 - **Horarios:** Lun-Vie 10:00-19:00, Sáb 11:00-17:00
 - **Precio estimado:** `$$` (schema priceRange)
