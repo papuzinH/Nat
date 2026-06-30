@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useMemo, useCallback, useState } from 'react'
 import type { BlogPost } from '@/data/blog-posts'
-import { BLOG_CATEGORIES } from '@/data/blog-posts'
+import { useCategories } from '@/hooks/useCategories'
 import BlogFeaturedPost from './BlogFeaturedPost'
 import BlogHeroSection from './BlogHeroSection'
 import BlogPostsGrid from './BlogPostsGrid'
@@ -27,13 +27,22 @@ const slugifyCategory = (value: string) =>
 
 const BlogContent: React.FC<BlogContentProps> = ({ posts }) => {
   const [activeCategory, setActiveCategory] = useState<string>('Todos')
+  const { categories: dbCategories } = useCategories({
+    categoriesCollection: 'blog_categories',
+    itemsCollection: 'blog_posts',
+    itemsCategoryField: 'category',
+    matchBy: 'label',
+  })
   const headerRef = useRef<HTMLElement>(null)
   const featuredRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
 
   const filterCategories = useMemo(
-    () => BLOG_CATEGORIES.map((label) => ({ slug: slugifyCategory(label), label })),
-    []
+    () => [
+      { slug: 'todos', label: 'Todos' },
+      ...dbCategories.map(({ label }) => ({ slug: slugifyCategory(label), label })),
+    ],
+    [dbCategories]
   )
   const activeCategorySlug = useMemo(() => slugifyCategory(activeCategory), [activeCategory])
 
