@@ -8,6 +8,8 @@ import { useToast } from '@/context/ToastContext'
 import { useTableFilter } from '@/hooks/useTableFilter'
 import StatusBadge from '@/components/admin/shared/StatusBadge'
 import ConfirmDeleteInline from '@/components/admin/shared/ConfirmDeleteInline'
+import AdminCategoriesModal from '@/components/admin/shared/AdminCategoriesModal'
+import { useCategories } from '@/hooks/useCategories'
 
 interface PostListItem {
   id: string
@@ -19,8 +21,6 @@ interface PostListItem {
   toggling: boolean
   [key: string]: unknown
 }
-
-const BLOG_CATEGORIES = ['Estudio', 'Botánica', 'Cerámica', 'Dibujo', 'Textiles']
 
 function formatDate(raw: string): string {
   if (!raw) return ''
@@ -36,6 +36,19 @@ const AdminBlog: React.FC = () => {
   const toast = useToast()
   const [rows, setRows] = useState<PostListItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [showCatModal, setShowCatModal] = useState(false)
+  const {
+    categories,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+    countByCategory,
+  } = useCategories({
+    categoriesCollection: 'blog_categories',
+    itemsCollection: 'blog_posts',
+    itemsCategoryField: 'category',
+    matchBy: 'label',
+  })
 
   useEffect(() => {
     pb.collection('blog_posts')
@@ -115,14 +128,25 @@ const AdminBlog: React.FC = () => {
             {filtered.length} de {counts.total} · {counts.drafts} borrador{counts.drafts === 1 ? '' : 'es'}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => router.push('/admin/blog/nuevo')}
-          className="font-mono text-[11px] uppercase tracking-[0.1em] px-4 py-2 rounded-pill border transition-all hover:bg-sage-700 hover:text-cream-50 hover:border-sage-700"
-          style={{ borderColor: 'var(--sage-700)', color: 'var(--sage-700)' }}
-        >
-          + Nuevo post
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowCatModal(true)}
+            className="font-mono text-[11px] uppercase tracking-[0.1em] px-4 py-2 rounded-pill border transition-all hover:bg-cream-100"
+            style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)' }}
+            title="Gestionar categorías"
+          >
+            Categorías
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push('/admin/blog/nuevo')}
+            className="font-mono text-[11px] uppercase tracking-[0.1em] px-4 py-2 rounded-pill border transition-all hover:bg-sage-700 hover:text-cream-50 hover:border-sage-700"
+            style={{ borderColor: 'var(--sage-700)', color: 'var(--sage-700)' }}
+          >
+            + Nuevo post
+          </button>
+        </div>
       </div>
 
       {/* Toolbar */}
@@ -145,7 +169,7 @@ const AdminBlog: React.FC = () => {
             aria-label="Filtrar por categoría"
           >
             <option value="all">Todas las categorías</option>
-            {BLOG_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            {categories.map((c) => <option key={c.id} value={c.label}>{c.label}</option>)}
           </select>
           <select
             value={filters.publish ?? 'all'}
@@ -258,6 +282,16 @@ const AdminBlog: React.FC = () => {
           ))}
         </div>
       )}
+      <AdminCategoriesModal
+        open={showCatModal}
+        onClose={() => setShowCatModal(false)}
+        categories={categories}
+        onCreateCategory={createCategory}
+        onUpdateCategory={updateCategory}
+        onDeleteCategory={deleteCategory}
+        getCount={countByCategory}
+        itemNoun={{ singular: 'post', plural: 'posts' }}
+      />
     </div>
   )
 }
