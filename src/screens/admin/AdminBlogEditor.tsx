@@ -8,10 +8,10 @@ import { triggerRevalidate } from '@/lib/revalidate-client'
 import TipTapEditor from '@/components/admin/blog/TipTapEditor'
 import { useToast } from '@/context/ToastContext'
 import { useUnsavedWarning } from '@/hooks/useUnsavedWarning'
+import { useCategories } from '@/hooks/useCategories'
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
-const BLOG_CATEGORIES = ['Estudio', 'Botánica', 'Cerámica', 'Dibujo', 'Textiles']
 const EMPTY_BODY: JSONContent = { type: 'doc', content: [] }
 const TODAY = new Date().toISOString().slice(0, 10)
 
@@ -292,6 +292,12 @@ const AdminBlogEditor: React.FC<{ id?: string }> = ({ id }) => {
   const toast = useToast()
   const [state, setState] = useState<BlogEditorState>(emptyState())
   const { confirmExit } = useUnsavedWarning(state.dirty, 'Tenés cambios sin guardar. ¿Salir igual?')
+  const { categories } = useCategories({
+    categoriesCollection: 'blog_categories',
+    itemsCollection: 'blog_posts',
+    itemsCategoryField: 'category',
+    matchBy: 'label',
+  })
   const [readingTimeAuto, setReadingTimeAuto] = useState(true)
   const [mobileTab, setMobileTab] = useState<'contenido' | 'meta'>('contenido')
   const [allPosts, setAllPosts] = useState<PostMeta[]>([])
@@ -609,8 +615,8 @@ const AdminBlogEditor: React.FC<{ id?: string }> = ({ id }) => {
                 className="font-body text-[13px] text-ink bg-cream-50 border rounded-sm px-2 py-1.5 outline-none focus:border-sage-700 transition-colors"
                 style={{ borderColor: 'var(--line)' }}
               >
-                {BLOG_CATEGORIES.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.label}>{c.label}</option>
                 ))}
               </select>
             </Field>
