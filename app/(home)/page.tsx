@@ -18,6 +18,10 @@ export const metadata: Metadata = buildMetadata({
   path: '/',
 })
 
+// ISR: revalidación on-demand por tag (site_images / products) + fallback horario,
+// igual que /tienda y /blog.
+export const revalidate = 3600
+
 const homeSchema = {
   '@type': ['LocalBusiness', 'ArtGallery'],
   name: 'Natalia Heller — Arte & Tatuajes',
