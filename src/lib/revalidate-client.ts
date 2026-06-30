@@ -3,7 +3,7 @@ import { pb } from '@/lib/pocketbase'
 // Dispara la revalidación on-demand del ISR desde el admin (browser) tras
 // guardar/publicar. Autoriza con el token de superuser de PocketBase. Falla en
 // silencio: la revalidación no debe bloquear el flujo de guardado.
-export async function triggerRevalidate(tag: 'products' | 'blog_posts'): Promise<void> {
+export async function triggerRevalidate(tag: 'products' | 'blog_posts' | 'site_images'): Promise<void> {
   try {
     await fetch('/api/revalidate', {
       method: 'POST',

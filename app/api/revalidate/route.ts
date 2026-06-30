@@ -11,7 +11,7 @@ import PocketBase from 'pocketbase'
 //
 // Body: { "tag": "products" | "blog_posts" }  (o ?tag= / ?secret= en la query)
 
-const ALLOWED_TAGS = new Set(['products', 'blog_posts'])
+const ALLOWED_TAGS = new Set(['products', 'blog_posts', 'site_images'])
 
 async function isAuthorized(req: Request): Promise<boolean> {
   const secret =
