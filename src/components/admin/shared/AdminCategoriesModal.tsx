@@ -66,7 +66,7 @@ const AdminCategoriesModal: React.FC<AdminCategoriesModalProps> = ({
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [hoverIndex, setHoverIndex] = useState<number | null>(null)
 
-  // Conteos de productos por slug de categoría
+  // Conteos de items por slug de categoría
   const [counts, setCounts] = useState<Record<string, number>>({})
   const [countsLoading, setCountsLoading] = useState(false)
 
@@ -380,7 +380,7 @@ const AdminCategoriesModal: React.FC<AdminCategoriesModalProps> = ({
               <span
                 className="font-mono text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0"
                 style={{ background: 'var(--line-soft)', color: 'var(--ink-soft)' }}
-                title="Productos con esta categoría"
+                title={`${itemNoun.plural.charAt(0).toUpperCase()}${itemNoun.plural.slice(1)} con esta categoría`}
               >
                 {countsLoading ? '…' : count}
               </span>
