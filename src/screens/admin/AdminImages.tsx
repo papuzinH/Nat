@@ -165,6 +165,9 @@ const AdminImages: React.FC = () => {
     setDragId(null)
     // Reasignar sort_order secuencial y persistir los que cambiaron
     const updates = ordered.map((r, i) => ({ id: r.id, sort_order: i + 1 }))
+    // Snapshot pre-actualización: para comparar contra el orden viejo y revertir si PB falla.
+    const prevRows = rows
+    const prevSectionRows = sectionRows
     setRows((prev) => prev.map((r) => {
       const u = updates.find((x) => x.id === r.id)
       return u ? { ...r, sortOrder: u.sort_order } : r
@@ -172,11 +175,12 @@ const AdminImages: React.FC = () => {
     try {
       await Promise.all(
         updates
-          .filter((u) => sectionRows.find((r) => r.id === u.id)?.sortOrder !== u.sort_order)
+          .filter((u) => prevSectionRows.find((r) => r.id === u.id)?.sortOrder !== u.sort_order)
           .map((u) => pb.collection('site_images').update(u.id, { sort_order: u.sort_order }))
       )
       triggerRevalidate('site_images')
     } catch {
+      setRows(prevRows) // rollback: PB conserva el orden viejo, el estado local también.
       toast.error('No se pudo guardar el orden')
     }
   }
