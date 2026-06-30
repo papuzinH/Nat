@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { pb } from '@/lib/pocketbase'
 import { useToast } from '@/context/ToastContext'
 import type { Category } from '@/hooks/useCategories'
 import Modal from './Modal'
@@ -12,6 +11,10 @@ interface AdminCategoriesModalProps {
   onCreateCategory: (slug: string, label: string, sort_order: number) => Promise<Category>
   onUpdateCategory: (id: string, data: Partial<Pick<Category, 'label' | 'sort_order'>>) => Promise<Category>
   onDeleteCategory: (id: string) => Promise<void>
+  /** Cuenta cuántos items usan la categoría (para badges y guardar el borrado). */
+  getCount: (cat: Category) => Promise<number>
+  /** Sustantivo para los textos (default: producto/productos). */
+  itemNoun?: { singular: string; plural: string }
 }
 
 interface EditDraft {
@@ -50,6 +53,8 @@ const AdminCategoriesModal: React.FC<AdminCategoriesModalProps> = ({
   onCreateCategory,
   onUpdateCategory,
   onDeleteCategory,
+  getCount,
+  itemNoun = { singular: 'producto', plural: 'productos' },
 }) => {
   const toast = useToast()
 
@@ -87,18 +92,12 @@ const AdminCategoriesModal: React.FC<AdminCategoriesModalProps> = ({
     if (!open || categories.length === 0) return
     setCountsLoading(true)
     Promise.all(
-      categories.map(async (cat) => {
-        const res = await pb.collection('products').getList(1, 1, {
-          filter: `category="${cat.slug}"`,
-          requestKey: null,
-        })
-        return [cat.slug, res.totalItems] as [string, number]
-      })
+      categories.map(async (cat) => [cat.slug, await getCount(cat)] as [string, number])
     )
       .then((entries) => setCounts(Object.fromEntries(entries)))
       .catch(() => {})
       .finally(() => setCountsLoading(false))
-  }, [open, categories])
+  }, [open, categories, getCount])
 
   // Resetear estado al cerrar
   useEffect(() => {
@@ -317,7 +316,7 @@ const AdminCategoriesModal: React.FC<AdminCategoriesModalProps> = ({
                     style={{ background: '#fef9ec', border: '1px solid #e8c96a' }}
                   >
                     <p className="font-body text-[12px]" style={{ color: '#7a5c00' }}>
-                      ⚠ {editWarning.count} producto{editWarning.count > 1 ? 's' : ''}{' '}
+                      ⚠ {editWarning.count} {editWarning.count > 1 ? itemNoun.plural : itemNoun.singular}{' '}
                       {editWarning.count > 1 ? 'tienen' : 'tiene'} esta categoría y{' '}
                       {editWarning.count > 1 ? 'verán' : 'verá'} su nombre actualizado.
                     </p>
@@ -401,7 +400,7 @@ const AdminCategoriesModal: React.FC<AdminCategoriesModalProps> = ({
                   <button
                     type="button"
                     disabled
-                    title={`Hay ${count} producto${count > 1 ? 's' : ''} con esta categoría. Primero reasignálos o eliminá los productos.`}
+                    title={`Hay ${count} ${count > 1 ? itemNoun.plural : itemNoun.singular} con esta categoría. Primero reasignálos o eliminá los ${itemNoun.plural}.`}
                     className="font-mono text-[10px] uppercase tracking-[0.1em] opacity-30 cursor-not-allowed"
                     style={{ color: '#a8503f' }}
                   >

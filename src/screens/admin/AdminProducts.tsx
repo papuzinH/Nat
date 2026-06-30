@@ -652,6 +652,7 @@ const AdminProducts: React.FC = () => {
     createCategory,
     updateCategory,
     deleteCategory,
+    countByCategory,
   } = useCategories()
 
   useEffect(() => {
@@ -1324,6 +1325,7 @@ const AdminProducts: React.FC = () => {
         onCreateCategory={createCategory}
         onUpdateCategory={updateCategory}
         onDeleteCategory={deleteCategory}
+        getCount={countByCategory}
       />
     </div>
   )
