@@ -6,6 +6,7 @@ import EstudioHero from '@/components/estudio/EstudioHero'
 import MasonryGallery from '@/components/estudio/MasonryGallery'
 import ProcessSteps from '@/components/estudio/ProcessSteps'
 import ContactEstudioSection from '@/components/estudio/ContactEstudioSection'
+import { getSiteImages } from '@/lib/data/site-images'
 
 export const metadata: Metadata = buildMetadata({
   title: 'El Estudio — Tatuajes de línea fina y botánica en Buenos Aires',
@@ -22,12 +23,13 @@ const estudioSchema = {
   url: 'https://tatuajesnaty.com/estudio',
 }
 
-export default function EstudioPage() {
+export default async function EstudioPage() {
+  const tattooImages = await getSiteImages('estudio_tattoos')
   return (
     <div className="min-h-screen bg-cream-100">
       <JsonLd data={estudioSchema} />
       <EstudioHero />
-      <MasonryGallery />
+      <MasonryGallery images={tattooImages} />
       <NHDivider label="el proceso" />
       <ProcessSteps />
       <NHDivider label="contacto" />
