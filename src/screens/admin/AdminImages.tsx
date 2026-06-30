@@ -54,6 +54,12 @@ const AdminImages: React.FC = () => {
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // Drag reorder (dentro de la sección activa)
+  const [dragId, setDragId] = useState<string | null>(null)
+  // Edición inline de alt/caption
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [draft, setDraft] = useState<{ alt: string; caption: string }>({ alt: '', caption: '' })
+
   useEffect(() => {
     pb.collection('site_images')
       .getFullList({ sort: 'section,sort_order', requestKey: null })
@@ -131,6 +137,71 @@ const AdminImages: React.FC = () => {
     }
   }
 
+  // Traduce el patch de PB (snake_case) al shape de AdminImage (camelCase)
+  function mapPatch(data: Record<string, unknown>): Partial<AdminImage> {
+    const out: Partial<AdminImage> = {}
+    if ('alt' in data) out.alt = data.alt as string
+    if ('caption' in data) out.caption = data.caption as string
+    if ('focal_x' in data) out.focalX = data.focal_x as number
+    if ('focal_y' in data) out.focalY = data.focal_y as number
+    if ('sort_order' in data) out.sortOrder = data.sort_order as number
+    return out
+  }
+
+  const persist = async (id: string, data: Record<string, unknown>) => {
+    await pb.collection('site_images').update(id, data)
+    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...mapPatch(data) } : r)))
+    triggerRevalidate('site_images')
+  }
+
+  const handleReorder = async (targetId: string) => {
+    if (!dragId || dragId === targetId) { setDragId(null); return }
+    const ordered = [...sectionRows]
+    const from = ordered.findIndex((r) => r.id === dragId)
+    const to = ordered.findIndex((r) => r.id === targetId)
+    if (from < 0 || to < 0) { setDragId(null); return }
+    const [moved] = ordered.splice(from, 1)
+    ordered.splice(to, 0, moved)
+    setDragId(null)
+    // Reasignar sort_order secuencial y persistir los que cambiaron
+    const updates = ordered.map((r, i) => ({ id: r.id, sort_order: i + 1 }))
+    setRows((prev) => prev.map((r) => {
+      const u = updates.find((x) => x.id === r.id)
+      return u ? { ...r, sortOrder: u.sort_order } : r
+    }))
+    try {
+      await Promise.all(
+        updates
+          .filter((u) => sectionRows.find((r) => r.id === u.id)?.sortOrder !== u.sort_order)
+          .map((u) => pb.collection('site_images').update(u.id, { sort_order: u.sort_order }))
+      )
+      triggerRevalidate('site_images')
+    } catch {
+      toast.error('No se pudo guardar el orden')
+    }
+  }
+
+  const setFocalFromClick = (img: AdminImage, e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = Math.round(((e.clientX - rect.left) / rect.width) * 100)
+    const y = Math.round(((e.clientY - rect.top) / rect.height) * 100)
+    const clampedX = Math.min(100, Math.max(0, x))
+    const clampedY = Math.min(100, Math.max(0, y))
+    setRows((prev) => prev.map((r) => (r.id === img.id ? { ...r, focalX: clampedX, focalY: clampedY } : r)))
+    persist(img.id, { focal_x: clampedX, focal_y: clampedY }).catch(() => toast.error('No se pudo guardar el foco'))
+  }
+
+  const startEdit = (img: AdminImage) => { setEditingId(img.id); setDraft({ alt: img.alt, caption: img.caption }) }
+  const saveEdit = async (id: string) => {
+    try {
+      await persist(id, { alt: draft.alt.trim(), caption: draft.caption.trim() })
+      setEditingId(null)
+      toast.success('Imagen actualizada')
+    } catch (e) {
+      toast.error('No se pudo guardar', { detail: e instanceof Error ? e.message : undefined })
+    }
+  }
+
   if (loading) {
     return <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">Cargando imágenes…</p>
   }
@@ -192,33 +263,80 @@ const AdminImages: React.FC = () => {
           No hay imágenes en esta sección. Subí la primera arriba.
         </p>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {sectionRows.map((img) => (
-            <div key={img.id} className="rounded-sm overflow-hidden" style={{ border: '1px solid var(--line-soft)' }}>
-              <div className="relative aspect-[4/3] bg-cream-200">
-                <img
-                  src={img.url}
-                  alt={img.alt}
-                  className="w-full h-full object-cover"
-                  style={{ objectPosition: `${img.focalX}% ${img.focalY}%`, opacity: img.active ? 1 : 0.4 }}
-                />
-              </div>
-              <div className="p-2 flex flex-col gap-2">
-                <p className="font-body text-[12px] text-ink truncate" title={img.alt}>{img.alt || 'sin alt'}</p>
-                <div className="flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={() => toggleActive(img)}
-                    className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft hover:text-ink transition-colors"
-                  >
-                    {img.active ? 'Ocultar' : 'Mostrar'}
-                  </button>
-                  <ConfirmDeleteInline onConfirm={() => remove(img.id)} />
+        <>
+          {sectionRows.length > 1 && (
+            <p className="font-mono text-[10px] text-ink-soft mb-2">Arrastrá para reordenar · click en la imagen para fijar el punto focal</p>
+          )}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {sectionRows.map((img) => (
+              <div
+                key={img.id}
+                draggable
+                onDragStart={() => setDragId(img.id)}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => handleReorder(img.id)}
+                className="rounded-sm overflow-hidden"
+                style={{ border: `1px solid ${dragId === img.id ? 'var(--sage-700)' : 'var(--line-soft)'}`, cursor: 'grab' }}
+              >
+                {/* Click en la imagen = fijar punto focal */}
+                <button
+                  type="button"
+                  onClick={(e) => setFocalFromClick(img, e)}
+                  title="Click para fijar el punto focal"
+                  className="relative block w-full aspect-[4/3] bg-cream-200 p-0 border-0 cursor-crosshair"
+                >
+                  <img
+                    src={img.url}
+                    alt={img.alt}
+                    className="w-full h-full object-cover"
+                    style={{ objectPosition: `${img.focalX}% ${img.focalY}%`, opacity: img.active ? 1 : 0.4 }}
+                  />
+                  <span
+                    aria-hidden="true"
+                    className="absolute w-3 h-3 rounded-full border-2 border-cream-50 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                    style={{ left: `${img.focalX}%`, top: `${img.focalY}%`, background: 'var(--sage-700)' }}
+                  />
+                </button>
+
+                <div className="p-2 flex flex-col gap-2">
+                  {editingId === img.id ? (
+                    <div className="flex flex-col gap-2">
+                      <input
+                        value={draft.alt}
+                        onChange={(e) => setDraft((d) => ({ ...d, alt: e.target.value }))}
+                        placeholder="Texto alternativo (alt)"
+                        className="font-body text-[12px] text-ink bg-cream-50 border rounded-sm px-2 py-1 outline-none focus:border-sage-700"
+                        style={{ borderColor: 'var(--line)' }}
+                        autoFocus
+                      />
+                      <input
+                        value={draft.caption}
+                        onChange={(e) => setDraft((d) => ({ ...d, caption: e.target.value }))}
+                        placeholder="Caption (opcional, visible en el hero)"
+                        className="font-body text-[12px] text-ink bg-cream-50 border rounded-sm px-2 py-1 outline-none focus:border-sage-700"
+                        style={{ borderColor: 'var(--line)' }}
+                      />
+                      <div className="flex items-center gap-3">
+                        <button type="button" onClick={() => saveEdit(img.id)} className="font-mono text-[10px] uppercase tracking-[0.1em] px-3 py-1 rounded-sm" style={{ background: 'var(--sage-700)', color: '#fdfcfb' }}>Guardar</button>
+                        <button type="button" onClick={() => setEditingId(null)} className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft hover:text-ink">Cancelar</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="font-body text-[12px] text-ink truncate" title={img.alt}>{img.alt || 'sin alt'}</p>
+                      {img.caption && <p className="font-mono text-[10px] text-ink-soft truncate">{img.caption}</p>}
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <button type="button" onClick={() => startEdit(img)} className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft hover:text-ink transition-colors">Editar</button>
+                        <button type="button" onClick={() => toggleActive(img)} className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft hover:text-ink transition-colors">{img.active ? 'Ocultar' : 'Mostrar'}</button>
+                        <ConfirmDeleteInline onConfirm={() => remove(img.id)} />
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   )
