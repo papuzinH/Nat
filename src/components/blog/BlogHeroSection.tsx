@@ -10,7 +10,7 @@ interface BlogHeroSectionProps {
   sectionRef?: React.RefObject<HTMLElement | null>
 }
 
-const TITLE = 'Guías, reflexiones e historias que quiero compartir.'
+const TITLE = 'Guías y reflexiones que quiero compartir.'
 
 const BlogHeroSection: React.FC<BlogHeroSectionProps> = ({ sectionRef }) => {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -48,7 +48,7 @@ const BlogHeroSection: React.FC<BlogHeroSectionProps> = ({ sectionRef }) => {
           </span>
         </HeroTitle>
         <HeroSubtitle className="hero-subtitle blog-subtitle">
-          Sí, también disfruto mucho la escritura. En esta sección te cuento más sobre mi universo creativo y personal. Espero que lo disfrutes!
+          También disfruto mucho de la escritura. En esta sección te cuento más sobre mi universo creativo y personal para que puedas conocerme más en profundidad. Espero que lo disfrutes!
         </HeroSubtitle>
       </div>
     </section>

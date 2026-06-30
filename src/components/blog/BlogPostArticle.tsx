@@ -95,13 +95,11 @@ const BlogPostArticle: React.FC<BlogPostArticleProps> = ({ post, bodyHtml, relat
         <Link href="/blog" className="text-inherit no-underline hover:text-sage-700 transition-colors">
           diario
         </Link>
-        {' / '}
-        <span className="text-sage-700">{post.slug}</span>
       </nav>
 
       {/* Hero */}
       <div ref={heroRef} className="px-[22px] md:px-12 pt-[22px] md:pt-9">
-        <div className="max-w-[760px]">
+        <div className="max-w-[760px] mx-auto">
           <div className="post-meta flex items-center gap-2.5 mb-5">
             <span className="px-2.5 py-1 rounded-pill border border-sage-700 text-sage-700 font-mono text-[11px] tracking-[0.08em] pointer-events-none">
               {post.category}
@@ -122,7 +120,7 @@ const BlogPostArticle: React.FC<BlogPostArticleProps> = ({ post, bodyHtml, relat
       </div>
 
       {/* Cover image */}
-      <div className="px-[22px] md:px-12 mt-6 max-w-[860px]">
+      <div className="px-[22px] md:px-12 mt-6 max-w-[860px] mx-auto">
         {post.image ? (
           <div
             className="relative w-full rounded-card overflow-hidden"
@@ -148,7 +146,7 @@ const BlogPostArticle: React.FC<BlogPostArticleProps> = ({ post, bodyHtml, relat
       </div>
 
       {/* Article body */}
-      <article ref={bodyRef} className="px-[22px] md:px-12 pt-11 md:pt-16 pb-5 max-w-[720px]">
+      <article ref={bodyRef} className="px-[22px] md:px-12 pt-11 md:pt-16 pb-5 max-w-[720px] mx-auto">
         <div className="flex items-center gap-3.5 py-[18px] border-b border-cream-300 mb-10">
           <div className="w-10 h-10 rounded-full bg-sage-500 flex items-center justify-center flex-shrink-0">
             <Pen className="w-5 h-5 text-white" />
