@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { formatARS } from '@/data/products'
-import { BANK_DETAILS, buildWhatsappProofUrl } from '@/lib/bankDetails'
+import { BANK_DETAILS, WHATSAPP_DISPLAY, buildWhatsappProofUrl } from '@/lib/bankDetails'
 import CopyButton from './CopyButton'
 import PaymentProofUploader from './PaymentProofUploader'
 import WhatsappButton from './WhatsappButton'
@@ -31,11 +31,10 @@ const BankTransferPanel: React.FC<BankTransferPanelProps> = ({ orderId, uploadTo
   const [received, setReceived] = useState(initialReceived)
 
   const rows: { label: string; value: string; copy?: string }[] = [
-    { label: 'Banco', value: BANK_DETAILS.banco },
-    { label: 'Tipo de cuenta', value: BANK_DETAILS.tipoCuenta },
-    { label: 'CBU', value: BANK_DETAILS.cbu, copy: BANK_DETAILS.cbu },
+    { label: 'CVU', value: BANK_DETAILS.cbu, copy: BANK_DETAILS.cbu },
     { label: 'Alias', value: BANK_DETAILS.alias, copy: BANK_DETAILS.alias },
     { label: 'Titular', value: BANK_DETAILS.titular },
+    { label: 'WhatsApp', value: WHATSAPP_DISPLAY, copy: WHATSAPP_DISPLAY },
   ].filter((r) => isFilled(r.value))
 
   return (

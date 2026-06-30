@@ -4,17 +4,17 @@
  */
 
 export const BANK_DETAILS = {
-  // TODO: completar con el nombre real del banco.
-  banco: 'TODO — completar nombre del banco',
-  // TODO: completar tipo de cuenta (ej. "Caja de ahorro en pesos").
-  tipoCuenta: 'TODO — completar tipo de cuenta',
-  cbu: '0000003100062588008793',
-  alias: 'natalia.arte',
+  // CVU de cuenta virtual (sin banco / tipo de cuenta asociados).
+  cbu: '0000003100011890692022',
+  alias: 'nat.tatt',
   titular: 'Natalia Heller',
 } as const
 
-/** Teléfono de WhatsApp en formato wa.me (solo dígitos, con código de país). +54 9 11 6619-1209 */
-export const WHATSAPP_PHONE = '5491166191209'
+/** Teléfono de WhatsApp en formato wa.me (solo dígitos, con código de país). +54 9 11 3272-2555 */
+export const WHATSAPP_PHONE = '5491132722555'
+
+/** WhatsApp en formato legible para mostrar en pantalla. */
+export const WHATSAPP_DISPLAY = '+54 9 11 3272-2555'
 
 /**
  * Arma el enlace a la API de WhatsApp con el mensaje preformateado para enviar

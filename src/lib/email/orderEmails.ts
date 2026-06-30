@@ -1,5 +1,5 @@
 import 'server-only'
-import { BANK_DETAILS } from '@/lib/bankDetails'
+import { BANK_DETAILS, WHATSAPP_DISPLAY } from '@/lib/bankDetails'
 import { uploadTokenFor } from '@/lib/pb-admin'
 
 /**
@@ -128,11 +128,10 @@ export function buildTransferPendingEmailHtml(order: OrderLike): string {
   const orderUrl = `${SITE_URL}/checkout/confirmacion?order=${orderId}&t=${uploadTokenFor(orderId)}`
 
   const bankRows = [
-    ['Banco', BANK_DETAILS.banco],
-    ['Tipo de cuenta', BANK_DETAILS.tipoCuenta],
-    ['CBU', BANK_DETAILS.cbu],
+    ['CVU', BANK_DETAILS.cbu],
     ['Alias', BANK_DETAILS.alias],
     ['Titular', BANK_DETAILS.titular],
+    ['WhatsApp', WHATSAPP_DISPLAY],
     ['Monto exacto', formatARS(total)],
   ]
     .map(
