@@ -1,9 +1,11 @@
 'use client'
 
 import React, { useLayoutEffect, useRef } from 'react'
+import Image from 'next/image'
 import { ButtonPrimary, SectionContainer, SectionTitle } from '@/components/shared'
 import { gsap, ScrollTrigger, shouldAnimate } from '@/lib/gsap'
 import { splitWords } from '@/lib/animations'
+import type { SiteImage } from '@/lib/data/site-images'
 
 const TONE_COLORS: Record<string, string> = {
   a: '#ece2d1',
@@ -11,7 +13,9 @@ const TONE_COLORS: Record<string, string> = {
   c: '#e5d9c7',
 }
 
-const TattooTeaserSection: React.FC = () => {
+const TattooTeaserSection: React.FC<{ images?: SiteImage[] }> = ({ images = [] }) => {
+  const mosaic = images.slice(0, 3)
+
   const sectionRef = useRef<HTMLDivElement>(null)
   const mosaicRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLSpanElement>(null)
@@ -20,7 +24,7 @@ const TattooTeaserSection: React.FC = () => {
 
   useLayoutEffect(() => {
     const section = sectionRef.current
-    const mosaic = mosaicRef.current
+    const mosaicEl = mosaicRef.current
     const title = titleRef.current
     const paragraph = paragraphRef.current
     const cta = ctaRef.current
@@ -35,8 +39,8 @@ const TattooTeaserSection: React.FC = () => {
     if (cta) gsap.set(cta, { opacity: 0, y: 12 })
 
     const ctx = gsap.context(() => {
-      if (mosaic) {
-        const cards = mosaic.querySelectorAll<HTMLElement>('.teaser-card')
+      if (mosaicEl) {
+        const cards = mosaicEl.querySelectorAll<HTMLElement>('.teaser-card')
         gsap.fromTo(
           cards,
           { clipPath: 'inset(0% 100% 0% 0%)', opacity: 0.001 },
@@ -50,7 +54,7 @@ const TattooTeaserSection: React.FC = () => {
           }
         )
 
-        const bgs = mosaic.querySelectorAll<HTMLElement>('.teaser-card-bg')
+        const bgs = mosaicEl.querySelectorAll<HTMLElement>('.teaser-card-bg')
         bgs.forEach((bg) => {
           gsap.fromTo(
             bg,
@@ -136,37 +140,70 @@ const TattooTeaserSection: React.FC = () => {
             className="teaser-card col-span-1 row-span-2 rounded-card overflow-hidden relative"
             style={{ aspectRatio: '3 / 5', background: TONE_COLORS.a }}
           >
-            <div
-              className="teaser-card-bg absolute inset-0"
-              style={{
-                backgroundImage:
-                  'repeating-linear-gradient(135deg, transparent 0, transparent 11px, rgba(74,124,89,0.07) 11px, rgba(74,124,89,0.07) 12px)',
-              }}
-            />
+            {mosaic[0] ? (
+              <Image
+                src={mosaic[0].url}
+                alt={mosaic[0].alt}
+                fill
+                sizes="(max-width: 768px) 50vw, 25vw"
+                className="object-cover"
+                style={{ objectPosition: `${mosaic[0].focalX}% ${mosaic[0].focalY}%` }}
+              />
+            ) : (
+              <div
+                className="teaser-card-bg absolute inset-0"
+                style={{
+                  backgroundImage:
+                    'repeating-linear-gradient(135deg, transparent 0, transparent 11px, rgba(74,124,89,0.07) 11px, rgba(74,124,89,0.07) 12px)',
+                }}
+              />
+            )}
           </div>
           <div
             className="teaser-card col-span-1 rounded-card overflow-hidden relative"
             style={{ aspectRatio: '1 / 1', background: TONE_COLORS.d }}
           >
-            <div
-              className="teaser-card-bg absolute inset-0"
-              style={{
-                backgroundImage:
-                  'repeating-linear-gradient(135deg, transparent 0, transparent 11px, rgba(74,124,89,0.07) 11px, rgba(74,124,89,0.07) 12px)',
-              }}
-            />
+            {mosaic[1] ? (
+              <Image
+                src={mosaic[1].url}
+                alt={mosaic[1].alt}
+                fill
+                sizes="(max-width: 768px) 50vw, 25vw"
+                className="object-cover"
+                style={{ objectPosition: `${mosaic[1].focalX}% ${mosaic[1].focalY}%` }}
+              />
+            ) : (
+              <div
+                className="teaser-card-bg absolute inset-0"
+                style={{
+                  backgroundImage:
+                    'repeating-linear-gradient(135deg, transparent 0, transparent 11px, rgba(74,124,89,0.07) 11px, rgba(74,124,89,0.07) 12px)',
+                }}
+              />
+            )}
           </div>
           <div
             className="teaser-card col-span-1 rounded-card overflow-hidden relative"
             style={{ aspectRatio: '1 / 1.3', background: TONE_COLORS.c }}
           >
-            <div
-              className="teaser-card-bg absolute inset-0"
-              style={{
-                backgroundImage:
-                  'repeating-linear-gradient(135deg, transparent 0, transparent 11px, rgba(74,124,89,0.07) 11px, rgba(74,124,89,0.07) 12px)',
-              }}
-            />
+            {mosaic[2] ? (
+              <Image
+                src={mosaic[2].url}
+                alt={mosaic[2].alt}
+                fill
+                sizes="(max-width: 768px) 50vw, 25vw"
+                className="object-cover"
+                style={{ objectPosition: `${mosaic[2].focalX}% ${mosaic[2].focalY}%` }}
+              />
+            ) : (
+              <div
+                className="teaser-card-bg absolute inset-0"
+                style={{
+                  backgroundImage:
+                    'repeating-linear-gradient(135deg, transparent 0, transparent 11px, rgba(74,124,89,0.07) 11px, rgba(74,124,89,0.07) 12px)',
+                }}
+              />
+            )}
           </div>
         </div>
 

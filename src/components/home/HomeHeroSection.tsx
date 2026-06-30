@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState, useLayoutEffect, useRef, useEffect, useCallback } from 'react'
+import React, { useState, useLayoutEffect, useRef, useEffect, useCallback, useMemo } from 'react'
+import Image from 'next/image'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import { animateHero, splitWords } from '@/lib/animations'
 import NHLeafMark from '@/components/shared/NHLeafMark'
@@ -11,8 +12,9 @@ import HeroTitle from '@/components/shared/HeroTitle'
 import HeroSubtitle from '@/components/shared/HeroSubtitle'
 import ButtonPrimary from '@/components/shared/ButtonPrimary'
 import ButtonGhost from '@/components/shared/ButtonGhost'
+import type { SiteImage } from '@/lib/data/site-images'
 
-const SLIDES = [
+const PLACEHOLDER_SLIDES = [
   { label: 'Helecho · acuarela', tone: 'a' },
   { label: 'Cuenco musgo · cerámica', tone: 'b' },
   { label: 'Anémonas · gouache', tone: 'c' },
@@ -31,41 +33,47 @@ const TONE_COLORS: Record<string, string> = {
 const TITLE_PRE = 'Te invito a mi '
 const TITLE_EM = 'universo creativo'
 
-interface SlideProps {
-  label: string
-  tone: string
-  index: number
+type HeroSlide =
+  | { kind: 'image'; url: string; alt: string; caption: string; focalX: number; focalY: number }
+  | { kind: 'placeholder'; label: string; tone: string }
+
+const SlideMedia: React.FC<{ slide: HeroSlide; priority?: boolean }> = ({ slide, priority }) => {
+  if (slide.kind === 'image') {
+    return (
+      <Image
+        src={slide.url}
+        alt={slide.alt}
+        fill
+        priority={priority}
+        sizes="(max-width: 767px) 100vw, 55vw"
+        className="object-cover"
+        style={{ objectPosition: `${slide.focalX}% ${slide.focalY}%` }}
+      />
+    )
+  }
+  return (
+    <div className="absolute inset-0 flex items-center justify-center" style={{ background: TONE_COLORS[slide.tone] ?? '#ece2d1' }}>
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(135deg, transparent 0, transparent 11px, rgba(74,124,89,0.07) 11px, rgba(74,124,89,0.07) 12px)',
+        }}
+      />
+      <span
+        className="relative font-mono text-[10px] uppercase tracking-[0.1em] text-center px-3 py-1 rounded-sm"
+        style={{
+          color: 'var(--ink-soft, #5a5350)',
+          background: 'rgba(253,252,251,0.85)',
+        }}
+      >
+        {slide.label}
+      </span>
+    </div>
+  )
 }
 
-const Slide: React.FC<SlideProps> = ({ label, tone, index }) => (
-  <div
-    className="absolute inset-0 flex items-center justify-center"
-    style={{
-      background: TONE_COLORS[tone] ?? '#ece2d1',
-      opacity: index === 0 ? 1 : 0,
-    }}
-  >
-    {/* Diagonal stripe overlay */}
-    <div
-      className="absolute inset-0"
-      style={{
-        backgroundImage:
-          'repeating-linear-gradient(135deg, transparent 0, transparent 11px, rgba(74,124,89,0.07) 11px, rgba(74,124,89,0.07) 12px)',
-      }}
-    />
-    <span
-      className="relative font-mono text-[10px] uppercase tracking-[0.1em] text-center px-3 py-1 rounded-sm"
-      style={{
-        color: 'var(--ink-soft, #5a5350)',
-        background: 'rgba(253,252,251,0.85)',
-      }}
-    >
-      {label}
-    </span>
-  </div>
-)
-
-const MobileTouchCarousel: React.FC = () => {
+const MobileTouchCarousel: React.FC<{ slides: HeroSlide[] }> = ({ slides }) => {
   const trackRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
 
@@ -99,35 +107,23 @@ const MobileTouchCarousel: React.FC = () => {
         aria-label="Carrusel de obras destacadas"
         aria-roledescription="carousel"
       >
-        {SLIDES.map((slide, i) => (
+        {slides.map((slide, i) => (
           <div
             key={i}
-            className="flex-shrink-0 w-full h-full snap-center flex items-center justify-center relative"
-            style={{ background: TONE_COLORS[slide.tone] ?? '#ece2d1' }}
+            className="flex-shrink-0 w-full h-full snap-center relative overflow-hidden"
+            style={slide.kind === 'placeholder' ? { background: TONE_COLORS[slide.tone] ?? '#ece2d1' } : {}}
             role="group"
             aria-roledescription="slide"
-            aria-label={`${i + 1} de ${SLIDES.length}: ${slide.label}`}
+            aria-label={`${i + 1} de ${slides.length}${slide.kind === 'placeholder' ? ': ' + slide.label : slide.alt ? ': ' + slide.alt : ''}`}
           >
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage:
-                  'repeating-linear-gradient(135deg, transparent 0, transparent 11px, rgba(74,124,89,0.07) 11px, rgba(74,124,89,0.07) 12px)',
-              }}
-            />
-            <span
-              className="relative font-mono text-[10px] uppercase tracking-[0.1em] px-3 py-1 rounded-sm"
-              style={{ color: 'var(--ink-soft)', background: 'rgba(253,252,251,0.85)' }}
-            >
-              {slide.label}
-            </span>
+            <SlideMedia slide={slide} />
           </div>
         ))}
       </div>
 
       {/* Dots — wrapper extends tap area to 44px */}
       <div className="mt-2 flex justify-center items-center" role="tablist" aria-label="Selector de imagen">
-        {SLIDES.map((_, i) => (
+        {slides.map((_, i) => (
           <button
             key={i}
             onClick={() => goTo(i)}
@@ -156,7 +152,22 @@ const MobileTouchCarousel: React.FC = () => {
   )
 }
 
-const HomeHeroSection: React.FC = () => {
+const HomeHeroSection: React.FC<{ images?: SiteImage[] }> = ({ images = [] }) => {
+  const slides: HeroSlide[] = useMemo(
+    () =>
+      images.length > 0
+        ? images.map((img) => ({
+            kind: 'image' as const,
+            url: img.url,
+            alt: img.alt,
+            caption: img.caption,
+            focalX: img.focalX,
+            focalY: img.focalY,
+          }))
+        : PLACEHOLDER_SLIDES.map((s) => ({ kind: 'placeholder' as const, label: s.label, tone: s.tone })),
+    [images]
+  )
+
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
@@ -177,7 +188,7 @@ const HomeHeroSection: React.FC = () => {
     if (isMobile || !shouldAnimate() || isPaused) return
     intervalRef.current = setInterval(() => {
       setCurrentSlide((prev) => {
-        const next = (prev + 1) % SLIDES.length
+        const next = (prev + 1) % slides.length
         const prevEl = slideRefs.current[prev]
         const nextEl = slideRefs.current[next]
         if (prevEl && nextEl && shouldAnimate()) {
@@ -191,7 +202,7 @@ const HomeHeroSection: React.FC = () => {
         return next
       })
     }, 4500)
-  }, [isMobile, isPaused, stopAutoAdvance])
+  }, [isMobile, isPaused, stopAutoAdvance, slides.length])
 
   // Detect mobile
   useEffect(() => {
@@ -216,7 +227,7 @@ const HomeHeroSection: React.FC = () => {
     setCurrentSlide(0)
     gsapCtxRef.current = gsap.context(() => {
       if (!shouldAnimate()) return
-      SLIDES.forEach((_, i) => {
+      slides.forEach((_, i) => {
         if (!slideRefs.current[i]) return
         gsap.set(slideRefs.current[i] as HTMLDivElement, { opacity: i === 0 ? 1 : 0, scale: 1 })
       })
@@ -225,7 +236,7 @@ const HomeHeroSection: React.FC = () => {
     return () => {
       if (gsapCtxRef.current) gsapCtxRef.current.revert()
     }
-  }, [isMobile])
+  }, [isMobile, slides])
 
   const goToSlide = (next: number) => {
     if (isMobile) return
@@ -256,7 +267,7 @@ const HomeHeroSection: React.FC = () => {
 
   const handleArrow = (dir: 1 | -1) => {
     stopAutoAdvance()
-    const next = (currentSlide + dir + SLIDES.length) % SLIDES.length
+    const next = (currentSlide + dir + slides.length) % slides.length
     goToSlide(next)
   }
 
@@ -338,7 +349,7 @@ const HomeHeroSection: React.FC = () => {
         <div className="relative order-2 md:order-1 px-6 py-10 md:px-10 md:py-20 lg:px-16 lg:py-24">
           {isMobile ? (
             /* Mobile: native scroll-snap touch carousel */
-            <MobileTouchCarousel />
+            <MobileTouchCarousel slides={slides} />
           ) : (
             /* Desktop: full carousel */
             <div
@@ -351,7 +362,7 @@ const HomeHeroSection: React.FC = () => {
               onFocus={stopAutoAdvance}
             >
               {/* Slides */}
-              {SLIDES.map((slide, i) => (
+              {slides.map((slide, i) => (
                 <div
                   key={i}
                   ref={(el: HTMLDivElement | null) => { slideRefs.current[i] = el }}
@@ -359,7 +370,22 @@ const HomeHeroSection: React.FC = () => {
                   style={{ opacity: i === 0 ? 1 : 0 }}
                   aria-hidden={i !== currentSlide}
                 >
-                  <Slide label={slide.label} tone={slide.tone} index={i} />
+                  <SlideMedia slide={slide} priority={i === 0} />
+                  {slide.kind === 'image' && slide.caption && (
+                    <div
+                      className="absolute bottom-4 left-4 right-4 z-10"
+                    >
+                      <span
+                        className="font-mono text-[10px] uppercase tracking-[0.1em] px-2 py-1 rounded-sm"
+                        style={{
+                          background: 'rgba(253,252,251,0.9)',
+                          color: 'var(--ink-soft)',
+                        }}
+                      >
+                        {slide.caption}
+                      </span>
+                    </div>
+                  )}
                 </div>
               ))}
 
@@ -373,9 +399,9 @@ const HomeHeroSection: React.FC = () => {
                     letterSpacing: '0.08em',
                   }}
                   aria-live="polite"
-                  aria-label={`Imagen ${currentSlide + 1} de ${SLIDES.length}`}
+                  aria-label={`Imagen ${currentSlide + 1} de ${slides.length}`}
                 >
-                  {String(currentSlide + 1).padStart(2, '0')} / {String(SLIDES.length).padStart(2, '0')}
+                  {String(currentSlide + 1).padStart(2, '0')} / {String(slides.length).padStart(2, '0')}
                 </div>
                 <button
                   onClick={togglePause}
@@ -423,7 +449,7 @@ const HomeHeroSection: React.FC = () => {
 
               {/* Dots */}
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10" role="tablist" aria-label="Slides del carrusel">
-                {SLIDES.map((_, i) => (
+                {slides.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => handleDot(i)}

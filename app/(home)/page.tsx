@@ -8,6 +8,7 @@ import {
   TattooTeaserSection,
   QuoteStripSection,
 } from '@/components/home'
+import { getSiteImages } from '@/lib/data/site-images'
 
 export const metadata: Metadata = buildMetadata({
   title: 'Natalia Heller — Arte Original & Tienda | Buenos Aires',
@@ -51,15 +52,23 @@ const homeSchema = {
   sameAs: ['https://instagram.com/nataliaceller_art'],
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [heroImages, teaserImages] = await Promise.all([
+    getSiteImages('home_hero'),
+    getSiteImages('home_teaser'),
+  ])
   return (
     <>
       <JsonLd data={homeSchema} />
-      <HomeHeroSection />
+      <HomeHeroSection images={heroImages} />
       <NHDivider label="Tienda" />
       <FeaturedProductsSection />
-      <NHDivider label="Arte en la piel" />
-      <TattooTeaserSection />
+      {teaserImages.length > 0 && (
+        <>
+          <NHDivider label="Arte en la piel" />
+          <TattooTeaserSection images={teaserImages} />
+        </>
+      )}
       <QuoteStripSection />
     </>
   )
