@@ -34,7 +34,7 @@ interface ProductInfoProps {
   onFrameColorChange: (color: string) => void
 }
 
-const WHATSAPP_NUMBER = '5491166191209'
+const WHATSAPP_NUMBER = '5491132722555'
 
 const ProductInfo: React.FC<ProductInfoProps> = ({
   product,

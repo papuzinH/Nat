@@ -21,7 +21,7 @@ const homeSchema = {
   '@type': ['LocalBusiness', 'ArtGallery'],
   name: 'Natalia Heller — Arte & Tatuajes',
   url: 'https://tatuajesnaty.com',
-  telephone: '+5491166191209',
+  telephone: '+5491132722555',
   image: 'https://tatuajesnaty.com/og-image.webp',
   logo: 'https://tatuajesnaty.com/Logo.svg',
   description:

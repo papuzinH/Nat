@@ -18,7 +18,7 @@ const contactPageSchema = {
   mainEntity: {
     '@type': 'LocalBusiness',
     name: 'Natalia Heller Tattoo Studio',
-    telephone: '+54 9 11 6619-1209',
+    telephone: '+54 9 11 3272-2555',
     email: 'agendanattatt@gmail.com',
     address: {
       '@type': 'PostalAddress',
