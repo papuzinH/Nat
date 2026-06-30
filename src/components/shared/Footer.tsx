@@ -18,7 +18,7 @@ const Footer: React.FC = () => {
 
           {/* Col 1 — Brand */}
           <div className="flex flex-col gap-5">
-            <NHLogo size={32} />
+            <NHLogo size={24} />
             <p
               style={{
                 fontFamily: 'Fraunces, Georgia, serif',

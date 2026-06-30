@@ -142,7 +142,7 @@ const Header: React.FC = () => {
     >
       {/* Desktop */}
       <div className="hidden md:flex items-center justify-between px-10 py-[22px]">
-        <NHLogo size={36} />
+        <NHLogo size={20} />
 
         <nav role="navigation" aria-label="Navegación principal" className="flex items-center gap-9">
           {navigationItems.map((item) => (
@@ -203,7 +203,7 @@ const Header: React.FC = () => {
 
       {/* Mobile */}
       <div className="md:hidden flex items-center justify-between px-[18px] py-[14px]">
-        <NHLogo size={28} onClick={handleNavClick} />
+        <NHLogo size={16} onClick={handleNavClick} />
 
         <div className="flex items-center gap-1">
           {/* Cart icon mobile */}

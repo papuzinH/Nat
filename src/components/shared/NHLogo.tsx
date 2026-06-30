@@ -24,6 +24,17 @@ const NHLogo: React.FC<NHLogoProps> = ({ size = 16, onClick }) => {
         style={{ height: logoHeight, width: 'auto', display: 'block' }}
       />
       <span
+        aria-hidden="true"
+        style={{
+          display: 'block',
+          width: 1,
+          height: logoHeight * 0.55,
+          background: 'var(--line, rgba(44,44,44,0.18))',
+          margin: '0 10px',
+          flexShrink: 0,
+        }}
+      />
+      <span
         style={{
           fontFamily: 'Fraunces, Georgia, serif',
           fontSize: 17,
