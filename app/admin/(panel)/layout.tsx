@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { to: '/admin/stock',     label: 'Stock' },
   { to: '/admin/envios',    label: 'Envíos' },
   { to: '/admin/productos', label: 'Productos' },
+  { to: '/admin/galerias',  label: 'Galerías' },
   { to: '/admin/blog',      label: 'Blog' },
 ]
 
