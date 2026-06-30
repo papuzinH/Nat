@@ -49,8 +49,7 @@ const ReservarIntro: React.FC = () => {
         className="hero-line font-body text-ink-soft mb-12 leading-[1.65]"
         style={{ fontSize: '16px', maxWidth: '520px' }}
       >
-        Tomate unos minutos. Cuanto más detalle me des, mejor puedo entender lo que tenés en
-        mente y armar una propuesta que se acerque a tu idea.
+        Completando este formulario vas a poder agendar un turno de manera muy fácil. Por favor te pido que detalles tu idea lo mejor posible, esto me ayuda a presupuestar correctamente el trabajo. Si tenes cualquier duda, queres dejar alguna aclaración o comentario, podes escribir en la parte de Notas al final del formulario.
       </p>
     </div>
   )

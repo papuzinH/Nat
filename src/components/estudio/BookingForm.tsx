@@ -163,13 +163,13 @@ const BookingForm: React.FC = () => {
         }}
       >
         <NHLeafMark size={48} color="#7a9e7e" />
-        <SectionTitle>Llegó tu mensaje</SectionTitle>
+        <SectionTitle>Tu consulta fue enviada!</SectionTitle>
         <p
           className="font-body text-ink-soft leading-[1.6]"
           style={{ fontSize: '15px', maxWidth: '360px' }}
         >
-          Gracias, {firstName}. Te voy a contestar en los próximos días desde
-          agendanattatt@gmail.com. Mientras tanto, respirá hondo ✶
+          Gracias, {firstName}. En los próximos días te voy a estar enviando la respuesta desde
+          agendanattatt@gmail.com. Estate atento/a a la casilla de spam (estrellita)
         </p>
         <button
           onClick={reset}
@@ -231,9 +231,6 @@ const BookingForm: React.FC = () => {
       <h3 className="booking-field font-display font-normal mb-1" style={{ fontSize: '26px' }}>
         Formulario de Tatuaje
       </h3>
-      <p className="booking-field font-body text-ink-soft mb-8" style={{ fontSize: '13px' }}>
-        Sé lo más detallado posible para entender bien tu idea.
-      </p>
 
       <form onSubmit={submit} noValidate className="space-y-10">
         {/* ── 01 — Sobre vos ── */}
@@ -273,7 +270,7 @@ const BookingForm: React.FC = () => {
                   <span className="font-body text-[14px] text-ink-soft pr-1 select-none">@</span>
                   <input
                     type="text"
-                    placeholder="tu_usuario (opcional)"
+                    placeholder="tu_usuario"
                     value={fields.instagram.replace(/^@/, '')}
                     onChange={(e) => update('instagram', e.target.value.replace(/^@/, ''))}
                     className="w-full font-body text-[14px] text-ink bg-transparent border-0 py-2 outline-none placeholder:text-ink-soft"
@@ -326,7 +323,7 @@ const BookingForm: React.FC = () => {
                   </span>
                 </div>
                 <p className="mt-1 font-body text-[11px] text-ink-soft">
-                  Aprox, redondeá si no estás segura/o
+                  Tomá la medida con una regla
                 </p>
                 <FieldError msg={errors.sizeCm} />
               </div>
