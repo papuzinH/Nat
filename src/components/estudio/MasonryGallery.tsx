@@ -81,15 +81,6 @@ const MasonryGallery: React.FC = () => {
                   }}
                 />
               )}
-
-              <div className="absolute bottom-2 left-2">
-                <span
-                  className="font-mono text-[10px] uppercase tracking-[0.1em] px-2 py-1 rounded-[3px]"
-                  style={{ background: 'rgba(253, 252, 251, 0.82)', color: '#5a5350' }}
-                >
-                  {card.label}
-                </span>
-              </div>
             </div>
           ))}
         </div>
@@ -117,7 +108,7 @@ const MasonryGallery: React.FC = () => {
           </h3>
 
           <p className="text-sm font-body text-ink-soft leading-relaxed max-w-[280px]">
-            Podés ver mi trabajo completo haciendo click en el link
+            Te invito a ver más de mi trabajo haciendo click en el link
           </p>
 
           <ButtonPrimary

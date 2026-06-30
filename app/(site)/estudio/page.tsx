@@ -3,7 +3,6 @@ import { buildMetadata } from '@/lib/seo'
 import JsonLd from '@/components/shared/JsonLd'
 import NHDivider from '@/components/shared/NHDivider'
 import EstudioHero from '@/components/estudio/EstudioHero'
-import StudioPhotosGallery from '@/components/estudio/StudioPhotosGallery'
 import MasonryGallery from '@/components/estudio/MasonryGallery'
 import ProcessSteps from '@/components/estudio/ProcessSteps'
 import ContactEstudioSection from '@/components/estudio/ContactEstudioSection'
@@ -28,8 +27,6 @@ export default function EstudioPage() {
     <div className="min-h-screen bg-cream-100">
       <JsonLd data={estudioSchema} />
       <EstudioHero />
-      <NHDivider label="el espacio" />
-      <StudioPhotosGallery />
       <MasonryGallery />
       <NHDivider label="el proceso" />
       <ProcessSteps />

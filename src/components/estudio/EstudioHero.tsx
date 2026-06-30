@@ -50,7 +50,7 @@ const EstudioHero: React.FC = () => {
                 </span>
               )
             )}
-            <em>
+            <em style={{ display: 'block' }}>
               {splitWords(TITLE_EM).map((token, i) =>
                 /^\s+$/.test(token) ? (
                   <span key={`em-${i}`}>{token}</span>
