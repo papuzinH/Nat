@@ -5,29 +5,11 @@ import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import { SectionContainer } from '@/components/shared'
-
-export interface StudioPhoto {
-  src: string
-  alt: string
-}
-
-const STUDIO_PHOTOS: StudioPhoto[] = []
-
-const TONE_PLACEHOLDERS = [
-  { bg: '#d9e0c8', ratio: '4/3' },
-  { bg: '#e8dfd0', ratio: '3/4' },
-  { bg: '#dde2d1', ratio: '4/3' },
-  { bg: '#e5d9c7', ratio: '1/1' },
-  { bg: '#d5ddcf', ratio: '3/4' },
-  { bg: '#ece2d1', ratio: '4/3' },
-]
+import type { SiteImage } from '@/lib/data/site-images'
 
 const AUTOPLAY_DELAY = 4
 
-type Slide = StudioPhoto | { bg: string; ratio: string }
-const SLIDES: Slide[] = STUDIO_PHOTOS.length > 0 ? STUDIO_PHOTOS : TONE_PLACEHOLDERS
-
-const StudioPhotosGallery: React.FC = () => {
+const StudioPhotosGallery: React.FC<{ images?: SiteImage[] }> = ({ images = [] }) => {
   const [activeIndex, setActiveIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
@@ -42,8 +24,7 @@ const StudioPhotosGallery: React.FC = () => {
   const slideSizeRef = useRef(0)
   const pointerStartX = useRef(0)
 
-  const count = SLIDES.length
-  const hasPhotos = STUDIO_PHOTOS.length > 0
+  const count = images.length
 
   // Keep ref in sync for use inside callbacks that can't read fresh state
   useEffect(() => {
@@ -181,8 +162,6 @@ const StudioPhotosGallery: React.FC = () => {
     [count, stopAutoplay, scheduleNext]
   )
 
-
-
   // ── Touch / pointer swipe ─────────────────────────────────────────────────
 
   const handlePointerDown = (e: React.PointerEvent) => {
@@ -213,52 +192,29 @@ const StudioPhotosGallery: React.FC = () => {
       >
         {/* Track */}
         <div ref={trackRef} className="flex h-full w-full" style={{ willChange: 'transform' }}>
-          {SLIDES.map((slide, i) => (
+          {images.map((img, i) => (
             <div
-              key={i}
+              key={img.id}
               className="studio-slide flex-shrink-0 h-full px-1"
-              /* Peek: slightly narrower than 100% reveals edge of next slide */
               style={{ width: '100%' }}
               aria-hidden={i !== activeIndex ? true : undefined}
             >
-              {hasPhotos ? (
-                <button
-                  type="button"
-                  onClick={() => { setLightboxIndex(i); setLightboxOpen(true) }}
-                  className="block w-full h-full rounded-card overflow-hidden group cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-700"
-                  aria-label={`Ver foto: ${(slide as StudioPhoto).alt}`}
-                  style={{ padding: 0, border: 'none', background: 'none' }}
-                >
-                  <img
-                    src={(slide as StudioPhoto).src}
-                    alt={(slide as StudioPhoto).alt}
-                    loading="lazy"
-                    draggable={false}
-                    className="w-full h-full object-cover block transition-transform duration-300 group-hover:scale-[1.03]"
-                  />
-                </button>
-              ) : (
-                <div
-                  className="w-full h-full rounded-card overflow-hidden relative"
-                  style={{
-                    background: (slide as { bg: string; ratio: string }).bg,
-                    backgroundImage: `repeating-linear-gradient(
-                      135deg,
-                      rgba(96,108,56,0.07) 0px,
-                      rgba(96,108,56,0.07) 1px,
-                      transparent 1px,
-                      transparent 8px
-                    )`,
-                  }}
-                >
-                  <span
-                    className="absolute bottom-2 left-2 font-mono text-[9px] uppercase tracking-[0.1em] px-2 py-1 rounded-sm"
-                    style={{ background: 'rgba(254,250,224,0.82)', color: '#5a5350' }}
-                  >
-                    Pronto
-                  </span>
-                </div>
-              )}
+              <button
+                type="button"
+                onClick={() => { setLightboxIndex(i); setLightboxOpen(true) }}
+                className="block w-full h-full rounded-card overflow-hidden group cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-700"
+                aria-label={`Ver foto: ${img.alt}`}
+                style={{ padding: 0, border: 'none', background: 'none' }}
+              >
+                <img
+                  src={img.url}
+                  alt={img.alt}
+                  loading="lazy"
+                  draggable={false}
+                  className="w-full h-full object-cover block transition-transform duration-300 group-hover:scale-[1.03]"
+                  style={{ objectPosition: `${img.focalX}% ${img.focalY}%` }}
+                />
+              </button>
             </div>
           ))}
         </div>
@@ -292,17 +248,12 @@ const StudioPhotosGallery: React.FC = () => {
         </button>
       </div>
 
-      
-
-  
-      {hasPhotos && (
-        <Lightbox
-          open={lightboxOpen}
-          close={() => setLightboxOpen(false)}
-          index={lightboxIndex}
-          slides={STUDIO_PHOTOS.map((p) => ({ src: p.src, alt: p.alt }))}
-        />
-      )}
+      <Lightbox
+        open={lightboxOpen}
+        close={() => setLightboxOpen(false)}
+        index={lightboxIndex}
+        slides={images.map((p) => ({ src: p.url, alt: p.alt }))}
+      />
     </SectionContainer>
   )
 }

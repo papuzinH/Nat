@@ -4,6 +4,7 @@ import JsonLd from '@/components/shared/JsonLd'
 import NHDivider from '@/components/shared/NHDivider'
 import EstudioHero from '@/components/estudio/EstudioHero'
 import MasonryGallery from '@/components/estudio/MasonryGallery'
+import StudioPhotosGallery from '@/components/estudio/StudioPhotosGallery'
 import ProcessSteps from '@/components/estudio/ProcessSteps'
 import ContactEstudioSection from '@/components/estudio/ContactEstudioSection'
 import { getSiteImages } from '@/lib/data/site-images'
@@ -27,11 +28,20 @@ const estudioSchema = {
 }
 
 export default async function EstudioPage() {
-  const tattooImages = await getSiteImages('estudio_tattoos')
+  const [tattooImages, espacioImages] = await Promise.all([
+    getSiteImages('estudio_tattoos'),
+    getSiteImages('estudio_espacio'),
+  ])
   return (
     <div className="min-h-screen bg-cream-100">
       <JsonLd data={estudioSchema} />
       <EstudioHero />
+      {espacioImages.length > 0 && (
+        <>
+          <NHDivider label="el espacio" />
+          <StudioPhotosGallery images={espacioImages} />
+        </>
+      )}
       <MasonryGallery images={tattooImages} />
       <NHDivider label="el proceso" />
       <ProcessSteps />
