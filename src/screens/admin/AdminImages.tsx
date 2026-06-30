@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { pb } from '@/lib/pocketbase'
+import { ClientResponseError } from 'pocketbase'
 import { compressImage } from '@/lib/imageCompression'
 import { triggerRevalidate } from '@/lib/revalidate-client'
 import { useToast } from '@/context/ToastContext'
@@ -63,7 +64,8 @@ const AdminImages: React.FC = () => {
       .catch((e) => {
         // La colección puede no existir aún → lista vacía, sin romper.
         setLoading(false)
-        if (!(e instanceof Error && /404/.test(e.message))) {
+        // 404 = la colección aún no existe → lista vacía sin avisar.
+        if (!(e instanceof ClientResponseError && e.status === 404)) {
           toast.error('No se pudieron cargar las imágenes', { detail: e instanceof Error ? e.message : undefined })
         }
       })
@@ -75,7 +77,7 @@ const AdminImages: React.FC = () => {
   )
 
   const nextSortOrder = useMemo(
-    () => (sectionRows.length ? Math.max(...sectionRows.map((r) => r.sortOrder)) + 1 : 1),
+    () => sectionRows.reduce((max, r) => Math.max(max, r.sortOrder), 0) + 1,
     [sectionRows]
   )
 
@@ -83,6 +85,7 @@ const AdminImages: React.FC = () => {
     if (!files || files.length === 0) return
     setUploading(true)
     let order = nextSortOrder
+    let anySuccess = false
     for (const original of Array.from(files)) {
       try {
         const optimized = await compressImage(original)
@@ -98,12 +101,13 @@ const AdminImages: React.FC = () => {
         const rec = await pb.collection('site_images').create(fd)
         setRows((prev) => [...prev, rawToAdminImage(rec as Record<string, unknown>)])
         order += 1
+        anySuccess = true
       } catch (e) {
         toast.error(`Error al subir ${original.name}`, { detail: e instanceof Error ? e.message : undefined })
       }
     }
     setUploading(false)
-    triggerRevalidate('site_images')
+    if (anySuccess) triggerRevalidate('site_images')
   }
 
   const toggleActive = async (img: AdminImage) => {
