@@ -87,7 +87,7 @@ const QuoteStripSection: React.FC = () => {
         <blockquote>
           <p
             ref={quoteRef}
-            className="font-display font-normal text-ink"
+            className="font-display font-normal text-ink text-balance"
             style={{ fontSize: 'clamp(22px, 4vw, 32px)', fontStyle: 'italic', lineHeight: 1.35 }}
           >
             {splitWords(QUOTE).map((token, i) =>

@@ -143,12 +143,6 @@ const TattooTeaserSection: React.FC = () => {
                   'repeating-linear-gradient(135deg, transparent 0, transparent 11px, rgba(74,124,89,0.07) 11px, rgba(74,124,89,0.07) 12px)',
               }}
             />
-            <span
-              className="absolute bottom-3 left-3 font-mono text-[9px] uppercase tracking-[0.1em] px-2 py-1 rounded-sm"
-              style={{ color: 'var(--ink-soft)', background: 'rgba(253,252,251,0.85)' }}
-            >
-              En piel
-            </span>
           </div>
           <div
             className="teaser-card col-span-1 rounded-card overflow-hidden relative"
@@ -161,12 +155,6 @@ const TattooTeaserSection: React.FC = () => {
                   'repeating-linear-gradient(135deg, transparent 0, transparent 11px, rgba(74,124,89,0.07) 11px, rgba(74,124,89,0.07) 12px)',
               }}
             />
-            <span
-              className="absolute bottom-3 left-3 font-mono text-[9px] uppercase tracking-[0.1em] px-2 py-1 rounded-sm"
-              style={{ color: 'var(--ink-soft)', background: 'rgba(253,252,251,0.85)' }}
-            >
-              Boceto
-            </span>
           </div>
           <div
             className="teaser-card col-span-1 rounded-card overflow-hidden relative"
@@ -179,12 +167,6 @@ const TattooTeaserSection: React.FC = () => {
                   'repeating-linear-gradient(135deg, transparent 0, transparent 11px, rgba(74,124,89,0.07) 11px, rgba(74,124,89,0.07) 12px)',
               }}
             />
-            <span
-              className="absolute bottom-3 left-3 font-mono text-[9px] uppercase tracking-[0.1em] px-2 py-1 rounded-sm"
-              style={{ color: 'var(--ink-soft)', background: 'rgba(253,252,251,0.85)' }}
-            >
-              En piel
-            </span>
           </div>
         </div>
 
