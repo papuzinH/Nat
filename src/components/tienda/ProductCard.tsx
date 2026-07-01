@@ -95,6 +95,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
           <span className="font-display text-[14px] sm:text-lg text-sage-700 block mt-1.5">
             {formatARS(product.basePrice)}
           </span>
+          {/* Etiqueta de categoría: oculta en mobile, visible desde sm+ */}
+          <div className="hidden sm:block font-mono text-xs uppercase tracking-[0.14em] text-ink-soft mt-[6px]">
+            {product.catLabel}
+          </div>
         </div>
       </Link>
 
