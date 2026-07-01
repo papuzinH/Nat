@@ -274,7 +274,7 @@ const AdminImages: React.FC = () => {
             className="mb-4 rounded-sm px-3 py-2 font-mono text-[10px] uppercase tracking-[0.1em]"
             style={{ border: '1px solid #d3ab00', color: '#6b5200', background: '#fff8db' }}
           >
-            Falta la coleccion site_images en PocketBase. Ejecuta scripts/create-collections.mjs para crearla.
+            Falta la coleccion site_images en PocketBase. Ejecuta scripts/create-site-images.mjs para crearla.
           </div>
         )}
         <input
