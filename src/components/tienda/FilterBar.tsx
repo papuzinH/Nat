@@ -34,7 +34,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
   return (
     <div
       className="sticky z-20"
-      style={{ top: 'var(--header-h, 72px)' }}
+      style={{ top: 'var(--header-h, 62px)' }}
     >
       <div
         className="border-b px-6 md:px-12 py-4"

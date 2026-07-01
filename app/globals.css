@@ -30,7 +30,7 @@
     --ink-soft: #5a5350;
   }
   @media (min-width: 768px) {
-    :root { --header-h: 80px; }
+    :root { --header-h: 74px; }
   }
   body {
     font-family: theme('fontFamily.body');

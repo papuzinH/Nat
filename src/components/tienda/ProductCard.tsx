@@ -88,30 +88,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
         )}
 
         {/* Info */}
-        <div className="p-[18px_18px_22px]">
-          <div className="flex justify-between items-baseline gap-2">
-            <h3 className="font-display text-xl font-normal text-ink leading-tight group-hover:text-sage-700 transition-colors duration-200">
-              {product.title}
-            </h3>
-            <span className="font-display text-xl text-sage-700 shrink-0">
-              {formatARS(product.basePrice)}
-            </span>
-          </div>
-          <div className="font-mono text-xs uppercase tracking-[0.14em] text-ink-soft mt-[6px]">
-            {product.catLabel}
-          </div>
+        <div className="p-3 sm:p-[18px_18px_22px]">
+          <h3 className="font-display text-[15px] sm:text-xl font-normal text-ink leading-snug group-hover:text-sage-700 transition-colors duration-200 line-clamp-2">
+            {product.title}
+          </h3>
+          <span className="font-display text-[14px] sm:text-lg text-sage-700 block mt-1.5">
+            {formatARS(product.basePrice)}
+          </span>
         </div>
       </Link>
 
-      {/* Quick-add overlay — visible en hover */}
+      {/* Quick-add overlay — centrado, fondo claro borroso, visible en hover */}
       <div
         aria-hidden="true"
-        className="absolute bottom-0 inset-x-0 p-3 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 pointer-events-none group-hover:pointer-events-auto"
+        className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none bg-cream-50/30 backdrop-blur-[3px]"
       >
         <button
           onClick={handleQuickAdd}
           tabIndex={-1}
-          className="w-full py-2 font-body text-[13px] font-semibold bg-sage-900 text-cream-50 rounded-pill hover:bg-sage-700 transition-colors duration-150"
+          className="pointer-events-auto px-6 py-2.5 font-body text-[13px] font-semibold bg-sage-900 text-cream-50 rounded-pill shadow-lg scale-95 group-hover:scale-100 transition-[transform,background-color] duration-200 hover:bg-sage-700"
           aria-label={`Agregar ${product.title} al carrito`}
         >
           {product.variants ? 'Ver opciones →' : 'Agregar al carrito'}

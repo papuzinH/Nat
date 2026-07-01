@@ -131,6 +131,7 @@ const Header: React.FC = () => {
   }, [isMenuOpen])
 
   return (
+    <>
     <header
       className="sticky top-0 z-50"
       style={{
@@ -141,7 +142,7 @@ const Header: React.FC = () => {
       }}
     >
       {/* Desktop */}
-      <div className="hidden md:flex items-center justify-between px-10 py-[22px]">
+      <div className="hidden md:flex items-center justify-between px-10 py-4">
         <NHLogo size={20} />
 
         <nav role="navigation" aria-label="Navegación principal" className="flex items-center gap-9">
@@ -255,19 +256,10 @@ const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* Scrim overlay — closes menu on tap outside */}
-      {isMenuOpen && (
-        <div
-          className="md:hidden fixed inset-0 bg-black/30 z-40"
-          onClick={() => setIsMenuOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Mobile menu panel — drops below header */}
+      {/* Mobile menu panel — absolute, floats below header without pushing content */}
       <div
         ref={menuPanelRef}
-        className="md:hidden overflow-hidden relative z-50"
+        className="md:hidden overflow-hidden absolute left-0 right-0 top-full z-50"
         style={{ height: 0, opacity: 0 }}
         aria-hidden={!isMenuOpen}
       >
@@ -295,6 +287,16 @@ const Header: React.FC = () => {
         </nav>
       </div>
     </header>
+
+    {/* Scrim fuera del header — z-40 en contexto raíz, el header (z-50) queda visible encima */}
+    {isMenuOpen && (
+      <div
+        className="md:hidden fixed inset-0 bg-black/30 z-40"
+        onClick={() => setIsMenuOpen(false)}
+        aria-hidden="true"
+      />
+    )}
+    </>
   )
 }
 
