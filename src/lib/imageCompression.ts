@@ -35,17 +35,17 @@ function isUnprocessable(file: File): boolean {
 
 /**
  * HEIC/HEIF (formato de iPhone) no se decodifica en Chrome/Firefox ni se puede
- * mostrar en la web. Lo convertimos a JPEG con heic2any (import dinámico: el
- * ~1.4 MB de WASM solo se carga cuando aparece un HEIC). El JPEG resultante
+ * mostrar en la web. Lo convertimos a JPEG con heic-to (libheif-js actual, con
+ * decoder HEVC; el variante /next es el build pensado para Next.js). Import
+ * dinámico: el WASM solo se carga cuando aparece un HEIC. El JPEG resultante
  * sigue el pipeline normal de compresión/redimensión.
  */
 async function convertHeicIfNeeded(file: File): Promise<File> {
-  const isHeic = /image\/hei[cf]/i.test(file.type) || /\.hei[cf]$/i.test(file.name)
-  if (!isHeic) return file
+  const looksHeic = /image\/hei[cf]/i.test(file.type) || /\.hei[cf]$/i.test(file.name)
+  if (!looksHeic) return file
   try {
-    const { default: heic2any } = await import('heic2any')
-    const out = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 })
-    const blob = Array.isArray(out) ? out[0] : out
+    const { heicTo } = await import('heic-to/next')
+    const blob = await heicTo({ blob: file, type: 'image/jpeg', quality: 0.92 })
     const baseName = file.name.replace(/\.[^.]+$/, '')
     console.log('[compressImage] HEIC convertido a JPEG:', file.name)
     return new File([blob], `${baseName}.jpg`, { type: 'image/jpeg', lastModified: Date.now() })
