@@ -105,6 +105,27 @@ async function main() {
     ],
   })
 
+  // ── site_images ─────────────────────────────────────────────────────────────
+  await create({
+    name: 'site_images',
+    type: 'base',
+    fields: [
+      { name: 'section',    type: 'select', required: true, options: { maxSelect: 1, values: ['home_hero', 'home_teaser', 'estudio_tattoos', 'estudio_espacio'] } },
+      { name: 'image',      type: 'file',   required: true, options: { maxSelect: 1, mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif'] } },
+      { name: 'alt',        type: 'text'                                                                                                                       },
+      { name: 'caption',    type: 'text'                                                                                                                       },
+      { name: 'sort_order', type: 'number'                                                                                                                     },
+      { name: 'focal_x',    type: 'number'                                                                                                                     },
+      { name: 'focal_y',    type: 'number'                                                                                                                     },
+      { name: 'active',     type: 'bool'                                                                                                                       },
+    ],
+    listRule: '',
+    viewRule: '',
+    createRule: '@request.auth.id != ""',
+    updateRule: '@request.auth.id != ""',
+    deleteRule: '@request.auth.id != ""',
+  })
+
   // ── orders ──────────────────────────────────────────────────────────────────
   await create({
     name: 'orders',

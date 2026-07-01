@@ -50,6 +50,7 @@ const AdminImages: React.FC = () => {
   const toast = useToast()
   const [rows, setRows] = useState<AdminImage[]>([])
   const [loading, setLoading] = useState(true)
+  const [collectionMissing, setCollectionMissing] = useState(false)
   const [activeSection, setActiveSection] = useState<SiteImageSection>('home_hero')
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -61,20 +62,31 @@ const AdminImages: React.FC = () => {
   const [draft, setDraft] = useState<{ alt: string; caption: string }>({ alt: '', caption: '' })
 
   useEffect(() => {
-    pb.collection('site_images')
-      .getFullList({ sort: 'section,sort_order', requestKey: null })
-      .then((data) => {
+    const load = async () => {
+      try {
+        // Consultamos metadatos de colecciones para evitar requests 404 a /records.
+        const collections = await pb.collections.getFullList({ requestKey: null })
+        const hasSiteImages = collections.some((c) => c.name === 'site_images')
+        if (!hasSiteImages) {
+          setCollectionMissing(true)
+          setRows([])
+          setLoading(false)
+          return
+        }
+
+        setCollectionMissing(false)
+        const data = await pb.collection('site_images').getFullList({ sort: 'section,sort_order', requestKey: null })
         setRows(data.map(rawToAdminImage))
         setLoading(false)
-      })
-      .catch((e) => {
-        // La colección puede no existir aún → lista vacía, sin romper.
+      } catch (e) {
         setLoading(false)
-        // 404 = la colección aún no existe → lista vacía sin avisar.
         if (!(e instanceof ClientResponseError && e.status === 404)) {
           toast.error('No se pudieron cargar las imágenes', { detail: e instanceof Error ? e.message : undefined })
         }
-      })
+      }
+    }
+
+    load()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const sectionRows = useMemo(
@@ -88,6 +100,10 @@ const AdminImages: React.FC = () => {
   )
 
   const handleFiles = async (files: FileList | null) => {
+    if (collectionMissing) {
+      toast.error('Falta la colección site_images en PocketBase')
+      return
+    }
     if (!files || files.length === 0) return
     setUploading(true)
     let order = nextSortOrder
@@ -117,6 +133,10 @@ const AdminImages: React.FC = () => {
   }
 
   const toggleActive = async (img: AdminImage) => {
+    if (collectionMissing) {
+      toast.error('Falta la colección site_images en PocketBase')
+      return
+    }
     try {
       await pb.collection('site_images').update(img.id, { active: !img.active })
       setRows((prev) => prev.map((r) => (r.id === img.id ? { ...r, active: !img.active } : r)))
@@ -127,6 +147,10 @@ const AdminImages: React.FC = () => {
   }
 
   const remove = async (id: string) => {
+    if (collectionMissing) {
+      toast.error('Falta la colección site_images en PocketBase')
+      return
+    }
     try {
       await pb.collection('site_images').delete(id)
       setRows((prev) => prev.filter((r) => r.id !== id))
@@ -149,6 +173,9 @@ const AdminImages: React.FC = () => {
   }
 
   const persist = async (id: string, data: Record<string, unknown>) => {
+    if (collectionMissing) {
+      throw new Error('Falta la colección site_images en PocketBase')
+    }
     await pb.collection('site_images').update(id, data)
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...mapPatch(data) } : r)))
     triggerRevalidate('site_images')
@@ -242,17 +269,26 @@ const AdminImages: React.FC = () => {
 
       {/* Subir */}
       <div className="mb-6">
+        {collectionMissing && (
+          <div
+            className="mb-4 rounded-sm px-3 py-2 font-mono text-[10px] uppercase tracking-[0.1em]"
+            style={{ border: '1px solid #d3ab00', color: '#6b5200', background: '#fff8db' }}
+          >
+            Falta la coleccion site_images en PocketBase. Ejecuta scripts/create-collections.mjs para crearla.
+          </div>
+        )}
         <input
           ref={fileInputRef}
           type="file"
           accept="image/*"
           multiple
           className="hidden"
+          disabled={collectionMissing}
           onChange={(e) => { handleFiles(e.target.files); e.target.value = '' }}
         />
         <button
           type="button"
-          disabled={uploading}
+          disabled={uploading || collectionMissing}
           onClick={() => fileInputRef.current?.click()}
           className="font-mono text-[11px] uppercase tracking-[0.1em] px-4 py-2 rounded-pill border transition-all hover:bg-sage-700 hover:text-cream-50 hover:border-sage-700 disabled:opacity-50"
           style={{ borderColor: 'var(--sage-700)', color: 'var(--sage-700)' }}
