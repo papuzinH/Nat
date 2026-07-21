@@ -149,3 +149,10 @@ Colecciones: `products`, `product_stock`, `blog_posts`, `orders`, `shipping_zone
 - **Instagram:** `@nataliaceller_art` (arte) · `@nat.tatt` (tatuajes)
 - **Teléfono:** +54 9 11 3272-2555
 - **Deploy:** Vercel (`framework: nextjs`).
+
+## Panchito Kit
+- nivel: lite
+- status: 40-PROYECTOS/Nat/Nat - Status & Roadmap.md
+- fuente_producto: vault
+- verificacion: npm run lint && npx tsc --noEmit
+- branch_base: main
