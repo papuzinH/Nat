@@ -174,7 +174,7 @@ export async function POST(req: Request) {
   const brevoKey = process.env.BREVO_API_KEY
   const toEmail = process.env.BOOKING_TO_EMAIL ?? 'nataliaceller.tattoo@gmail.com'
   const toName = process.env.BOOKING_TO_NAME ?? 'Natalia Heller'
-  const senderEmail = process.env.BOOKING_SENDER_EMAIL ?? 'noreply@tatuajesnaty.com'
+  const senderEmail = process.env.BOOKING_SENDER_EMAIL ?? process.env.BREVO_SENDER_EMAIL ?? 'noreply@tatuajesnaty.com'
   const senderName = process.env.BOOKING_SENDER_NAME ?? 'Web · Reservas'
 
   if (!brevoKey) {

@@ -168,11 +168,15 @@ export async function sendBrevoEmail({ to, subject, html }: SendBrevoArgs): Prom
   const brevoKey = process.env.BREVO_API_KEY
   if (!brevoKey) return
 
+  // El sender debe estar verificado en Brevo (o su dominio autenticado);
+  // si no, Brevo rechaza el envío con un evento `error`.
+  const senderEmail = process.env.BREVO_SENDER_EMAIL ?? 'noreply@tatuajesnaty.com'
+
   await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: { 'api-key': brevoKey, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      sender: { name: 'Natalia Heller', email: 'noreply@tatuajesnaty.com' },
+      sender: { name: 'Natalia Heller', email: senderEmail },
       to: [{ email: to.email, name: to.name ?? to.email }],
       replyTo: { email: 'nataliaceller.tattoo@gmail.com' },
       subject,

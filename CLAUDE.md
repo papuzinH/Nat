@@ -137,7 +137,7 @@ Colecciones: `products`, `product_stock`, `blog_posts`, `orders`, `shipping_zone
 - `NEXT_PUBLIC_POCKETBASE_URL`, `POCKETBASE_URL` (server) — URL de PocketBase
 - `REVALIDATE_SECRET` — revalidación server-to-server (opcional; el admin usa su token PB)
 - `MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET` — Mercado Pago
-- `BREVO_API_KEY`, `BOOKING_*`, `SITE_URL` — emails
+- `BREVO_API_KEY`, `BREVO_SENDER_EMAIL` (remitente global, debe estar verificado en Brevo), `BOOKING_*`, `SITE_URL` — emails
 - `PB_ADMIN_EMAIL`, `PB_ADMIN_PASSWORD` — auth admin server (webhook)
 
 ---
