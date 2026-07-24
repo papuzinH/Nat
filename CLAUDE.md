@@ -70,7 +70,7 @@ src/
 │   ├── home/ tienda/ blog/ estudio/ contacto/ cart/ checkout/
 │   └── admin/    # TipTapEditor, toolbar, modales, tabla shared
 ├── context/      # CartContext, ToastContext ('use client')
-├── hooks/        # useProducts, useBlogLogic, useCheckoutForm, useShippingZones, useCategories…
+├── hooks/        # useProducts, useCheckoutForm, useShippingZones, useCategories…
 ├── data/         # products.ts (tipos/helpers: formatARS, normalize…), blog-posts.ts (tipos)
 ├── screens/admin/ # Pantallas del panel ('use client'), renderizadas por app/admin/**
 └── assets/        # Imágenes/SVG (tattoo mock-data con StaticImageData)

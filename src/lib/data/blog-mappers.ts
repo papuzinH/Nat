@@ -1,7 +1,7 @@
 import type { BlogPost } from '@/data/blog-posts'
 
-// Funciones puras de mapeo de blog (sin React). Compartidas entre el fetcher
-// server (src/lib/data/blog.ts) y los hooks client (useBlogLogic / *PostLogic).
+// Funciones puras de mapeo de blog (sin React), usadas por el fetcher
+// server (src/lib/data/blog.ts).
 
 export function formatDate(raw: string): string {
   if (!raw) return ''
