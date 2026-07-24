@@ -346,7 +346,7 @@ const AdminBlogEditor: React.FC<{ id?: string }> = ({ id }) => {
     if (!state.dirty || state.saving || state.isNew || !state.id) return
     const handle = setTimeout(() => { saveRef.current?.() }, 30_000)
     return () => clearTimeout(handle)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [state.dirty, state.saving, state.isNew, state.id, state.body, state.title, state.subtitle, state.category])
 
   // Lista de todos los posts para el selector de relacionados

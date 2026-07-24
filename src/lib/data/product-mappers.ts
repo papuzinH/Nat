@@ -77,9 +77,38 @@ export interface StockEntry {
   status: string
 }
 
+/**
+ * Campos crudos del record `products` de PocketBase que consume el mapper.
+ * PocketBase siempre devuelve los campos con zero-values (''/0/false); los
+ * json pueden venir null. El index signature admite el resto del record.
+ */
+export interface ProductRow {
+  slug: string
+  title: string
+  category: string
+  cat_label: string
+  base_price: number
+  size: string
+  tone: string
+  tall: number
+  description: unknown
+  medium?: string
+  edition?: string
+  images: string[] | null
+  tags: string[] | null
+  variants: unknown
+  has_frame: boolean
+  frame_price: number
+  frame_variants: unknown
+  frame_options: unknown
+  on_demand: boolean
+  created?: string
+  [key: string]: unknown
+}
+
 /** Mapea un record de PocketBase (+ su stock) al tipo de dominio Product. */
 export function mapProduct(
-  p: Record<string, any>,
+  p: ProductRow,
   stock?: StockEntry,
 ): Product {
   return {

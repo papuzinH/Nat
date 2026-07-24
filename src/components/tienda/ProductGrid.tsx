@@ -47,7 +47,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       })
     }, gridRef)
     return () => ctx.revert()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])  
 
   // Animación al cambiar filtro
   useLayoutEffect(() => {

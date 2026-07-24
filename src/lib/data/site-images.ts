@@ -26,7 +26,7 @@ export interface SiteImage {
  */
 export async function getSiteImages(section: SiteImageSection): Promise<SiteImage[]> {
   try {
-    const rows = await pbGetFullList<Record<string, any>>(
+    const rows = await pbGetFullList<Record<string, unknown>>(
       'site_images',
       { filter: `section="${section}" && active=true`, sort: 'sort_order' },
       { tags: [SITE_IMAGES_TAG] },

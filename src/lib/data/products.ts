@@ -1,6 +1,6 @@
 import 'server-only'
 import { pbGetFullList } from '@/lib/pocketbase-server'
-import { mapProduct, type StockEntry } from '@/lib/data/product-mappers'
+import { mapProduct, type ProductRow, type StockEntry } from '@/lib/data/product-mappers'
 import type { Product } from '@/data/products'
 
 // Tag de cache para revalidación on-demand desde el admin (/api/revalidate).
@@ -9,7 +9,7 @@ export const PRODUCTS_TAG = 'products'
 /** Trae todos los productos (con stock) desde PocketBase, cacheados con ISR. */
 export async function getProducts(): Promise<Product[]> {
   const [rawProducts, stockData] = await Promise.all([
-    pbGetFullList<Record<string, any>>(
+    pbGetFullList<ProductRow>(
       'products',
       { sort: 'sort_order' },
       { tags: [PRODUCTS_TAG] },

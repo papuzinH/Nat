@@ -24,7 +24,7 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 
 /** Detalle de un post publicado por slug (con bodyJson para render server). */
 export async function getBlogPost(slug: string): Promise<BlogPostDetail | null> {
-  const rows = await pbGetFullList<Record<string, any>>(
+  const rows = await pbGetFullList<Record<string, unknown>>(
     'blog_posts',
     { filter: `slug="${slug}" && published=true`, perPage: '1' },
     { tags: [BLOG_TAG] },

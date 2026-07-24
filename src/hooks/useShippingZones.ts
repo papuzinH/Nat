@@ -30,7 +30,7 @@ export function useShippingZones() {
     setLoading(false)
   }
 
-  useEffect(() => { fetchZones() }, [])  // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchZones() }, [])   
 
   const addZone = async (name: string, price: number): Promise<boolean> => {
     try {

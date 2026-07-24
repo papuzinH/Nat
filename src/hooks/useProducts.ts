@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { pb } from '@/lib/pocketbase'
-import { mapProduct, type StockEntry } from '@/lib/data/product-mappers'
+import { mapProduct, type ProductRow, type StockEntry } from '@/lib/data/product-mappers'
 import { type Product } from '@/data/products'
 
 export function useProducts() {
@@ -9,13 +9,13 @@ export function useProducts() {
 
   useEffect(() => {
     Promise.all([
-      pb.collection('products').getFullList({ sort: 'sort_order', requestKey: null }),
+      pb.collection('products').getFullList<ProductRow>({ sort: 'sort_order', requestKey: null }),
       pb.collection('product_stock').getFullList({ fields: 'slug,stock,status', requestKey: null }),
     ]).then(([rawProducts, stockData]) => {
       const stockMap: Record<string, StockEntry> = {}
       for (const row of stockData) stockMap[row.slug] = { stock: row.stock, status: row.status }
 
-      setProducts(rawProducts.map((p) => mapProduct(p as Record<string, unknown>, stockMap[p.slug])))
+      setProducts(rawProducts.map((p) => mapProduct(p, stockMap[p.slug])))
       setLoading(false)
     }).catch(() => setLoading(false))
   }, [])

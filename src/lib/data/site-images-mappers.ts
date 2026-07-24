@@ -2,7 +2,7 @@ import { pbFileUrl } from '@/lib/pocketbase-server'
 import type { SiteImage } from './site-images'
 
 /** Mapea un record REST de site_images al tipo público SiteImage. */
-export function rowToSiteImage(row: Record<string, any>): SiteImage {
+export function rowToSiteImage(row: Record<string, unknown>): SiteImage {
   return {
     id: row.id as string,
     url: pbFileUrl(row.collectionId as string, row.id as string, row.image as string),

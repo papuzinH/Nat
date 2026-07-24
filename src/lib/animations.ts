@@ -22,7 +22,7 @@ export function revealOnScroll(selector: string, scope: Element, opts: RevealOpt
           { opacity: 1, y: 0, duration, stagger, ease, overwrite: 'auto' }
         ),
     })
-  }, scope as any)
+  }, scope)
 
   return () => ctx.revert()
 }
@@ -97,7 +97,7 @@ export function clipReveal(selector: string, scope: Element, opts: ClipRevealOpt
           }
         ),
     })
-  }, scope as any)
+  }, scope)
 
   return () => ctx.revert()
 }

@@ -70,8 +70,9 @@ export const useContactForm = ({ designId, designTitle }: UseContactFormProps = 
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      if ((window as any).dataLayer) {
-        (window as any).dataLayer.push({
+      const w = window as Window & { dataLayer?: Record<string, unknown>[] }
+      if (w.dataLayer) {
+        w.dataLayer.push({
           event: 'form_submitted_success',
           design_id: designId || undefined,
           design_title: designTitle || undefined,
