@@ -82,7 +82,6 @@ const MasonryGallery: React.FC<{ images?: SiteImage[] }> = ({ images = [] }) => 
               <div
                 key={img.id}
                 className="masonry-card relative break-inside-avoid mb-3 md:mb-4 rounded-[4px] overflow-hidden hover:-translate-y-0.5 hover:scale-[1.015] transition-transform duration-[260ms] ease-out"
-                style={{ willChange: 'transform' }}
               >
                 <div className="relative w-full" style={{ aspectRatio: i % 3 === 0 ? '1 / 1.35' : '1 / 1' }}>
                   <Image

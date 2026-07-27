@@ -122,6 +122,7 @@ const MobileTouchCarousel: React.FC<{ slides: HeroSlide[] }> = ({ slides }) => {
       </div>
 
       {/* Dots — wrapper extends tap area to 44px */}
+      {slides.length > 1 && (
       <div className="mt-2 flex justify-center items-center" role="tablist" aria-label="Selector de imagen">
         {slides.map((_, i) => (
           <button
@@ -148,6 +149,7 @@ const MobileTouchCarousel: React.FC<{ slides: HeroSlide[] }> = ({ slides }) => {
           </button>
         ))}
       </div>
+      )}
     </div>
   )
 }
@@ -185,7 +187,7 @@ const HomeHeroSection: React.FC<{ images?: SiteImage[] }> = ({ images = [] }) =>
 
   const startAutoAdvance = useCallback(() => {
     stopAutoAdvance()
-    if (isMobile || !shouldAnimate() || isPaused) return
+    if (isMobile || !shouldAnimate() || isPaused || slides.length <= 1) return
     intervalRef.current = setInterval(() => {
       setCurrentSlide((prev) => {
         const next = (prev + 1) % slides.length
@@ -389,6 +391,9 @@ const HomeHeroSection: React.FC<{ images?: SiteImage[] }> = ({ images = [] }) =>
                 </div>
               ))}
 
+              {/* Controles — solo con más de un slide */}
+              {slides.length > 1 && (
+              <>
               {/* Counter + Pause/Play */}
               <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
                 <div
@@ -447,8 +452,8 @@ const HomeHeroSection: React.FC<{ images?: SiteImage[] }> = ({ images = [] }) =>
                 </svg>
               </button>
 
-              {/* Dots */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10" role="tablist" aria-label="Slides del carrusel">
+              {/* Dots — wrapper extends hit area to 44px (WCAG 2.5.8) */}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex items-center z-10" role="tablist" aria-label="Slides del carrusel">
                 {slides.map((_, i) => (
                   <button
                     key={i}
@@ -456,22 +461,26 @@ const HomeHeroSection: React.FC<{ images?: SiteImage[] }> = ({ images = [] }) =>
                     role="tab"
                     aria-selected={i === currentSlide}
                     aria-label={`Ir a imagen ${i + 1}`}
-                    className="transition-all duration-300 rounded-pill"
-                    style={{
-                      width: i === currentSlide ? 22 : 6,
-                      height: 6,
-                      background:
-                        i === currentSlide
-                          ? 'var(--sage-700, #4a7c59)'
-                          : 'var(--taupe-500, #b8a898)',
-                      opacity: i === currentSlide ? 1 : 0.4,
-                      border: 'none',
-                      padding: 0,
-                      cursor: 'pointer',
-                    }}
-                  />
+                    className="inline-flex items-center justify-center min-w-[44px] h-[44px] bg-transparent border-0 cursor-pointer p-0"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="block transition-all duration-300 rounded-pill"
+                      style={{
+                        width: i === currentSlide ? 22 : 6,
+                        height: 6,
+                        background:
+                          i === currentSlide
+                            ? 'var(--sage-700, #4a7c59)'
+                            : 'var(--taupe-500, #b8a898)',
+                        opacity: i === currentSlide ? 1 : 0.4,
+                      }}
+                    />
+                  </button>
                 ))}
               </div>
+              </>
+              )}
             </div>
           )}
         </div>

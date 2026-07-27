@@ -41,6 +41,11 @@ const ProcessSteps: React.FC = () => {
         const title = step.querySelector<HTMLElement>('.process-step-title')
         const desc = step.querySelector<HTMLElement>('.process-step-desc')
 
+        // Pre-set hidden state synchronously to avoid visible→hidden flash
+        if (num) gsap.set(num, { opacity: 0, y: 20 })
+        if (title) gsap.set(title, { opacity: 0, y: 12 })
+        if (desc) gsap.set(desc, { opacity: 0, y: 8 })
+
         const tl = gsap.timeline({
           scrollTrigger: { trigger: step, start: 'top 85%', once: true },
           delay: idx * 0.05,
@@ -84,19 +89,19 @@ const ProcessSteps: React.FC = () => {
           <div key={step.num} className="process-step">
             <p
               className="process-step-num font-display italic leading-none mb-4"
-              style={{ fontSize: '56px', color: '#7a9e7e', opacity: 0 }}
+              style={{ fontSize: '56px', color: '#7a9e7e' }}
             >
               {step.num}
             </p>
             <h3
               className="process-step-title font-display mb-2"
-              style={{ fontSize: '22px', color: '#2c2c2c', opacity: 0 }}
+              style={{ fontSize: '22px', color: '#2c2c2c' }}
             >
               {step.title}
             </h3>
             <p
               className="process-step-desc font-body leading-[1.6]"
-              style={{ fontSize: '14px', color: '#5a5350', opacity: 0 }}
+              style={{ fontSize: '14px', color: '#5a5350' }}
             >
               {step.desc}
             </p>

@@ -44,7 +44,7 @@ const EstudioHero: React.FC = () => {
                 <span
                   key={`pre-${i}`}
                   data-split-word
-                  style={{ display: 'inline-block', willChange: 'transform, opacity, filter' }}
+                  style={{ display: 'inline-block' }}
                 >
                   {token}
                 </span>
@@ -58,7 +58,7 @@ const EstudioHero: React.FC = () => {
                   <span
                     key={`em-${i}`}
                     data-split-word
-                    style={{ display: 'inline-block', willChange: 'transform, opacity, filter' }}
+                    style={{ display: 'inline-block' }}
                   >
                     {token}
                   </span>

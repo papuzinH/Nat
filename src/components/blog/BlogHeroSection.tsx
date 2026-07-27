@@ -39,7 +39,7 @@ const BlogHeroSection: React.FC<BlogHeroSectionProps> = ({ sectionRef }) => {
                 <span
                   key={i}
                   data-split-word
-                  style={{ display: 'inline-block', willChange: 'transform, opacity, filter' }}
+                  style={{ display: 'inline-block' }}
                 >
                   {token}
                 </span>
