@@ -6,7 +6,7 @@ import { useCart } from '@/context/CartContext'
 import { formatARS } from '@/data/products'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import { usePublicShippingZones } from '@/hooks/useShippingZones'
-import { matchZone, normalizeCP } from '@/lib/shipping'
+import { resolveCABAZone, normalizeCP } from '@/lib/shipping'
 import CartItemRow from './CartItemRow'
 
 const CartDrawer: React.FC = () => {
@@ -27,7 +27,7 @@ const CartDrawer: React.FC = () => {
     else window.sessionStorage.removeItem('checkout_cp')
   }
   const cpReady = normalizeCP(cp).length === 4
-  const matchedZone = cpReady ? matchZone(cp, zones) : null
+  const matchedZone = cpReady ? resolveCABAZone(cp, zones) : null
   const estTotal = subtotal + (matchedZone ? matchedZone.price : 0)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
@@ -235,7 +235,7 @@ const CartDrawer: React.FC = () => {
                 {cpReady && (
                   <div className="flex justify-between items-baseline">
                     <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">
-                      {matchedZone ? `Envío · ${matchedZone.name}` : 'Envío'}
+                      {matchedZone ? 'Envío · CABA' : 'Envío'}
                     </span>
                     <span className="font-body text-[13px] text-ink">
                       {matchedZone

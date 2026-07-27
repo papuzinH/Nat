@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getProduct } from '@/lib/data/products'
 import { computeUnitPrice } from '@/data/products'
 import { pbGetFullList } from '@/lib/pocketbase-server'
-import { matchZone } from '@/lib/shipping'
+import { resolveCABAZone } from '@/lib/shipping'
 import { PB_URL, pbAdminToken, uploadTokenFor } from '@/lib/pb-admin'
 
 /**
@@ -125,9 +125,9 @@ async function handleCreateOrder(req: Request) {
       { headers: { Authorization: token }, cache: 'no-store' },
     )
     if (zonesRes.ok) {
-      const data = (await zonesRes.json()) as { items: Array<{ active: boolean; price: number; postal_codes: string[]; name: string }> }
-      const matched = matchZone(delivery.postalCode ?? '', data.items ?? [])
-      shippingCost = matched ? matched.price : 0 // sin zona → 0 (a coordinar)
+      const data = (await zonesRes.json()) as { items: Array<{ active: boolean; price: number; name: string }> }
+      const matched = resolveCABAZone(delivery.postalCode ?? '', data.items ?? [])
+      shippingCost = matched ? matched.price : 0 // fuera de CABA o sin tarifa → 0 (a coordinar)
     }
   }
 

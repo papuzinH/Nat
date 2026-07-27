@@ -1,126 +1,69 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import { useShippingZones, type ShippingZone } from '@/hooks/useShippingZones'
 import { useToast } from '@/context/ToastContext'
 import ConfirmDeleteInline from '@/components/admin/shared/ConfirmDeleteInline'
-import { expandCPInput } from '@/lib/shipping'
 
+/**
+ * Envíos con precio único CABA: acá se administra la tarifa (idealmente una
+ * sola activa). Fuera de CABA el checkout ofrece coordinar el envío aparte,
+ * así que no hay nada más que configurar.
+ */
 const AdminEnvios: React.FC = () => {
-  const { zones, loading, addZone, updateZone, deleteZone, addPostalCodes, removePostalCode } = useShippingZones()
+  const { zones, loading, addZone, updateZone, deleteZone } = useShippingZones()
   const toast = useToast()
-
-  const [query, setQuery] = useState('')
-  const [onlyActive, setOnlyActive] = useState(false)
 
   const [newZoneName,  setNewZoneName]  = useState('')
   const [newZonePrice, setNewZonePrice] = useState<number>(0)
   const [zoneAdding,   setZoneAdding]   = useState(false)
   const [editingZone,  setEditingZone]  = useState<Record<string, Partial<ShippingZone>>>({})
 
-  const [expandedZone, setExpandedZone] = useState<string | null>(null)
-  const [newCP,        setNewCP]        = useState<Record<string, string>>({})
-  const [cpAdding,     setCpAdding]     = useState<Record<string, boolean>>({})
-
-  const filteredZones = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    return zones.filter((z) => {
-      if (onlyActive && !z.active) return false
-      if (!q) return true
-      if (z.name.toLowerCase().includes(q)) return true
-      if (z.postal_codes.some((cp) => cp.toLowerCase().includes(q))) return true
-      return false
-    })
-  }, [zones, query, onlyActive])
-
-  const handleAddCP = async (zoneId: string) => {
-    const raw = (newCP[zoneId] ?? '').trim()
-    if (!raw) return
-    const codes = expandCPInput(raw)
-    if (codes.length === 0) {
-      toast.error('No se reconoció ningún CP válido')
-      return
-    }
-    setCpAdding((p) => ({ ...p, [zoneId]: true }))
-    const res = await addPostalCodes(zoneId, codes)
-    setCpAdding((p) => ({ ...p, [zoneId]: false }))
-    if (!res) {
-      toast.error('Error al guardar los CPs')
-      return
-    }
-    setNewCP((p) => ({ ...p, [zoneId]: '' }))
-    if (res.added === 0) {
-      toast.info(`Sin novedades · ${res.dup} ya estaban cargados`)
-    } else {
-      const dupNote = res.dup > 0 ? ` · ${res.dup} duplicado${res.dup === 1 ? '' : 's'} omitido${res.dup === 1 ? '' : 's'}` : ''
-      toast.success(`${res.added} CP${res.added === 1 ? '' : 's'} agregado${res.added === 1 ? '' : 's'}${dupNote}`)
-    }
-  }
-
-  const handleRemoveCP = async (zoneId: string, code: string) => {
-    const ok = await removePostalCode(zoneId, code)
-    if (!ok) toast.error('No se pudo eliminar el CP')
-    else toast.success(`CP ${code} eliminado`)
-  }
+  const activeCount = zones.filter((z) => z.active).length
 
   const handleDeleteZone = async (zone: ShippingZone) => {
     const ok = await deleteZone(zone.id)
-    if (ok) toast.success(`Zona "${zone.name}" eliminada`)
-    else toast.error('No se pudo eliminar la zona')
+    if (ok) toast.success(`Tarifa "${zone.name}" eliminada`)
+    else toast.error('No se pudo eliminar la tarifa')
   }
 
   if (loading) {
-    return <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">Cargando zonas…</p>
+    return <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">Cargando tarifas…</p>
   }
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
-        <div>
-          <h1 className="font-display text-[22px] text-ink font-normal">Envíos</h1>
-          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mt-1">
-            {filteredZones.length} de {zones.length} zonas
-          </p>
-        </div>
+      <div className="mb-6">
+        <h1 className="font-display text-[22px] text-ink font-normal">Envíos</h1>
+        <p className="font-body text-[13px] text-ink-soft mt-2 leading-relaxed max-w-xl">
+          El envío a domicilio tiene un <strong className="text-ink">precio único dentro de CABA</strong> (CP 1000–1499).
+          Fuera de CABA, el checkout le avisa al cliente que el envío se coordina aparte por WhatsApp/email.
+          Dejá <strong className="text-ink">una sola tarifa activa</strong> con el precio vigente.
+        </p>
       </div>
 
-      {/* Toolbar */}
-      {zones.length > 0 && (
-        <div className="flex flex-col md:flex-row md:items-center gap-3 mb-5 p-3 rounded-sm" style={{ background: 'var(--cream-100, #faf6f0)', border: '1px solid var(--line-soft)' }}>
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar zona o CP…"
-            className="flex-1 min-w-0 font-body text-[13px] text-ink bg-cream-50 border rounded-sm px-3 py-1.5 outline-none focus:border-sage-700 transition-colors"
-            style={{ borderColor: 'var(--line)' }}
-            aria-label="Buscar zona o código postal"
-          />
-          <label className="inline-flex items-center gap-2 font-mono text-[11px] text-ink whitespace-nowrap">
-            <input
-              type="checkbox"
-              checked={onlyActive}
-              onChange={(e) => setOnlyActive(e.target.checked)}
-              className="accent-sage-700 w-4 h-4"
-            />
-            Solo activas
-          </label>
-        </div>
+      {activeCount > 1 && (
+        <p
+          className="font-body text-[13px] mb-5 p-3 rounded-sm"
+          style={{ background: '#faf3ec', border: '1px solid #e3c9a8', color: '#8a5a2b' }}
+        >
+          Hay {activeCount} tarifas activas: en el checkout se cobra la más barata. Desactivá o borrá las que sobren.
+        </p>
       )}
 
-      {filteredZones.length > 0 && (
+      {zones.length > 0 && (
         <div className="rounded-sm overflow-hidden mb-6" style={{ border: '1px solid var(--line-soft)' }}>
           {/* Header — solo desktop */}
           <div
-            className="hidden md:grid grid-cols-[1fr_120px_90px_110px_120px] gap-3 px-4 py-2 bg-cream-100"
+            className="hidden md:grid grid-cols-[1fr_120px_90px_120px] gap-3 px-4 py-2 bg-cream-100"
             style={{ borderBottom: '1px solid var(--line-soft)' }}
           >
-            {['Zona', 'Precio (ARS)', 'Activa', 'CPs', ''].map((h, i) => (
+            {['Tarifa', 'Precio (ARS)', 'Activa', ''].map((h, i) => (
               <span key={i} className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft">{h}</span>
             ))}
           </div>
 
-          {filteredZones.map((zone, i) => {
+          {zones.map((zone, i) => {
             const edit  = editingZone[zone.id] ?? {}
             const name  = edit.name  !== undefined ? edit.name  : zone.name
             const price = edit.price !== undefined ? edit.price : zone.price
@@ -135,16 +78,16 @@ const AdminEnvios: React.FC = () => {
                   delete n[zone.id]
                   return n
                 })
-                toast.success('Zona actualizada')
+                toast.success('Tarifa actualizada')
               } else {
-                toast.error('No se pudo actualizar la zona')
+                toast.error('No se pudo actualizar la tarifa')
               }
             }
 
             return (
               <div key={zone.id} style={{ borderTop: i === 0 ? 'none' : '1px solid var(--line-soft)' }}>
                 {/* Desktop */}
-                <div className="hidden md:grid grid-cols-[1fr_120px_90px_110px_120px] gap-3 items-center px-4 py-2.5 bg-cream-50 hover:bg-cream-100 transition-colors">
+                <div className="hidden md:grid grid-cols-[1fr_120px_90px_120px] gap-3 items-center px-4 py-2.5 bg-cream-50 hover:bg-cream-100 transition-colors">
                   <input
                     type="text"
                     value={name}
@@ -153,7 +96,7 @@ const AdminEnvios: React.FC = () => {
                     }
                     className="font-body text-[13px] text-ink bg-transparent border-b outline-none focus:border-sage-700 transition-colors py-0.5"
                     style={{ borderColor: 'var(--line)' }}
-                    aria-label={`Nombre de zona ${zone.name}`}
+                    aria-label={`Nombre de tarifa ${zone.name}`}
                   />
                   <input
                     type="number"
@@ -174,20 +117,8 @@ const AdminEnvios: React.FC = () => {
                       setEditingZone((prev) => ({ ...prev, [zone.id]: { ...prev[zone.id], active: e.target.checked } }))
                     }
                     className="accent-sage-700 w-4 h-4 cursor-pointer justify-self-start"
-                    aria-label={`Zona ${zone.name} activa`}
+                    aria-label={`Tarifa ${zone.name} activa`}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setExpandedZone(expandedZone === zone.id ? null : zone.id)}
-                    aria-expanded={expandedZone === zone.id}
-                    className="font-mono text-[10px] uppercase tracking-[0.1em] px-2 py-1 rounded-pill border transition-all justify-self-start"
-                    style={{
-                      borderColor: expandedZone === zone.id ? 'var(--sage-700)' : 'var(--line)',
-                      color:       expandedZone === zone.id ? 'var(--sage-700)' : 'var(--ink-soft)',
-                    }}
-                  >
-                    CPs ({zone.postal_codes.length})
-                  </button>
                   <div className="flex gap-2 items-center justify-self-end">
                     <button
                       type="button"
@@ -247,25 +178,11 @@ const AdminEnvios: React.FC = () => {
                       />
                       Activa
                     </label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setExpandedZone(expandedZone === zone.id ? null : zone.id)}
-                      aria-expanded={expandedZone === zone.id}
-                      className="font-mono text-[10px] uppercase tracking-[0.1em] px-2 py-1 rounded-pill border transition-all flex-1"
-                      style={{
-                        borderColor: expandedZone === zone.id ? 'var(--sage-700)' : 'var(--line)',
-                        color:       expandedZone === zone.id ? 'var(--sage-700)' : 'var(--ink-soft)',
-                      }}
-                    >
-                      CPs ({zone.postal_codes.length})
-                    </button>
                     <button
                       type="button"
                       disabled={!isDirty}
                       onClick={saveEdits}
-                      className="font-mono text-[10px] uppercase tracking-[0.1em] px-3 py-1 rounded-pill border transition-all disabled:opacity-30 flex-1"
+                      className="font-mono text-[10px] uppercase tracking-[0.1em] px-3 py-1 rounded-pill border transition-all disabled:opacity-30 ml-auto"
                       style={{
                         borderColor: isDirty ? 'var(--sage-700)' : 'var(--line)',
                         color:       isDirty ? 'var(--sage-700)' : 'var(--ink-soft)',
@@ -275,82 +192,25 @@ const AdminEnvios: React.FC = () => {
                     </button>
                   </div>
                 </div>
-
-                {/* CPs expandido */}
-                {expandedZone === zone.id && (
-                  <div className="px-4 md:px-5 pb-4 pt-2 bg-cream-100" style={{ borderTop: '1px solid var(--line-soft)' }}>
-                    {zone.postal_codes.length === 0 ? (
-                      <p className="font-mono text-[10px] text-ink-soft uppercase tracking-[0.1em] mb-3">
-                        Sin códigos postales asignados
-                      </p>
-                    ) : (
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {[...zone.postal_codes].sort((a, b) => a.localeCompare(b, 'es', { numeric: true })).map((cp) => (
-                          <span key={cp} className="inline-flex items-center gap-1 font-mono text-[11px] px-2 py-0.5 rounded-pill" style={{ border: '1px solid var(--line)', color: 'var(--ink)' }}>
-                            {cp}
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveCP(zone.id, cp)}
-                              className="text-ink-soft hover:text-ink transition-colors ml-0.5"
-                              aria-label={`Eliminar CP ${cp}`}
-                            >
-                              ×
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="flex items-start gap-2">
-                      <textarea
-                        value={newCP[zone.id] ?? ''}
-                        onChange={(e) => setNewCP((p) => ({ ...p, [zone.id]: e.target.value.toUpperCase() }))}
-                        onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleAddCP(zone.id) }}
-                        placeholder="Pegá varios: 1414, 1416, 1420-1425"
-                        rows={2}
-                        className="flex-1 min-w-0 font-mono text-[12px] text-ink bg-cream-50 border rounded-sm outline-none focus:border-sage-700 transition-colors px-2 py-1.5 resize-y"
-                        style={{ borderColor: 'var(--line)' }}
-                      />
-                      <button
-                        type="button"
-                        disabled={!newCP[zone.id]?.trim() || !!cpAdding[zone.id]}
-                        onClick={() => handleAddCP(zone.id)}
-                        className="font-mono text-[10px] uppercase tracking-[0.1em] px-3 py-1.5 rounded-pill border transition-all disabled:opacity-30 self-start"
-                        style={{ borderColor: 'var(--sage-700)', color: 'var(--sage-700)' }}
-                      >
-                        {cpAdding[zone.id] ? '…' : 'Agregar'}
-                      </button>
-                    </div>
-                    <p className="font-mono text-[9px] text-ink-soft uppercase tracking-[0.1em] mt-2">
-                      Separá por coma/espacio · rangos con guión (1420-1425) · se guardan los 4 dígitos. Un CP pertenece a una sola zona.
-                    </p>
-                  </div>
-                )}
               </div>
             )
           })}
         </div>
       )}
 
-      {filteredZones.length === 0 && zones.length > 0 && (
-        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft py-10 text-center mb-6">
-          Ninguna zona coincide.
-        </p>
-      )}
-
-      {/* Formulario agregar zona */}
+      {/* Formulario agregar tarifa */}
       <div className="rounded-sm p-4" style={{ background: 'var(--cream-100, #faf6f0)', border: '1px solid var(--line-soft)' }}>
-        <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-3">Agregar zona nueva</p>
+        <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-3">Agregar tarifa nueva</p>
         <div className="grid grid-cols-1 md:grid-cols-[1fr_140px_auto] gap-3 items-end">
           <div>
             <label className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft block mb-1">
-              Barrio / Zona
+              Nombre
             </label>
             <input
               type="text"
               value={newZoneName}
               onChange={(e) => setNewZoneName(e.target.value)}
-              placeholder="ej. Caballito, Parque Chacabuco…"
+              placeholder="ej. CABA"
               className="w-full font-body text-[13px] text-ink bg-cream-50 border rounded-sm px-3 py-1.5 outline-none focus:border-sage-700 transition-colors"
               style={{ borderColor: 'var(--line)' }}
             />
@@ -373,15 +233,15 @@ const AdminEnvios: React.FC = () => {
             type="button"
             disabled={zoneAdding || !newZoneName.trim()}
             onClick={async () => {
-              if (!newZoneName.trim()) { toast.error('Ingresá el nombre del barrio'); return }
+              if (!newZoneName.trim()) { toast.error('Ingresá el nombre de la tarifa'); return }
               setZoneAdding(true)
               const ok = await addZone(newZoneName, newZonePrice)
               setZoneAdding(false)
               if (ok) {
-                toast.success(`Zona "${newZoneName.trim()}" creada`)
+                toast.success(`Tarifa "${newZoneName.trim()}" creada`)
                 setNewZoneName(''); setNewZonePrice(0)
               } else {
-                toast.error('No se pudo agregar la zona. Verificá que estés logueada.')
+                toast.error('No se pudo agregar la tarifa. Verificá que estés logueada.')
               }
             }}
             className="font-mono text-[10px] uppercase tracking-[0.1em] px-4 py-2 rounded-pill border transition-all disabled:opacity-30 hover:bg-sage-700 hover:text-cream-50 hover:border-sage-700"
@@ -392,7 +252,7 @@ const AdminEnvios: React.FC = () => {
         </div>
 
         <p className="font-mono text-[10px] text-ink-soft mt-3">
-          Precio 0 = envío gratis en esa zona. Las zonas inactivas no aparecen en el checkout.
+          Precio 0 = envío gratis. Las tarifas inactivas no se usan en el checkout.
         </p>
       </div>
     </div>

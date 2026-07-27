@@ -9,7 +9,7 @@ import InputField from '@/components/contacto/InputField'
 import { useCheckoutForm } from '@/hooks/useCheckoutForm'
 import { usePublicShippingZones } from '@/hooks/useShippingZones'
 import { gsap, shouldAnimate } from '@/lib/gsap'
-import { isCABA, matchZone } from '@/lib/shipping'
+import { isCABA, resolveCABAZone } from '@/lib/shipping'
 
 const STUDIO_ADDRESS = 'Parque Chacabuco, CABA. Nos pondremos en contacto para coordinar una vez confirmada la compra!'
 
@@ -59,7 +59,7 @@ const CheckoutContent: React.FC = () => {
       }
       return
     }
-    const matched = matchZone(fields.postalCode, zones)
+    const matched = resolveCABAZone(fields.postalCode, zones)
     if (matched) {
       updateMany({ zoneId: matched.id, zoneName: matched.name, zonePrice: matched.price, shippingCoordinate: false })
     } else {
@@ -73,7 +73,7 @@ const CheckoutContent: React.FC = () => {
     const cp = fields.postalCode ?? ''
     if (cp.length < 4) return 'empty'
     if (zonesLoading) return 'loading'
-    return matchZone(cp, zones) ? 'matched' : 'coordinate'
+    return resolveCABAZone(cp, zones) ? 'matched' : 'coordinate'
   })()
 
   const shippingCost = fields.deliveryMode === 'envio' ? (fields.zonePrice ?? 0) : 0
@@ -312,8 +312,8 @@ const CheckoutContent: React.FC = () => {
                     <p className="font-body text-[12px] text-ink-soft mt-1">
                       {isCABA(fields.postalCode) ? (
                         <>
-                          Tu CP está en CABA pero todavía sin tarifa fija:{' '}
-                          <strong className="text-ink">coordinamos el envío</strong> con vos por WhatsApp/email y acordamos el costo.
+                          Tu CP es de CABA:{' '}
+                          <strong className="text-ink">coordinamos el envío</strong> con vos por WhatsApp/email.
                         </>
                       ) : (
                         <>
