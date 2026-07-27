@@ -45,7 +45,8 @@
       "mcp__mercadopago__application_list",
       "mcp__mercadopago__get_credentials",
       "mcp__mercadopago__search_documentation",
-      "Bash(vercel env *)"
+      "Bash(vercel env *)",
+      "PowerShell(rtk *)"
     ]
   }
 }
