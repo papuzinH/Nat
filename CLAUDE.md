@@ -50,7 +50,7 @@ app/                        # App Router (rutas + layouts + handlers)
 │   ├── layout.tsx          #   noindex
 │   ├── login/
 │   └── (panel)/            #   layout shell (nav + guard) + dashboard/ordenes/stock/envios/productos/blog
-├── api/                    # Route Handlers (create-mp-preference, mp-webhook, send-booking-email, revalidate)
+├── api/                    # Route Handlers (create-mp-preference, mp-webhook, send-booking-email, send-contact-email, revalidate)
 ├── sitemap.ts              # Sitemap dinámico (ISR)
 └── robots.ts               # robots.txt
 
@@ -127,6 +127,7 @@ Colecciones: `products`, `product_stock`, `blog_posts`, `orders`, `shipping_zone
 
 - **Carrito/Checkout:** carrito en cliente (CartContext, persistido en sessionStorage). Checkout crea la orden en PocketBase y llama a `/api/create-mp-preference`; redirige a Mercado Pago. `/api/mp-webhook` valida HMAC, actualiza la orden y envía email de confirmación (Brevo).
 - **Reserva tatuaje:** [src/components/estudio](src/components/estudio) → `/api/send-booking-email` (Brevo, con adjuntos de referencia).
+- **Contacto:** [src/components/contacto](src/components/contacto) → `/api/send-contact-email` (Brevo, reply-to al visitante).
 - **Blog:** editor TipTap en admin; render público server-side con `renderTiptapHtml`. Preview de borradores vía `/blog/[slug]/preview` (lee localStorage).
 
 ---
@@ -137,7 +138,7 @@ Colecciones: `products`, `product_stock`, `blog_posts`, `orders`, `shipping_zone
 - `NEXT_PUBLIC_POCKETBASE_URL`, `POCKETBASE_URL` (server) — URL de PocketBase
 - `REVALIDATE_SECRET` — revalidación server-to-server (opcional; el admin usa su token PB)
 - `MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET` — Mercado Pago
-- `BREVO_API_KEY`, `BREVO_SENDER_EMAIL` (remitente global, debe estar verificado en Brevo), `BOOKING_*`, `SITE_URL` — emails
+- `BREVO_API_KEY`, `BREVO_SENDER_EMAIL` (remitente global, debe estar verificado en Brevo), `BOOKING_*`, `CONTACT_TO_EMAIL` (opcional, fallback a `BOOKING_TO_EMAIL`), `SITE_URL` — emails
 - `PB_ADMIN_EMAIL`, `PB_ADMIN_PASSWORD` — auth admin server (webhook)
 
 ---

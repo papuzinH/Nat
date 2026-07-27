@@ -23,6 +23,7 @@ const FormContainer: React.FC = () => {
     errors,
     isSubmitting,
     sent,
+    submitError,
     handleChange,
     handleTopicChange,
     handleSubmit,
@@ -179,6 +180,11 @@ const FormContainer: React.FC = () => {
           <ButtonPrimary type="submit" disabled={isSubmitting} className="w-full justify-center">
             {isSubmitting ? 'Enviando…' : 'Enviar mensaje'}
           </ButtonPrimary>
+          {submitError && (
+            <p role="alert" className="mt-3 text-center font-body text-sm text-[#a8503f]">
+              {submitError}
+            </p>
+          )}
         </div>
       </form>
     </div>
