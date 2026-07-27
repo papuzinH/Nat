@@ -1,10 +1,14 @@
 import React from 'react'
+import { leafWithMidrib, sprout } from './botanical'
 
 interface NHLeafMarkProps {
   size?: number
   color?: string
   className?: string
 }
+
+const LENGTH = 14.6
+const WIDTH = 4.6
 
 const NHLeafMark: React.FC<NHLeafMarkProps> = ({
   size = 20,
@@ -18,13 +22,27 @@ const NHLeafMark: React.FC<NHLeafMarkProps> = ({
     style={{ color, display: 'inline-block', flexShrink: 0 }}
     className={className}
     aria-hidden="true"
+    data-nh-motif
   >
-    <path d="M10 2 C 6 5, 4 10, 5 18" stroke="currentColor" strokeWidth="1.1" fill="none" strokeLinecap="round" />
-    <circle cx="7.2" cy="7.5" r="1.3" fill="currentColor" />
-    <circle cx="6.1" cy="11.5" r="1.3" fill="currentColor" />
-    <circle cx="5.3" cy="15" r="1.3" fill="currentColor" />
-    <circle cx="10" cy="4" r="1.1" fill="currentColor" />
-    <circle cx="13" cy="6.5" r="0.9" fill="currentColor" opacity="0.7" />
+    <g transform="translate(10 17.4) rotate(-8)">
+      <path
+        d="M0 0L0 2.2"
+        stroke="currentColor"
+        strokeWidth="0.9"
+        strokeLinecap="round"
+        fill="none"
+      />
+      {/* Hoja sola: se balancea más lento que las de una rama. */}
+      <g className="nh-sway" style={{ '--nh-dur': '6.5s' } as React.CSSProperties}>
+        <path
+          className="nh-leaf nh-tilt"
+          style={sprout(0)}
+          d={leafWithMidrib(LENGTH, WIDTH)}
+          fill="currentColor"
+          fillRule="evenodd"
+        />
+      </g>
+    </g>
   </svg>
 )
 

@@ -133,6 +133,89 @@
     animation: slide-in-left 0.5s ease-out;
   }
 
+  /* ─────────────────────────────────────────────────────────────
+     Motivos botánicos — capas de movimiento
+
+     El <g class="nh-sway"> existe SOLO para animar. El rotate de cada motivo vive
+     en el <g> padre como atributo SVG, y un `transform` de CSS reemplazaría ese
+     atributo entero: la hoja perdería su rotación y saltaría de lugar. Por eso el
+     movimiento va en un grupo intermedio propio.
+
+     Todo es opt-in por clase: sin `.nh-in` / `.nh-live` (que agrega el controlador
+     BotanicalMotion al entrar en viewport) no hay ninguna animación declarada, así
+     que los motivos son visibles por defecto y nunca dependen del JS para verse.
+     ───────────────────────────────────────────────────────────── */
+  .nh-sway,
+  .nh-leaf,
+  .nh-tilt {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+  }
+
+  /* capa 1 · brote — corre una sola vez, al entrar */
+  [data-nh-motif].nh-in .nh-leaf {
+    animation: nh-sprout 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  }
+  [data-nh-motif].nh-in .nh-draw {
+    animation: nh-draw 1s cubic-bezier(0.45, 0, 0.55, 1) backwards;
+  }
+  [data-nh-motif].nh-in .nh-divider-label {
+    animation: nh-rise 0.45s ease-out 0.5s backwards;
+  }
+
+  /* capa 2 · brisa — solo mientras el motivo está a la vista */
+  [data-nh-motif].nh-live .nh-sway {
+    animation: nh-breeze var(--nh-dur, 5s) ease-in-out var(--nh-off, 0s) infinite alternate;
+  }
+
+  /* capa 3 · parallax — el controlador escribe --nh-py */
+  [data-nh-drift] {
+    transform: translate3d(0, var(--nh-py, 0px), 0);
+  }
+
+  /* capa 4 · hover */
+  [data-nh-hover]:hover .nh-tilt {
+    transform: rotate(-3deg) scale(1.04);
+  }
+  [data-nh-hover]:hover .nh-sway {
+    animation-duration: 1.9s;
+  }
+  .nh-tilt {
+    transition: transform 0.5s var(--ease);
+  }
+
+  @keyframes nh-sprout {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+  }
+
+  @keyframes nh-draw {
+    from { stroke-dashoffset: var(--nh-len, 200); }
+    to { stroke-dashoffset: 0; }
+  }
+
+  @keyframes nh-breeze {
+    from { transform: rotate(-1.9deg); }
+    to { transform: rotate(1.9deg); }
+  }
+
+  @keyframes nh-rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-nh-motif].nh-in .nh-leaf,
+    [data-nh-motif].nh-in .nh-draw,
+    [data-nh-motif].nh-in .nh-divider-label,
+    [data-nh-motif].nh-live .nh-sway {
+      animation: none;
+    }
+    [data-nh-drift] { transform: none; }
+    .nh-tilt { transition: none; }
+    [data-nh-hover]:hover .nh-tilt { transform: none; }
+  }
+
   /* Focus ring unificado para admin — accesibilidad keyboard */
   .focus-ring:focus-visible {
     outline: 2px solid rgba(96, 108, 56, 0.45);

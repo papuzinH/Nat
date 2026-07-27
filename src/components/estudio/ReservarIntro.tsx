@@ -3,6 +3,7 @@
 import React, { useLayoutEffect, useRef } from 'react'
 import Link from 'next/link'
 import { gsap, shouldAnimate } from '@/lib/gsap'
+import NHTendril from '@/components/shared/NHTendril'
 
 // Hero animado de la página de reserva (extraído del screen legacy para que la
 // página pueda ser Server Component y exportar metadata).
@@ -26,7 +27,15 @@ const ReservarIntro: React.FC = () => {
   }, [])
 
   return (
-    <div ref={heroRef}>
+    <div ref={heroRef} className="relative">
+      <div
+        className="absolute top-8 -right-2 xl:right-6 pointer-events-none hidden xl:block"
+        aria-hidden="true"
+        data-nh-drift="0.06"
+      >
+        <NHTendril size={24} color="var(--sage-400, #9bb89f)" flip />
+      </div>
+
       <Link
         href="/estudio"
         className="hero-line font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 inline-flex items-center gap-2 mb-10 hover:text-sage-900 transition-colors duration-150"

@@ -16,3 +16,8 @@ export { default as ButtonPrimary } from './ButtonPrimary';
 export { default as ButtonGhost } from './ButtonGhost';
 export { default as SectionContainer } from './SectionContainer';
 export { default as NHFlower } from './NHFlower';
+// ── Motivos botánicos (geometría compartida en botanical.ts) ──
+export { default as NHBranch } from './NHBranch';
+export { default as NHBud } from './NHBud';
+export { default as NHTendril } from './NHTendril';
+export { default as NHWreath } from './NHWreath';

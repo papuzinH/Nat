@@ -3,6 +3,7 @@
 import React, { useLayoutEffect, useRef } from 'react'
 import { SectionContainer } from '../shared'
 import NHDivider from '../shared/NHDivider'
+import NHTendril from '../shared/NHTendril'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import { splitWords } from '@/lib/animations'
 
@@ -81,7 +82,23 @@ const QuoteStripSection: React.FC = () => {
   }, [])
 
   return (
-    <SectionContainer aria-label="Sobre el estudio">
+    <SectionContainer aria-label="Sobre el estudio" className="relative overflow-hidden">
+      {/* Zarcillos colgando a los lados de la cita. Se dibujan al entrar en viewport. */}
+      <div
+        className="absolute top-0 left-2 xl:left-10 pointer-events-none hidden lg:block"
+        aria-hidden="true"
+        data-nh-drift="0.05"
+      >
+        <NHTendril size={26} color="var(--sage-400, #9bb89f)" />
+      </div>
+      <div
+        className="absolute top-0 right-2 xl:right-10 pointer-events-none hidden lg:block"
+        aria-hidden="true"
+        data-nh-drift="0.08"
+      >
+        <NHTendril size={26} color="var(--sage-400, #9bb89f)" flip />
+      </div>
+
       <NHDivider label="Un espacio distinto" className="md:mb-8" />
       <section ref={sectionRef} className="max-w-3xl mx-auto text-center">
         <blockquote>

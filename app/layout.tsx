@@ -7,6 +7,7 @@ import { CartProvider } from '@/context/CartContext'
 import { ToastProvider } from '@/context/ToastContext'
 import CartDrawer from '@/components/cart/CartDrawer'
 import ToastViewport from '@/components/admin/shared/ToastViewport'
+import BotanicalMotion from '@/components/shared/BotanicalMotion'
 
 const GTM_ID = 'GTM-WXL45DSC'
 
@@ -87,6 +88,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             {children}
             <CartDrawer />
             <ToastViewport />
+            <BotanicalMotion />
           </ToastProvider>
         </CartProvider>
       </body>

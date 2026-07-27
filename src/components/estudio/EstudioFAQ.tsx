@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useLayoutEffect, useRef, useState } from 'react'
-import { HeroEyebrow, SectionTitle } from '../shared'
+import { HeroEyebrow, SectionTitle, NHBud } from '../shared'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 
 const FAQS = [
@@ -27,9 +27,10 @@ const FAQS = [
 const FAQItem: React.FC<{
   q: string
   a: string
+  index: number
   open: boolean
   onToggle: () => void
-}> = ({ q, a, open, onToggle }) => {
+}> = ({ q, a, index, open, onToggle }) => {
   const answerRef = useRef<HTMLDivElement>(null)
   const iconRef = useRef<HTMLSpanElement>(null)
 
@@ -71,13 +72,16 @@ const FAQItem: React.FC<{
   }, [open])
 
   return (
-    <div className="faq-item">
+    <div className="faq-item" data-nh-hover>
       <button
         className="w-full flex items-center justify-between py-4 text-left gap-4"
         onClick={onToggle}
         aria-expanded={open}
       >
-        <span className="font-body text-[15px] text-ink">{q}</span>
+        <span className="flex items-start gap-3">
+          <NHBud size={13} index={index * 3} className="mt-[2px] text-sage-500" />
+          <span className="font-body text-[15px] text-ink">{q}</span>
+        </span>
         <span
           ref={iconRef}
           className="flex-shrink-0 font-mono text-lg text-sage-500 inline-block"
@@ -141,6 +145,7 @@ const EstudioFAQ: React.FC = () => {
             key={i}
             q={item.q}
             a={item.a}
+            index={i}
             open={open === i}
             onToggle={() => setOpen(open === i ? null : i)}
           />

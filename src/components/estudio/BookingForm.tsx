@@ -3,6 +3,7 @@
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import { useBookingForm } from '@/hooks/useBookingForm'
 import NHLeafMark from '@/components/shared/NHLeafMark'
+import NHWreath from '@/components/shared/NHWreath'
 import { SectionTitle } from '../shared'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 
@@ -162,7 +163,7 @@ const BookingForm: React.FC = () => {
           boxShadow: '0 1px 2px rgba(44,44,44,0.04), 0 8px 24px rgba(74,124,89,0.06)',
         }}
       >
-        <NHLeafMark size={48} color="#7a9e7e" />
+        <NHWreath size={92} color="#7a9e7e" />
         <SectionTitle>Tu consulta fue enviada!</SectionTitle>
         <p
           className="font-body text-ink-soft leading-[1.6]"

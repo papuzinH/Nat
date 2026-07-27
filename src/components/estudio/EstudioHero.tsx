@@ -2,6 +2,7 @@
 
 import React, { useLayoutEffect, useRef } from 'react'
 import NHLeafMark from '@/components/shared/NHLeafMark'
+import NHBranch from '@/components/shared/NHBranch'
 import HeroEyebrow from '@/components/shared/HeroEyebrow'
 import HeroTitle from '@/components/shared/HeroTitle'
 import HeroSubtitle from '@/components/shared/HeroSubtitle'
@@ -20,12 +21,16 @@ const EstudioHero: React.FC = () => {
   }, [])
 
   return (
-    <SectionContainer>
-      <NHLeafMark
-        size={64}
-        color="#7a9e7e"
-        className="absolute top-8 right-8 md:top-12 md:right-12 hidden md:block"
-      />
+    // `relative` es necesario: sin él los motivos absolutos se anclaban al primer
+    // ancestro posicionado, no a la sección.
+    <SectionContainer className="relative overflow-hidden">
+      <div
+        className="absolute top-0 right-4 lg:right-10 pointer-events-none hidden md:block"
+        aria-hidden="true"
+        data-nh-drift="0.07"
+      >
+        <NHBranch size={86} color="#7a9e7e" />
+      </div>
       <NHLeafMark
         size={44}
         color="#7a9e7e"

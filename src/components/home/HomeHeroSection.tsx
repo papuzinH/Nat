@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import { animateHero, splitWords } from '@/lib/animations'
 import NHLeafMark from '@/components/shared/NHLeafMark'
+import NHBranch from '@/components/shared/NHBranch'
 import NHFlower from '@/components/shared/NHFlower'
 import NHSprig from '@/components/shared/NHSprig'
 import HeroEyebrow from '@/components/shared/HeroEyebrow'
@@ -287,11 +288,26 @@ const HomeHeroSection: React.FC<{ images?: SiteImage[] }> = ({ images = [] }) =>
         {/* Left column — Carousel (desktop) / Text second (mobile) */}
         <div ref={textRef} className="relative flex flex-col justify-center px-6 py-10 md:px-10 md:py-20 lg:px-16 lg:py-24 order-1 md:order-2">
 
-          {/* Decorative motifs */}
-          <div className="absolute top-8 right-8 md:top-12 md:right-12 pointer-events-none" aria-hidden="true">
-            <NHLeafMark size={isMobile ? 42 : 56} color="var(--sage-500, #7a9e7e)" />
-          </div>
-          <div className="absolute bottom-8 left-6 md:bottom-12 md:left-10 pointer-events-none" aria-hidden="true" style={{ opacity: 0.7 }}>
+          {/* Decorative motifs — derivan a distinta velocidad al scrollear */}
+          {isMobile ? (
+            <div className="absolute top-8 right-8 pointer-events-none" aria-hidden="true">
+              <NHLeafMark size={42} color="var(--sage-500, #7a9e7e)" />
+            </div>
+          ) : (
+            <div
+              className="absolute top-0 right-6 lg:right-10 pointer-events-none"
+              aria-hidden="true"
+              data-nh-drift="0.07"
+            >
+              <NHBranch size={78} color="var(--sage-500, #7a9e7e)" />
+            </div>
+          )}
+          <div
+            className="absolute bottom-8 left-6 md:bottom-12 md:left-10 pointer-events-none"
+            aria-hidden="true"
+            style={{ opacity: 0.7 }}
+            data-nh-drift="-0.05"
+          >
             <NHFlower size={isMobile ? 30 : 46} color="var(--sage-500, #7a9e7e)" />
           </div>
 

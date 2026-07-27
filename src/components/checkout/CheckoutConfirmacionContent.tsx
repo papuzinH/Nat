@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { formatARS } from '@/data/products'
 import { gsap, shouldAnimate } from '@/lib/gsap'
+import { NHWreath } from '@/components/shared'
 import BankTransferPanel from './BankTransferPanel'
 
 interface OrderItem {
@@ -57,6 +58,7 @@ const CheckoutConfirmacionContent: React.FC = () => {
     if (!wrapper || loading || notFound || !shouldAnimate()) return
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+      const wreath = wrapper.querySelector('.confirm-wreath')
       const meta = wrapper.querySelector('.confirm-meta')
       const heading = wrapper.querySelector('.confirm-heading')
       const body = wrapper.querySelector('.confirm-body')
@@ -64,7 +66,9 @@ const CheckoutConfirmacionContent: React.FC = () => {
       const transferDetails = wrapper.querySelector('.confirm-transfer')
       const cta = wrapper.querySelector('.confirm-cta')
 
-      if (meta) tl.fromTo(meta, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4 })
+      // Solo el fade del contenedor: el brote de las hojas lo hace el CSS del motivo.
+      if (wreath) tl.fromTo(wreath, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.5 })
+      if (meta) tl.fromTo(meta, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4 }, '-=0.25')
       if (heading) tl.fromTo(heading, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.55 }, '-=0.2')
       if (body) tl.fromTo(body, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.45 }, '-=0.3')
       if (summary) tl.fromTo(summary, { opacity: 0, y: 16, scale: 0.99 }, { opacity: 1, y: 0, scale: 1, duration: 0.5 }, '-=0.25')
@@ -121,6 +125,10 @@ const CheckoutConfirmacionContent: React.FC = () => {
   return (
     <main className="min-h-screen bg-cream-50 px-6 py-12">
       <div ref={wrapperRef} className="max-w-[560px] mx-auto">
+
+        <div className="confirm-wreath mb-5">
+          <NHWreath size={88} className="text-sage-700" />
+        </div>
 
         <p className="confirm-meta font-mono text-[10px] uppercase tracking-[0.14em] text-sage-700 mb-3">
           Pedido · {shortId}
