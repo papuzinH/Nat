@@ -33,11 +33,12 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
   // Cuando hay imagen de marco activa, se muestra solo esa imagen (sin flechas ni lightbox de marco)
   const displaySrc = frameImage ?? product.images[activeThumb] ?? product.images[0]
   const showArrows = !frameImage && product.images.length > 1
-  const aspectRatio = `1 / ${product.tall}`
-  // El contenedor mantiene una proporción fija para reservar el espacio y evitar
-  // saltos de layout, pero la obra va con object-contain: en una tienda de arte
-  // recortarla no es una opción. Las que no coinciden con el ratio quedan con aire
-  // a los lados sobre el fondo de la sección.
+  // El contenedor toma la proporción real de la obra que se está mostrando, así no
+  // hay que elegir entre recortarla (object-cover) o rodearla de aire. `tall` queda
+  // como fallback para el placeholder y para el hook client, que no trae ratios.
+  const activeRatio = product.imageRatios?.[activeThumb] ?? null
+  const aspectRatio = frameImage || !activeRatio ? `1 / ${product.tall}` : `${activeRatio}`
+  const thumbRatio = `1 / ${product.tall}`
   const toneBg = TONE_COLORS[product.tone] ?? '#f5efe6'
   const blurPlaceholder = toneBlur(toneBg)
 
@@ -109,11 +110,13 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
       <div
         ref={mainRef}
         className={[
-          'relative rounded-card overflow-hidden group',
+          'relative rounded-card overflow-hidden group flex items-center justify-center',
           sticky ? 'md:flex-1 md:min-h-0 md:![aspect-ratio:unset]' : '',
           hasImages ? 'cursor-zoom-in' : '',
         ].join(' ')}
-        style={{ aspectRatio, background: hasImages || frameImage ? toneBg : undefined }}
+        /* Sin fondo propio: sobre el cream de la sección la obra flota y el aire
+           que pueda sobrar deja de leerse como una caja alrededor. */
+        style={{ aspectRatio }}
         onClick={handleMainClick}
         onKeyDown={handleMainKeyDown}
         role={hasImages ? 'button' : undefined}
@@ -128,6 +131,23 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
             priority
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 55vw, 620px"
             className="object-contain"
+            placeholder="blur"
+            blurDataURL={blurPlaceholder}
+            data-product-main-image
+          />
+        ) : hasImages && activeRatio ? (
+          /* Con la proporción conocida damos width/height intrínsecos: el navegador
+             escala la obra solo, acotada por el alto disponible y por el ancho de la
+             columna, sin recortar ni pedirnos un ratio de contenedor. Los números
+             absolutos no importan, Next solo los usa para la proporción. */
+          <Image
+            src={displaySrc}
+            alt={`${product.title} — ${product.catLabel}`}
+            width={Math.round(1000 * activeRatio)}
+            height={1000}
+            priority
+            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 55vw, 620px"
+            className="w-auto h-auto max-w-full max-h-full object-contain"
             placeholder="blur"
             blurDataURL={blurPlaceholder}
             data-product-main-image
@@ -202,7 +222,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
                 background: toneBg,
                 border: 'none',
                 padding: 0,
-                aspectRatio,
+                aspectRatio: thumbRatio,
               }}
             >
               <Image

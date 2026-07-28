@@ -1,6 +1,7 @@
 import 'server-only'
 import { pbGetFullList } from '@/lib/pocketbase-server'
 import { mapProduct, type ProductRow, type StockEntry } from '@/lib/data/product-mappers'
+import { getImageRatios } from '@/lib/data/image-dimensions'
 import type { Product } from '@/data/products'
 
 // Tag de cache para revalidación on-demand desde el admin (/api/revalidate).
@@ -24,7 +25,19 @@ export async function getProducts(): Promise<Product[]> {
   const stockMap: Record<string, StockEntry> = {}
   for (const row of stockData) stockMap[row.slug] = { stock: row.stock, status: row.status }
 
-  return rawProducts.map((p) => mapProduct(p, stockMap[p.slug]))
+  const products = rawProducts.map((p) => mapProduct(p, stockMap[p.slug]))
+
+  // La proporción real de cada obra, para que la galería no tenga que imponer una.
+  // Solo lee la cabecera de cada archivo y las URLs de PocketBase son inmutables,
+  // así que con el cache de fetch esto se resuelve una vez y no por request.
+  await Promise.all(
+    products.map(async (product) => {
+      if (product.images.length === 0) return
+      product.imageRatios = await getImageRatios(product.images)
+    })
+  )
+
+  return products
 }
 
 /** Trae un producto por slug (o undefined si no existe). */

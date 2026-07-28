@@ -41,6 +41,11 @@ export interface Product {
   description: JSONContent // contenido rico TipTap (párrafos, listas, formato)
   specs: ProductSpec[]     // características dinámicas: [{label,value}, …]
   images: string[]         // paths a imágenes reales (vacío → placeholder)
+  // Proporción ancho/alto real de cada imagen, en el mismo orden que `images`.
+  // La completa el fetcher server (getProducts) leyendo la cabecera del archivo;
+  // permite que la galería tome la forma de la obra en vez de imponer un ratio.
+  // undefined desde el hook client, que cae al `tall` del producto.
+  imageRatios?: (number | null)[]
   tags: string[]
   variants: ProductVariant[] | null
   hasFrame: boolean
