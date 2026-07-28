@@ -3,8 +3,19 @@ import Image from 'next/image'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
 import { gsap, shouldAnimate } from '@/lib/gsap'
-import { type Product } from '@/data/products'
+import { TONE_COLORS, type Product } from '@/data/products'
 import ProductImagePlaceholder from './ProductImagePlaceholder'
+
+/**
+ * Placeholder de carga: un SVG de un color plano en data URI. Las imágenes vienen
+ * de PocketBase, así que Next no puede generar el blur en build; con esto la
+ * imagen entra desde el tono del producto en vez de aparecer de golpe.
+ */
+const toneBlur = (hex: string) =>
+  'data:image/svg+xml;charset=utf-8,' +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="4" height="5"><rect width="4" height="5" fill="${hex}"/></svg>`
+  )
 
 interface ProductGalleryProps {
   product: Product
@@ -23,6 +34,12 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
   const displaySrc = frameImage ?? product.images[activeThumb] ?? product.images[0]
   const showArrows = !frameImage && product.images.length > 1
   const aspectRatio = `1 / ${product.tall}`
+  // El contenedor mantiene una proporción fija para reservar el espacio y evitar
+  // saltos de layout, pero la obra va con object-contain: en una tienda de arte
+  // recortarla no es una opción. Las que no coinciden con el ratio quedan con aire
+  // a los lados sobre el fondo de la sección.
+  const toneBg = TONE_COLORS[product.tone] ?? '#f5efe6'
+  const blurPlaceholder = toneBlur(toneBg)
 
   useLayoutEffect(() => {
     if (!shouldAnimate() || !mainRef.current) return
@@ -96,7 +113,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
           sticky ? 'md:flex-1 md:min-h-0 md:![aspect-ratio:unset]' : '',
           hasImages ? 'cursor-zoom-in' : '',
         ].join(' ')}
-        style={{ aspectRatio }}
+        style={{ aspectRatio, background: hasImages || frameImage ? toneBg : undefined }}
         onClick={handleMainClick}
         onKeyDown={handleMainKeyDown}
         role={hasImages ? 'button' : undefined}
@@ -109,8 +126,10 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
             alt={`${product.title} — enmarcado`}
             fill
             priority
-            sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 55vw, 620px"
+            className="object-contain"
+            placeholder="blur"
+            blurDataURL={blurPlaceholder}
             data-product-main-image
           />
         ) : hasImages ? (
@@ -119,8 +138,10 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
             alt={`${product.title} — ${product.catLabel}`}
             fill
             priority
-            sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 55vw, 620px"
+            className="object-contain"
+            placeholder="blur"
+            blurDataURL={blurPlaceholder}
             data-product-main-image
           />
         ) : (
@@ -178,7 +199,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
               aria-label={`Ver imagen ${i + 1}`}
               style={{
                 cursor: 'pointer',
-                background: 'none',
+                background: toneBg,
                 border: 'none',
                 padding: 0,
                 aspectRatio,
@@ -189,7 +210,9 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
                 alt={`${product.title} — vista ${i + 1}`}
                 fill
                 sizes="58px"
-                className="object-cover"
+                className="object-contain"
+                placeholder="blur"
+                blurDataURL={blurPlaceholder}
               />
             </button>
           ))}

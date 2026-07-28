@@ -1,0 +1,136 @@
+{
+  "maxDim": 1800,
+  "quality": 82,
+  "mapping": [
+    {
+      "from": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/xbdd30q4e6y8hzq/pxl_20260205_193656628_84bgdtgeq1.ORTRAIT_Original.jpg",
+      "to": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/76f31r7o8yv3019/pxl_20260205_193656628_84bgdtgeq1_2fmhwm3ste.ORTRAIT_Original.jpg",
+      "oldRecord": "xbdd30q4e6y8hzq",
+      "newRecord": "76f31r7o8yv3019",
+      "bytes": [
+        779495,
+        307518
+      ]
+    },
+    {
+      "from": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/5nx8f4su14yw271/img_4886_o897p1sra4.jpg",
+      "to": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/uzo11h4kc8658zo/img_4886_o897p1sra4_wpv3jd1stg.jpg",
+      "oldRecord": "5nx8f4su14yw271",
+      "newRecord": "uzo11h4kc8658zo",
+      "bytes": [
+        1611546,
+        392611
+      ]
+    },
+    {
+      "from": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/3kkmme754qxb089/img_4837_kmk75qtcjc.jpg",
+      "to": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/uw39067ftqmh19u/img_4837_kmk75qtcjc_m2ffnttr3k.jpg",
+      "oldRecord": "3kkmme754qxb089",
+      "newRecord": "uw39067ftqmh19u",
+      "bytes": [
+        1358714,
+        307066
+      ]
+    },
+    {
+      "from": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/20pdg64sxe4ebcz/img_4885_7dubj6uf98.jpg",
+      "to": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/d0cj10389a8xtx2/img_4885_7dubj6uf98_rk360yqm7y.jpg",
+      "oldRecord": "20pdg64sxe4ebcz",
+      "newRecord": "d0cj10389a8xtx2",
+      "bytes": [
+        1680452,
+        417892
+      ]
+    },
+    {
+      "from": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/a1lnypy5nn4fn50/img_7182_53b4erms9t.png",
+      "to": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/04j7yl1fbj6131s/img_7182_53b4erms9t_t5d2oa26px.webp",
+      "oldRecord": "a1lnypy5nn4fn50",
+      "newRecord": "04j7yl1fbj6131s",
+      "bytes": [
+        2526365,
+        58082
+      ]
+    },
+    {
+      "from": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/pg6n36s049079to/img_7181_dl57mcscfz.png",
+      "to": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/99l177375j2z3b2/img_7181_dl57mcscfz_lrx101iffz.webp",
+      "oldRecord": "pg6n36s049079to",
+      "newRecord": "99l177375j2z3b2",
+      "bytes": [
+        3449641,
+        129484
+      ]
+    },
+    {
+      "from": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/xsq7tttvc35ebak/acu_naty0009_wq6si7ewy2.jpeg",
+      "to": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/803y7j7bhg71usl/acu_naty0009_wq6si7ewy2_4truksuc8x.jpg",
+      "oldRecord": "xsq7tttvc35ebak",
+      "newRecord": "803y7j7bhg71usl",
+      "bytes": [
+        426146,
+        212780
+      ]
+    },
+    {
+      "from": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/p8477zf1g3a19mj/img_8764_w24fxmleca.jpg",
+      "to": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/5ciihzpua754a9s/img_8764_w24fxmleca_sirxkz6brf.jpg",
+      "oldRecord": "p8477zf1g3a19mj",
+      "newRecord": "5ciihzpua754a9s",
+      "bytes": [
+        937997,
+        193812
+      ]
+    },
+    {
+      "from": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/49fkp2rd9em7964/img_8763_x5okop2avw.jpg",
+      "to": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/s1w077al96hmk68/img_8763_x5okop2avw_zh2hy7db7i.jpg",
+      "oldRecord": "49fkp2rd9em7964",
+      "newRecord": "s1w077al96hmk68",
+      "bytes": [
+        700585,
+        118928
+      ]
+    },
+    {
+      "from": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/qthsely3231l2o0/acu_naty0017_dpzspl2an9.jpg",
+      "to": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/m8frr97fb26wazq/acu_naty0017_dpzspl2an9_0e6lmpo58z.jpg",
+      "oldRecord": "qthsely3231l2o0",
+      "newRecord": "m8frr97fb26wazq",
+      "bytes": [
+        926319,
+        247688
+      ]
+    },
+    {
+      "from": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/575903ux9jv4220/acu_naty0019_spgsy57uir.jpg",
+      "to": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/14omv17b30q250r/acu_naty0019_spgsy57uir_tt63sw94pu.jpg",
+      "oldRecord": "575903ux9jv4220",
+      "newRecord": "14omv17b30q250r",
+      "bytes": [
+        1524549,
+        374376
+      ]
+    },
+    {
+      "from": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/joufp72jnydr579/de_la_consulta_al_tauaje_nfov7p5oxf.jpg",
+      "to": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/ocfg183c0np9t04/de_la_consulta_al_tauaje_nfov7p5oxf_1hwfzcmq2v.jpg",
+      "oldRecord": "joufp72jnydr579",
+      "newRecord": "ocfg183c0np9t04",
+      "bytes": [
+        1038631,
+        260457
+      ]
+    },
+    {
+      "from": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/bzrl891r4m2947w/errores_parte_1_es4uzobbwd.jpg",
+      "to": "https://nat.lhstudio.com.ar/api/files/pbc_2708086759/g5kt135bd3e2f11/errores_parte_1_es4uzobbwd_vnyqcrzazk.jpg",
+      "oldRecord": "bzrl891r4m2947w",
+      "newRecord": "g5kt135bd3e2f11",
+      "bytes": [
+        790821,
+        173275
+      ]
+    }
+  ]
+}

@@ -147,18 +147,15 @@ export async function compressImage(
   ctx.drawImage(source, 0, 0, targetW, targetH)
   cleanup()
 
-  // PNG con posible transparencia → conserva PNG. Resto → JPEG.
-  const outputType = file.type === 'image/png' || /\.png$/i.test(file.name)
-    ? 'image/png'
-    : 'image/jpeg'
-  const outputExt = outputType === 'image/png' ? 'png' : 'jpg'
+  // PNG puede tener transparencia, así que no podemos pasarlo a JPEG. Pero PNG
+  // ignora el parámetro de calidad de toBlob: re-encodearlo no reducía nada y los
+  // stickers quedaban arriba de 2 MB. WebP conserva el canal alpha y sí comprime.
+  const isPng = file.type === 'image/png' || /\.png$/i.test(file.name)
+  const outputType = isPng ? 'image/webp' : 'image/jpeg'
+  const outputExt = isPng ? 'webp' : 'jpg'
 
   const blob = await new Promise<Blob | null>((resolve) => {
-    canvas.toBlob(
-      resolve,
-      outputType,
-      outputType === 'image/jpeg' ? opts.quality : undefined
-    )
+    canvas.toBlob(resolve, outputType, opts.quality)
   })
   if (!blob) {
     console.warn('[compressImage] toBlob devolvió null para', file.name)
