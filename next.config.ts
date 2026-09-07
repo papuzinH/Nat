@@ -12,6 +12,24 @@ const nextConfig: NextConfig = {
     // donde AVIF no esté soportado.
     formats: ['image/avif', 'image/webp'],
   },
+
+  // El `www` quedaba sirviendo el sitio en paralelo al apex en vez de redirigir:
+  // las dos URLs devolvian 200 con el mismo contenido. El canonical ya apunta
+  // al apex (SITE_URL en src/lib/seo.ts), pero el redirect evita de entrada que
+  // se sirva duplicado. Va aca y no en la config de dominios de Vercel para que
+  // quede versionado y no dependa de como este el panel.
+  //
+  // El capture group evita repetir el dominio: cualquier `www.X` cae en `X`.
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.(?<host>.*)' }],
+        destination: 'https://:host/:path*',
+        permanent: true,
+      },
+    ]
+  },
 }
 
 export default nextConfig
