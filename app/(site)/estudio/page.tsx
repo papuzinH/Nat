@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { buildMetadata } from '@/lib/seo'
+import { buildMetadata, SITE_URL } from '@/lib/seo'
 import JsonLd from '@/components/shared/JsonLd'
 import NHDivider from '@/components/shared/NHDivider'
 import EstudioHero from '@/components/estudio/EstudioHero'
@@ -24,7 +24,7 @@ const estudioSchema = {
   name: 'El Estudio — Natalia Heller',
   description:
     'Tatuajes de línea fina, botánica y diseño personalizado en Buenos Aires.',
-  url: 'https://tatuajesnaty.com/estudio',
+  url: `${SITE_URL}/estudio`,
 }
 
 export default async function EstudioPage() {

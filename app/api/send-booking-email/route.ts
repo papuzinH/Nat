@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { SITE_DOMAIN } from '@/lib/seo'
 
 const AREA_LABELS: Record<string, string> = {
   brazo: 'Brazo / antebrazo',
@@ -136,7 +137,7 @@ function renderEmailHtml(d: EmailData) {
           </a>
         </td></tr>
         <tr><td style="padding:20px 40px;border-top:1px solid ${COLORS.border};background:${COLORS.bg}">
-          <p style="margin:0;font-family:${FONT_BODY};font-size:11px;letter-spacing:.04em;color:${COLORS.inkMuted}">tatuajesnaty.com &nbsp;·&nbsp; Buenos Aires</p>
+          <p style="margin:0;font-family:${FONT_BODY};font-size:11px;letter-spacing:.04em;color:${COLORS.inkMuted}">${SITE_DOMAIN} &nbsp;·&nbsp; Buenos Aires</p>
         </td></tr>
       </table>
     </td></tr>
@@ -174,7 +175,7 @@ export async function POST(req: Request) {
   const brevoKey = process.env.BREVO_API_KEY
   const toEmail = process.env.BOOKING_TO_EMAIL ?? 'nataliaceller.tattoo@gmail.com'
   const toName = process.env.BOOKING_TO_NAME ?? 'Natalia Heller'
-  const senderEmail = process.env.BOOKING_SENDER_EMAIL ?? process.env.BREVO_SENDER_EMAIL ?? 'noreply@tatuajesnaty.com'
+  const senderEmail = process.env.BOOKING_SENDER_EMAIL ?? process.env.BREVO_SENDER_EMAIL ?? `noreply@${SITE_DOMAIN}`
   const senderName = process.env.BOOKING_SENDER_NAME ?? 'Web · Reservas'
 
   if (!brevoKey) {

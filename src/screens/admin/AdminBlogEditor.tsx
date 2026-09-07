@@ -9,6 +9,7 @@ import TipTapEditor from '@/components/admin/blog/TipTapEditor'
 import { useToast } from '@/context/ToastContext'
 import { useUnsavedWarning } from '@/hooks/useUnsavedWarning'
 import { useCategories } from '@/hooks/useCategories'
+import { SITE_DOMAIN } from '@/lib/seo'
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
@@ -569,7 +570,7 @@ const AdminBlogEditor: React.FC<{ id?: string }> = ({ id }) => {
             />
             {state.slug && (
               <p className="font-mono text-[10px] text-ink-soft mt-1">
-                tatuajesnaty.com/blog/<span className="text-ink">{state.slug}</span>
+                {SITE_DOMAIN}/blog/<span className="text-ink">{state.slug}</span>
               </p>
             )}
           </div>

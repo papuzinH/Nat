@@ -1,7 +1,18 @@
 import type { Metadata } from 'next'
 
 // Constantes de marca (portadas del antiguo SEOMeta.tsx / react-helmet).
-export const SITE_URL = 'https://tatuajesnaty.com'
+
+/**
+ * Dominio canónico del sitio: única fuente de verdad. De acá salen canonicals,
+ * JSON-LD, sitemap, robots, las URLs de retorno de Mercado Pago y los emails.
+ *
+ * `SITE_DOMAIN` es un literal, así que es seguro importarlo desde Client
+ * Components. `SITE_URL` admite override por env (previews, entorno local) y
+ * solo se resuelve de verdad en el server: en el browser `process.env.SITE_URL`
+ * es undefined y siempre cae al fallback.
+ */
+export const SITE_DOMAIN = 'nattatt.com.ar'
+export const SITE_URL = (process.env.SITE_URL ?? `https://${SITE_DOMAIN}`).replace(/\/$/, '')
 export const SITE_NAME = 'Natalia Heller'
 export const DEFAULT_IMAGE = '/og-image.webp'
 export const DEFAULT_DESCRIPTION =

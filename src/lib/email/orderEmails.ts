@@ -1,6 +1,7 @@
 import 'server-only'
 import { BANK_DETAILS, WHATSAPP_DISPLAY } from '@/lib/bankDetails'
 import { uploadTokenFor } from '@/lib/pb-admin'
+import { SITE_DOMAIN, SITE_URL } from '@/lib/seo'
 
 /**
  * Plantillas HTML y envío de emails transaccionales de órdenes (vía Brevo).
@@ -15,8 +16,6 @@ interface EmailItem {
   unit_price: number
   quantity: number
 }
-
-const SITE_URL = (process.env.SITE_URL ?? 'https://tatuajesnaty.com').replace(/\/$/, '')
 
 export function formatARS(n: number): string {
   return new Intl.NumberFormat('es-AR', {
@@ -170,7 +169,7 @@ export async function sendBrevoEmail({ to, subject, html }: SendBrevoArgs): Prom
 
   // El sender debe estar verificado en Brevo (o su dominio autenticado);
   // si no, Brevo rechaza el envío con un evento `error`.
-  const senderEmail = process.env.BREVO_SENDER_EMAIL ?? 'noreply@tatuajesnaty.com'
+  const senderEmail = process.env.BREVO_SENDER_EMAIL ?? `noreply@${SITE_DOMAIN}`
 
   await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',

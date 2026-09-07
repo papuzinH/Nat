@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { buildMetadata } from '@/lib/seo'
+import { buildMetadata, SITE_URL } from '@/lib/seo'
 import JsonLd from '@/components/shared/JsonLd'
 import ReservarIntro from '@/components/estudio/ReservarIntro'
 import BookingForm from '@/components/estudio/BookingForm'
@@ -16,7 +16,7 @@ const reservarSchema = {
   name: 'Reservar tatuaje — Natalia Heller',
   description:
     'Formulario para cotizar tu tatuaje personalizado con Natalia Heller. Estilo botánico, line art y diseño a medida en Buenos Aires.',
-  url: 'https://tatuajesnaty.com/estudio/reservar',
+  url: `${SITE_URL}/estudio/reservar`,
 }
 
 export default function EstudioReservarPage() {

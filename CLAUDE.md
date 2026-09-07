@@ -146,7 +146,7 @@ Colecciones: `products`, `product_stock`, `blog_posts`, `orders`, `shipping_zone
 ## Contexto de negocio
 
 - **Cliente:** Natalia Heller, Buenos Aires, CABA, Argentina
-- **Dominio:** `tatuajesnaty.com`
+- **Dominio:** `nattatt.com.ar`
 - **Instagram:** `@nataliaceller_art` (arte) · `@nat.tatt` (tatuajes)
 - **Teléfono:** +54 9 11 3272-2555
 - **Deploy:** Vercel (`framework: nextjs`).

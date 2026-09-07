@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { getBlogPosts } from '@/lib/data/blog'
-import { buildMetadata } from '@/lib/seo'
+import { buildMetadata, SITE_URL } from '@/lib/seo'
 import JsonLd from '@/components/shared/JsonLd'
 import BlogContent from '@/components/blog/BlogContent'
 
@@ -18,7 +18,7 @@ const collectionSchema = {
   name: 'Conocé mi lado más íntimo — Natalia Heller',
   description:
     'Notas sobre proceso, plantas y oficio. Escritas una vez al mes desde el taller.',
-  url: 'https://tatuajesnaty.com/blog',
+  url: `${SITE_URL}/blog`,
 }
 
 export default async function BlogPage() {

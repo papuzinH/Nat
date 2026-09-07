@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { buildMetadata } from '@/lib/seo'
+import { buildMetadata, SITE_URL } from '@/lib/seo'
 import JsonLd from '@/components/shared/JsonLd'
 import ContactHero from '@/components/contacto/ContactHero'
 
@@ -14,7 +14,7 @@ const contactPageSchema = {
   '@type': 'ContactPage',
   name: 'Contacto - Natalia Heller',
   description: 'Agenda tu cita o consulta por diseños personalizados.',
-  url: 'https://tatuajesnaty.com/contacto',
+  url: `${SITE_URL}/contacto`,
   mainEntity: {
     '@type': 'LocalBusiness',
     name: 'Natalia Heller Tattoo Studio',

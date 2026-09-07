@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { pbAdminToken, fetchOrder, uploadTokenFor } from '@/lib/pb-admin'
+import { SITE_URL } from '@/lib/seo'
 
 interface OrderItem {
   product_slug: string
@@ -59,7 +60,7 @@ export async function POST(req: Request) {
     })
   }
 
-  const siteUrl = process.env.SITE_URL ?? 'https://tatuajesnaty.com'
+  const siteUrl = SITE_URL
   const isPublicUrl = siteUrl.startsWith('https://')
   const isSandboxToken = token.startsWith('TEST-')
   const expiry = new Date(Date.now() + 30 * 60 * 1000).toISOString()

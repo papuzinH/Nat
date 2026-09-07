@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { buildMetadata } from '@/lib/seo'
+import { buildMetadata, SITE_URL } from '@/lib/seo'
 import JsonLd from '@/components/shared/JsonLd'
 import NHDivider from '@/components/shared/NHDivider'
 import {
@@ -25,10 +25,10 @@ export const revalidate = 3600
 const homeSchema = {
   '@type': ['LocalBusiness', 'ArtGallery'],
   name: 'Natalia Heller — Arte & Tatuajes',
-  url: 'https://tatuajesnaty.com',
+  url: SITE_URL,
   telephone: '+5491132722555',
-  image: 'https://tatuajesnaty.com/og-image.webp',
-  logo: 'https://tatuajesnaty.com/Logo.svg',
+  image: `${SITE_URL}/og-image.webp`,
+  logo: `${SITE_URL}/Logo.svg`,
   description:
     'Arte original, tienda online y estudio de tatuajes en Buenos Aires. Prints, cerámica, textiles, stickers y tatuajes de línea fina.',
   priceRange: '$$',

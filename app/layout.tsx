@@ -8,6 +8,7 @@ import { ToastProvider } from '@/context/ToastContext'
 import CartDrawer from '@/components/cart/CartDrawer'
 import ToastViewport from '@/components/admin/shared/ToastViewport'
 import BotanicalMotion from '@/components/shared/BotanicalMotion'
+import { SITE_URL } from '@/lib/seo'
 
 const GTM_ID = 'GTM-WXL45DSC'
 
@@ -37,7 +38,7 @@ const jetbrainsMono = JetBrains_Mono({
 // Metadata base — migrada del fallback estático de index.html. Cada página
 // define su propio title/description/canonical vía generateMetadata (Wave 3+).
 export const metadata: Metadata = {
-  metadataBase: new URL('https://tatuajesnaty.com'),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: 'Natalia Heller — Arte Original & Tienda | Buenos Aires',
     template: '%s | Natalia Heller',
