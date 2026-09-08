@@ -261,6 +261,9 @@ const Header: React.FC = () => {
         ref={menuPanelRef}
         className="md:hidden overflow-hidden absolute left-0 right-0 top-full z-50"
         style={{ height: 0, opacity: 0 }}
+        // aria-hidden solo lo saca del arbol de accesibilidad; sin inert los
+        // links del menu cerrado siguen siendo alcanzables con Tab.
+        inert={!isMenuOpen}
         aria-hidden={!isMenuOpen}
       >
         <nav

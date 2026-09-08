@@ -27,14 +27,16 @@ const homeSchema = {
   name: 'Natalia Heller — Arte & Tatuajes',
   url: SITE_URL,
   telephone: '+5491132722555',
-  image: `${SITE_URL}/og-image.webp`,
+  image: `${SITE_URL}/opengraph-image`,
   logo: `${SITE_URL}/Logo.svg`,
   description:
     'Arte original, tienda online y estudio de tatuajes en Buenos Aires. Prints, cerámica, textiles, stickers y tatuajes de línea fina.',
   priceRange: '$$',
+  currenciesAccepted: 'ARS',
+  paymentAccepted: 'Mercado Pago, Transferencia bancaria',
+  areaServed: { '@type': 'Country', name: 'Argentina' },
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'Desde el estudio',
     addressLocality: 'Ciudad Autónoma de Buenos Aires',
     addressRegion: 'Buenos Aires',
     addressCountry: 'AR',
@@ -53,7 +55,28 @@ const homeSchema = {
       closes: '17:00',
     },
   ],
-  sameAs: ['https://instagram.com/nataliaceller_art'],
+  sameAs: [
+    'https://instagram.com/nataliaceller_art',
+    'https://instagram.com/nat.tatt',
+  ],
+  founder: {
+    '@type': 'Person',
+    name: 'Natalia Heller',
+    jobTitle: 'Artista plástica y tatuadora',
+    url: SITE_URL,
+    sameAs: [
+      'https://instagram.com/nataliaceller_art',
+      'https://instagram.com/nat.tatt',
+    ],
+    knowsAbout: [
+      'Ilustración botánica',
+      'Acuarela',
+      'Impresión giclée',
+      'Cerámica',
+      'Tatuaje de línea fina',
+      'Tatuaje botánico',
+    ],
+  },
 }
 
 export default async function HomePage() {

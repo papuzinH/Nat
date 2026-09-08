@@ -36,7 +36,7 @@ export async function generateMetadata(
     description: metaDescription,
     path: `/tienda/${product.slug}`,
     type: 'product',
-    image: product.images[0] ?? '/og-placeholder.webp',
+    image: product.images[0],
   })
 }
 
@@ -56,7 +56,7 @@ export default async function ProductDetailPage(
         '@type': 'Product',
         name: product.title,
         description: descriptionText,
-        image: product.images[0] ?? `${SITE_URL}/og-placeholder.webp`,
+        image: product.images[0] ?? `${SITE_URL}/opengraph-image`,
         url: `${SITE_URL}/tienda/${product.slug}`,
         brand: { '@type': 'Brand', name: 'Natalia Heller' },
         category: product.catLabel,

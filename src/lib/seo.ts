@@ -14,7 +14,8 @@ import type { Metadata } from 'next'
 export const SITE_DOMAIN = 'nattatt.com.ar'
 export const SITE_URL = (process.env.SITE_URL ?? `https://${SITE_DOMAIN}`).replace(/\/$/, '')
 export const SITE_NAME = 'Natalia Heller'
-export const DEFAULT_IMAGE = '/og-image.webp'
+// Sin valor por defecto a proposito: cuando una pagina no declara imagen,
+// Next resuelve la de app/opengraph-image.tsx. Ver BuildMetadataInput.image.
 export const DEFAULT_DESCRIPTION =
   'Arte original, prints, stickers y obras únicas desde Buenos Aires. Tienda online de arte y estudio de tatuajes.'
 export const TWITTER_HANDLE = '@nataliaceller_art'
@@ -26,7 +27,10 @@ export interface BuildMetadataInput {
   description?: string
   /** Path canónico relativo, ej: '/tienda' o '/blog/mi-post'. */
   path?: string
-  /** URL de imagen OG (absoluta o relativa a metadataBase). */
+  /**
+   * URL de imagen OG (absoluta o relativa a metadataBase). Si se omite,
+   * Next cae a la imagen generada en app/opengraph-image.tsx.
+   */
   image?: string
   type?: 'website' | 'article' | 'product'
   noindex?: boolean
@@ -42,7 +46,7 @@ export function buildMetadata({
   titleAbsolute = false,
   description = DEFAULT_DESCRIPTION,
   path,
-  image = DEFAULT_IMAGE,
+  image,
   type = 'website',
   noindex = false,
 }: BuildMetadataInput): Metadata {
@@ -60,13 +64,13 @@ export function buildMetadata({
       // JSON-LD. Mapeamos a 'article' o 'website'.
       type: type === 'article' ? 'article' : 'website',
       ...(path ? { url: path } : {}),
-      images: [{ url: image, width: 1200, height: 630 }],
+      ...(image ? { images: [{ url: image, width: 1200, height: 630 }] } : {}),
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [image],
+      ...(image ? { images: [image] } : {}),
     },
   }
 }

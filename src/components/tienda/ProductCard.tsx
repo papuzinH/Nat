@@ -63,7 +63,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
 
       <Link
         href={`/tienda/${product.slug}`}
-        aria-label={product.title}
         style={{ textDecoration: 'none', display: 'block' }}
       >
         {/* Media */}

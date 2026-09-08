@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     siteName: 'Natalia Heller',
     type: 'website',
     locale: 'es_AR',
-    images: [{ url: '/og-image.webp', width: 1200, height: 630 }],
+    // La imagen la aporta app/opengraph-image.tsx (generada).
   },
   twitter: {
     card: 'summary_large_image',

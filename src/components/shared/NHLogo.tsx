@@ -14,14 +14,15 @@ const NHLogo: React.FC<NHLogoProps> = ({ size = 16, onClick }) => {
       href="/"
       onClick={onClick}
       style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}
-      aria-label="Natalia Heller — inicio"
+      aria-label="NAT.TATT — Natalia Heller, ir al inicio"
       className='hover:opacity-80 transition-all hover:scale-[1.02] '
     >
       <img
         src="/Logo.svg"
         alt="Natalia Heller"
         height={logoHeight}
-        style={{ height: logoHeight, width: 'auto', display: 'block' }}
+        width={logoHeight}
+        style={{ height: logoHeight, width: logoHeight, display: 'block' }}
       />
       <span
         aria-hidden="true"

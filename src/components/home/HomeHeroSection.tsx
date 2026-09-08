@@ -117,7 +117,9 @@ const MobileTouchCarousel: React.FC<{ slides: HeroSlide[] }> = ({ slides }) => {
             aria-roledescription="slide"
             aria-label={`${i + 1} de ${slides.length}${slide.kind === 'placeholder' ? ': ' + slide.label : slide.alt ? ': ' + slide.alt : ''}`}
           >
-            <SlideMedia slide={slide} />
+            {/* El primer slide es el elemento LCP en mobile: sin priority sale
+                con loading="lazy" y sin fetchpriority (medido: LCP 6,4s). */}
+            <SlideMedia slide={slide} priority={i === 0} />
           </div>
         ))}
       </div>
