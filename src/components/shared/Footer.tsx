@@ -127,7 +127,7 @@ const Footer: React.FC = () => {
                   rel="noopener noreferrer"
                   className="font-body text-[15px] transition-colors duration-200 hover:text-sage-700"
                   style={{ color: 'var(--ink, #2c2c2c)', textDecoration: 'none' }}
-                  aria-label="Ver ubicación en Google Maps"
+                  aria-label="CABA · Buenos Aires, AR. — ver ubicación en Google Maps"
                 >
                   CABA · Buenos Aires, AR.
                 </a>
