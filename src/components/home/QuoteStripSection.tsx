@@ -129,7 +129,7 @@ const QuoteStripSection: React.FC = () => {
                 display: 'block',
                 width: 36,
                 height: 1,
-                background: 'var(--amber-700, #BC6C25)',
+                background: 'var(--amber-700, #A35E20)',
                 transformOrigin: 'left center',
               }}
             />

@@ -367,13 +367,23 @@ const HomeHeroSection: React.FC<{ images?: SiteImage[] }> = ({ images = [] }) =>
 
         {/* Left column — Carousel (desktop) / Touch carousel (mobile, second) */}
         <div className="relative order-2 md:order-1 px-6 py-10 md:px-10 md:py-20 lg:px-16 lg:py-24">
-          {isMobile ? (
-            /* Mobile: native scroll-snap touch carousel */
+          {/* Los dos carruseles van al HTML del servidor y se alternan por CSS.
+              Con el ternario sobre isMobile —false en SSR— el celular recibia el
+              markup de desktop y lo reemplazaba entero al hidratar: la imagen del
+              hero, que es el elemento LCP en mobile, no estaba en el HTML inicial,
+              asi que Next no podia emitir su preload (medido: 583ms de
+              resourceLoadDelay) y el swap corria el layout (CLS 0,102).
+
+              Los efectos siguen guardados por isMobile, asi que el carrusel
+              oculto no anima ni auto-avanza. Las <Image> de ambos resuelven la
+              misma URL, de modo que el navegador descarga una sola vez. */}
+          <div className="md:hidden">
             <MobileTouchCarousel slides={slides} />
-          ) : (
-            /* Desktop: full carousel */
+          </div>
+
+          {/* Desktop: full carousel */}
             <div
-              className="relative w-full h-full"
+              className="hidden md:block relative w-full h-full"
               style={{
                 boxShadow: '0 20px 60px rgba(74,124,89,0.1), 0 2px 6px rgba(44,44,44,0.06)',
               }}
@@ -500,7 +510,6 @@ const HomeHeroSection: React.FC<{ images?: SiteImage[] }> = ({ images = [] }) =>
               </>
               )}
             </div>
-          )}
         </div>
       </div>
     </section>

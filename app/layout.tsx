@@ -71,7 +71,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     >
       <body>
         {/* Google Tag Manager — carga diferida tras interactividad */}
-        <Script id="gtm-script" strategy="afterInteractive">
+        {/* lazyOnload y no afterInteractive: GTM baja 117 KiB de los que la
+            pagina usa ~40, y compite por el main thread justo mientras se
+            pinta el hero. Cargarlo despues del load saca ese trabajo de la
+            ventana que Google mide. Contrapartida: se pierden los eventos de
+            un rebote muy rapido; si hace falta precision, volver a afterInteractive. */}
+        <Script id="gtm-script" strategy="lazyOnload">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${GTM_ID}');`}
         </Script>
         <noscript>

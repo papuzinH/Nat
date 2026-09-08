@@ -28,7 +28,7 @@ export default {
         },
         amber: {
           400: '#DDA15E',
-          700: '#BC6C25',
+          700: '#A35E20',
         },
         ink: {
           DEFAULT: '#2c2c2c',

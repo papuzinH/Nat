@@ -26,6 +26,10 @@
     --sage-500: #7a9e7e;
     --sage-700: #4a7c59;
     --sage-900: #2f4a37;
+    /* Bajado de #BC6C25 (4,50:1 sobre cream-100 en texto de 14px, no llegaba
+       a WCAG AA). Mismo hue y saturacion, solo menos luminosidad: 4,67:1. */
+    --amber-700: #a35e20;
+    --amber-400: #dda15e;
     --ink: #2c2c2c;
     --ink-soft: #5a5350;
   }

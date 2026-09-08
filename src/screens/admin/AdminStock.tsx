@@ -368,7 +368,7 @@ const AdminStock: React.FC = () => {
           const inconsistent = isInconsistent(row)
           // Acento izquierdo: rojo para sin stock/inconsistente, ámbar para bajo.
           const accent =
-            level === 'out' || inconsistent ? 'var(--amber-700, #BC6C25)'
+            level === 'out' || inconsistent ? 'var(--amber-700, #A35E20)'
             : level === 'low' ? 'var(--amber-400, #DDA15E)'
             : null
 

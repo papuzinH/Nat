@@ -21,7 +21,7 @@ const CREAM = '#faf6f0'
 const INK = '#2c2c2c'
 const INK_SOFT = '#5a5350'
 const SAGE = '#45501f'
-const AMBER = '#bc6c25'
+const AMBER = '#a35e20'
 
 export default function OpengraphImage() {
   return new ImageResponse(
