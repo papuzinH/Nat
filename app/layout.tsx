@@ -46,12 +46,12 @@ export const metadata: Metadata = {
   description:
     'Arte original, prints, stickers y obras únicas desde Buenos Aires. Tienda online de arte y estudio de tatuajes.',
   robots: { index: true, follow: true },
-  icons: { icon: '/Logo.svg' },
+  // El favicon lo resuelve app/icon.svg (convencion de Next).
   openGraph: {
     siteName: 'Natalia Heller',
     type: 'website',
     locale: 'es_AR',
-    // La imagen la aporta app/opengraph-image.tsx (generada).
+    images: [{ url: '/opengraph-image', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',

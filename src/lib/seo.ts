@@ -14,8 +14,10 @@ import type { Metadata } from 'next'
 export const SITE_DOMAIN = 'nattatt.com.ar'
 export const SITE_URL = (process.env.SITE_URL ?? `https://${SITE_DOMAIN}`).replace(/\/$/, '')
 export const SITE_NAME = 'Natalia Heller'
-// Sin valor por defecto a proposito: cuando una pagina no declara imagen,
-// Next resuelve la de app/opengraph-image.tsx. Ver BuildMetadataInput.image.
+// Ruta que sirve app/opengraph-image.tsx. Se declara explicita porque Next
+// solo resuelve la imagen generada cuando la pagina NO define openGraph, y
+// buildMetadata siempre lo hace.
+export const DEFAULT_IMAGE = '/opengraph-image'
 export const DEFAULT_DESCRIPTION =
   'Arte original, prints, stickers y obras únicas desde Buenos Aires. Tienda online de arte y estudio de tatuajes.'
 export const TWITTER_HANDLE = '@nataliaceller_art'
@@ -46,7 +48,7 @@ export function buildMetadata({
   titleAbsolute = false,
   description = DEFAULT_DESCRIPTION,
   path,
-  image,
+  image = DEFAULT_IMAGE,
   type = 'website',
   noindex = false,
 }: BuildMetadataInput): Metadata {
