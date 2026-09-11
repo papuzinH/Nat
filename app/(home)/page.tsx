@@ -9,6 +9,16 @@ import {
   QuoteStripSection,
 } from '@/components/home'
 import { getSiteImages } from '@/lib/data/site-images'
+import { getProducts } from '@/lib/data/products'
+import type { Product } from '@/data/products'
+
+function latestActive(products: Product[], count: number): Product[] {
+  const time = (p: Product) => (p.createdAt ? new Date(p.createdAt).getTime() : 0)
+  return products
+    .filter((p) => p.status === 'active')
+    .sort((a, b) => time(b) - time(a))
+    .slice(0, count)
+}
 
 export const metadata: Metadata = buildMetadata({
   title: 'Natalia Heller — Arte Original & Tienda | Buenos Aires',
@@ -80,16 +90,17 @@ const homeSchema = {
 }
 
 export default async function HomePage() {
-  const [heroImages, teaserImages] = await Promise.all([
+  const [heroImages, teaserImages, products] = await Promise.all([
     getSiteImages('home_hero'),
     getSiteImages('home_teaser'),
+    getProducts().catch(() => []),
   ])
   return (
     <>
       <JsonLd data={homeSchema} />
       <HomeHeroSection images={heroImages} />
       <NHDivider label="Tienda" />
-      <FeaturedProductsSection />
+      <FeaturedProductsSection products={latestActive(products, 3)} />
       {teaserImages.length > 0 && (
         <>
           <NHDivider label="Arte en la piel" />

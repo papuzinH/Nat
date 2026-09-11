@@ -2,28 +2,19 @@
 
 import React, { useLayoutEffect, useRef } from 'react'
 import Link from 'next/link'
-import { useProducts } from '@/hooks/useProducts'
-import { ProductGrid } from '@/components/tienda'
+import type { Product } from '@/data/products'
+// Import directo y no del barrel de tienda: el barrel arrastra el detalle de
+// producto (lightbox + su CSS) al bundle del home.
+import ProductGrid from '@/components/tienda/ProductGrid'
 import FeaturedProductsCarousel from './FeaturedProductsCarousel'
 import { SectionContainer, SectionTitle } from '@/components/shared'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import { splitReveal, splitWords } from '@/lib/animations'
 
-const FeaturedProductsSection: React.FC = () => {
-  const { products, loading } = useProducts()
+const FeaturedProductsSection: React.FC<{ products: Product[] }> = ({ products: featuredProducts }) => {
   const sectionRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLSpanElement>(null)
   const ctaRef = useRef<HTMLAnchorElement>(null)
-
-  const featuredProducts = products
-    .filter((p) => p.status === 'active')
-    .sort((a, b) => {
-      if (!a.createdAt && !b.createdAt) return 0
-      if (!a.createdAt) return 1
-      if (!b.createdAt) return -1
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    })
-    .slice(0, 3)
 
   useLayoutEffect(() => {
     const title = titleRef.current
@@ -97,54 +88,21 @@ const FeaturedProductsSection: React.FC = () => {
         </Link>
       </div>
 
-      {loading ? (
-        (() => {
-          const SkeletonCard = () => (
-            <div
-              className="bg-cream-50 rounded-card overflow-hidden animate-pulse"
-              style={{ boxShadow: '0 1px 2px rgba(44,44,44,0.04), 0 8px 24px rgba(74,124,89,0.06)' }}
-            >
-              <div className="bg-cream-200 w-full" style={{ aspectRatio: '4/5' }} />
-              <div className="p-3 sm:p-[18px_18px_22px] space-y-2">
-                <div className="h-5 w-4/5 bg-cream-200 rounded" />
-                <div className="h-4 w-16 bg-cream-200 rounded" />
-              </div>
-            </div>
-          )
-          return (
-            <div aria-label="Cargando productos destacados" aria-busy="true">
-              {/* Mobile: una sola card */}
-              <div className="md:hidden">
-                <SkeletonCard />
-              </div>
-              {/* Desktop: grid de 3 */}
-              <div className="hidden md:grid md:grid-cols-3 gap-7">
-                {[0, 1, 2].map((i) => (
-                  <SkeletonCard key={i} />
-                ))}
-              </div>
-            </div>
-          )
-        })()
-      ) : (
-        <>
-          {/* Mobile: slider de a un producto */}
-          <div className="md:hidden">
-            <FeaturedProductsCarousel products={featuredProducts} />
-          </div>
-          {/* Desktop: grid de 3 columnas */}
-          <div className="hidden md:block">
-            <ProductGrid
-              products={featuredProducts}
-              activeCategory="featured"
-              withSection={false}
-              gridId="featured-product-grid"
-              ariaLabel="Productos destacados"
-              gridClassName="gap-4 md:gap-7"
-            />
-          </div>
-        </>
-      )}
+      {/* Mobile: slider de a un producto */}
+      <div className="md:hidden">
+        <FeaturedProductsCarousel products={featuredProducts} />
+      </div>
+      {/* Desktop: grid de 3 columnas */}
+      <div className="hidden md:block">
+        <ProductGrid
+          products={featuredProducts}
+          activeCategory="featured"
+          withSection={false}
+          gridId="featured-product-grid"
+          ariaLabel="Productos destacados"
+          gridClassName="gap-4 md:gap-7"
+        />
+      </div>
 
       <div className="mt-8 text-center md:hidden">
         <Link
