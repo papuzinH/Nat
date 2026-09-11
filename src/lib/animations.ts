@@ -142,31 +142,32 @@ export function animateHero(container: HTMLElement, opts: AnimateHeroOpts = {}) 
   const subtitle = container.querySelector('.hero-subtitle')
   const extras = Array.from(container.querySelectorAll<HTMLElement>('.hero-extra'))
 
-  // Pre-set hidden state synchronously to avoid visible→hidden flash on first paint
-  if (eyebrow) gsap.set(eyebrow, { opacity: 0, y: 8 })
-  if (titleWords.length) gsap.set(titleWords, { y: 18, opacity: 0, filter: 'blur(4px)' })
-  if (subtitle) gsap.set(subtitle, { opacity: 0, y: 8 })
-  if (extras.length) gsap.set(extras, { opacity: 0, y: 12 })
+  // Pre-set entrance offset synchronously to avoid a jump on first paint.
+  // Nunca se toca opacity: el texto debe leerse aunque el timeline no llegue a
+  // correr (capturas headless, bots) — la animación es solo desplazamiento + blur.
+  if (eyebrow) gsap.set(eyebrow, { y: 8 })
+  if (titleWords.length) gsap.set(titleWords, { y: 18, filter: 'blur(4px)' })
+  if (subtitle) gsap.set(subtitle, { y: 8 })
+  if (extras.length) gsap.set(extras, { y: 12 })
 
   const ctx = gsap.context(() => {
     const tl = gsap.timeline({ defaults: { ease: 'power2.out' }, delay })
 
     if (eyebrow) {
-      tl.fromTo(eyebrow, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4 })
+      tl.fromTo(eyebrow, { y: 8 }, { y: 0, duration: 0.4 })
     }
     if (titleWords.length) {
       tl.fromTo(
         titleWords,
-        { y: 18, opacity: 0, filter: 'blur(4px)' },
+        { y: 18, filter: 'blur(4px)' },
         {
           y: 0,
-          opacity: 1,
           filter: 'blur(0px)',
           duration: 0.65,
           stagger: 0.05,
           ease: 'power3.out',
           onStart: () => {
-            titleWords.forEach((w) => ((w as HTMLElement).style.willChange = 'transform, opacity, filter'))
+            titleWords.forEach((w) => ((w as HTMLElement).style.willChange = 'transform, filter'))
           },
           onComplete: () => {
             titleWords.forEach((w) => ((w as HTMLElement).style.willChange = 'auto'))
@@ -176,13 +177,13 @@ export function animateHero(container: HTMLElement, opts: AnimateHeroOpts = {}) 
       )
     }
     if (subtitle) {
-      tl.fromTo(subtitle, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.5 }, '-=0.3')
+      tl.fromTo(subtitle, { y: 8 }, { y: 0, duration: 0.5 }, '-=0.3')
     }
     if (extras.length) {
       tl.fromTo(
         extras,
-        { opacity: 0, y: 12 },
-        { opacity: 1, y: 0, duration: 0.45, stagger: 0.08 },
+        { y: 12 },
+        { y: 0, duration: 0.45, stagger: 0.08 },
         '-=0.3'
       )
     }
