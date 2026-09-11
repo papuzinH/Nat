@@ -81,10 +81,10 @@ const StudioPhotosGallery: React.FC<{ images?: SiteImage[] }> = ({ images = [] }
     if (shouldAnimate()) {
       ctx = gsap.context(() => {
         gsap.from(wrapper, {
-          clipPath: 'inset(0% 100% 0% 0%)',
-          opacity: 0.001,
+          clipPath: 'inset(0% 35% 0% 0%)',
           duration: 0.9,
           ease: 'power3.out',
+          immediateRender: false,
           scrollTrigger: { trigger: wrapper, start: 'top 85%', once: true },
         })
       }, wrapper)

@@ -41,11 +41,6 @@ const ProcessSteps: React.FC = () => {
         const title = step.querySelector<HTMLElement>('.process-step-title')
         const desc = step.querySelector<HTMLElement>('.process-step-desc')
 
-        // Pre-set hidden state synchronously to avoid visible→hidden flash
-        if (num) gsap.set(num, { opacity: 0, y: 20 })
-        if (title) gsap.set(title, { opacity: 0, y: 12 })
-        if (desc) gsap.set(desc, { opacity: 0, y: 8 })
-
         const tl = gsap.timeline({
           scrollTrigger: { trigger: step, start: 'top 85%', once: true },
           delay: idx * 0.05,
@@ -53,23 +48,23 @@ const ProcessSteps: React.FC = () => {
         if (num) {
           tl.fromTo(
             num,
-            { opacity: 0, y: 20, letterSpacing: '0.05em' },
-            { opacity: 1, y: 0, letterSpacing: '0em', duration: 0.7, ease: 'power3.out' }
+            { y: 20, letterSpacing: '0.05em' },
+            { y: 0, letterSpacing: '0em', duration: 0.7, ease: 'power3.out', immediateRender: false }
           )
         }
         if (title) {
           tl.fromTo(
             title,
-            { opacity: 0, y: 12 },
-            { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
+            { y: 12 },
+            { y: 0, duration: 0.5, ease: 'power2.out', immediateRender: false },
             '-=0.4'
           )
         }
         if (desc) {
           tl.fromTo(
             desc,
-            { opacity: 0, y: 8 },
-            { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' },
+            { y: 8 },
+            { y: 0, duration: 0.45, ease: 'power2.out', immediateRender: false },
             '-=0.3'
           )
         }

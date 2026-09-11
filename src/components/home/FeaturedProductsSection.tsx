@@ -22,12 +22,6 @@ const FeaturedProductsSection: React.FC<{ products: Product[] }> = ({ products: 
     const section = sectionRef.current
     if (!title || !section || !shouldAnimate()) return
 
-    const titleWords = title.querySelectorAll<HTMLElement>('[data-split-word]')
-    if (titleWords.length) {
-      gsap.set(titleWords, { y: 18, opacity: 0, filter: 'blur(4px)' })
-    }
-    if (cta) gsap.set(cta, { opacity: 0, y: 8 })
-
     const cleanup = splitReveal(title, {
       scrollTrigger: { trigger: section, start: 'top 80%', once: true },
     })
@@ -36,13 +30,13 @@ const FeaturedProductsSection: React.FC<{ products: Product[] }> = ({ products: 
       if (!cta) return
       gsap.fromTo(
         cta,
-        { opacity: 0, y: 8 },
+        { y: 8 },
         {
-          opacity: 1,
           y: 0,
           duration: 0.5,
           delay: 0.35,
           ease: 'power2.out',
+          immediateRender: false,
           scrollTrigger: { trigger: section, start: 'top 80%', once: true },
         }
       )

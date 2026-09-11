@@ -22,12 +22,8 @@ const QuoteStripSection: React.FC = () => {
     const line = lineRef.current
     if (!section || !shouldAnimate()) return
 
-    // Pre-set hidden state synchronously to avoid visible→hidden flash
-    if (quote) {
-      const words = quote.querySelectorAll<HTMLElement>('[data-split-word]')
-      if (words.length) gsap.set(words, { y: 14, opacity: 0, filter: 'blur(3px)' })
-    }
-    if (cite) gsap.set(cite, { opacity: 0, y: 6 })
+    // La línea es decorativa: puede arrancar oculta. La cita no: sin opacity y
+    // con immediateRender: false, se ve aunque el trigger no dispare.
     if (line) gsap.set(line, { scaleX: 0 })
 
     const ctx = gsap.context(() => {
@@ -35,14 +31,14 @@ const QuoteStripSection: React.FC = () => {
         const words = quote.querySelectorAll<HTMLElement>('[data-split-word]')
         gsap.fromTo(
           words,
-          { y: 14, opacity: 0, filter: 'blur(3px)' },
+          { y: 14, filter: 'blur(3px)' },
           {
             y: 0,
-            opacity: 1,
             filter: 'blur(0px)',
             duration: 0.6,
             stagger: 0.025,
             ease: 'power2.out',
+            immediateRender: false,
             scrollTrigger: { trigger: section, start: 'top 78%', once: true },
           }
         )
@@ -51,13 +47,13 @@ const QuoteStripSection: React.FC = () => {
       if (cite) {
         gsap.fromTo(
           cite,
-          { opacity: 0, y: 6 },
+          { y: 6 },
           {
-            opacity: 1,
             y: 0,
             duration: 0.5,
             delay: 0.25,
             ease: 'power2.out',
+            immediateRender: false,
             scrollTrigger: { trigger: section, start: 'top 70%', once: true },
           }
         )

@@ -66,14 +66,14 @@ const CheckoutConfirmacionContent: React.FC = () => {
       const transferDetails = wrapper.querySelector('.confirm-transfer')
       const cta = wrapper.querySelector('.confirm-cta')
 
-      // Solo el fade del contenedor: el brote de las hojas lo hace el CSS del motivo.
-      if (wreath) tl.fromTo(wreath, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.5 })
-      if (meta) tl.fromTo(meta, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4 }, '-=0.25')
-      if (heading) tl.fromTo(heading, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.55 }, '-=0.2')
-      if (body) tl.fromTo(body, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.45 }, '-=0.3')
-      if (summary) tl.fromTo(summary, { opacity: 0, y: 16, scale: 0.99 }, { opacity: 1, y: 0, scale: 1, duration: 0.5 }, '-=0.25')
-      if (transferDetails) tl.fromTo(transferDetails, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5 }, '-=0.3')
-      if (cta) tl.fromTo(cta, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4 }, '-=0.25')
+      // Solo el desplazamiento del contenedor: el brote de las hojas lo hace el CSS del motivo.
+      if (wreath) tl.fromTo(wreath, { y: 6 }, { y: 0, duration: 0.5 })
+      if (meta) tl.fromTo(meta, { y: 8 }, { y: 0, duration: 0.4 }, '-=0.25')
+      if (heading) tl.fromTo(heading, { y: 14 }, { y: 0, duration: 0.55 }, '-=0.2')
+      if (body) tl.fromTo(body, { y: 10 }, { y: 0, duration: 0.45 }, '-=0.3')
+      if (summary) tl.fromTo(summary, { y: 16, scale: 0.99 }, { y: 0, scale: 1, duration: 0.5 }, '-=0.25')
+      if (transferDetails) tl.fromTo(transferDetails, { y: 14 }, { y: 0, duration: 0.5 }, '-=0.3')
+      if (cta) tl.fromTo(cta, { y: 10 }, { y: 0, duration: 0.4 }, '-=0.25')
     }, wrapper)
     return () => ctx.revert()
   }, [loading, notFound])

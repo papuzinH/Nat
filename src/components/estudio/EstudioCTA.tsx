@@ -16,25 +16,25 @@ const EstudioCTA: React.FC = () => {
       const items = gsap.utils.toArray<HTMLElement>('.cta-field')
       gsap.fromTo(
         card,
-        { opacity: 0, y: 20 },
+        { y: 20 },
         {
-          opacity: 1,
           y: 0,
           duration: 0.6,
           ease: 'power2.out',
+          immediateRender: false,
           scrollTrigger: { trigger: card, start: 'top 85%', once: true },
         }
       )
       if (items.length) {
         gsap.fromTo(
           items,
-          { opacity: 0, y: 10 },
+          { y: 10 },
           {
-            opacity: 1,
             y: 0,
             duration: 0.45,
             stagger: 0.07,
             ease: 'power2.out',
+            immediateRender: false,
             scrollTrigger: { trigger: card, start: 'top 80%', once: true },
             delay: 0.2,
           }

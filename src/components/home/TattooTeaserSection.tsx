@@ -30,26 +30,20 @@ const TattooTeaserSection: React.FC<{ images?: SiteImage[] }> = ({ images = [] }
     const cta = ctaRef.current
     if (!section || !shouldAnimate()) return
 
-    // Pre-set hidden state synchronously to avoid visible→hidden flash
-    if (title) {
-      const words = title.querySelectorAll<HTMLElement>('[data-split-word]')
-      if (words.length) gsap.set(words, { y: 18, opacity: 0, filter: 'blur(4px)' })
-    }
-    if (paragraph) gsap.set(paragraph, { opacity: 0, y: 12 })
-    if (cta) gsap.set(cta, { opacity: 0, y: 12 })
-
+    // Entradas sin opacity y con immediateRender: false: si el trigger no
+    // dispara, el contenido queda visible en su estado natural.
     const ctx = gsap.context(() => {
       if (mosaicEl) {
         const cards = mosaicEl.querySelectorAll<HTMLElement>('.teaser-card')
         gsap.fromTo(
           cards,
-          { clipPath: 'inset(0% 100% 0% 0%)', opacity: 0.001 },
+          { clipPath: 'inset(0% 35% 0% 0%)' },
           {
             clipPath: 'inset(0% 0% 0% 0%)',
-            opacity: 1,
             duration: 0.95,
             stagger: 0.13,
             ease: 'power3.out',
+            immediateRender: false,
             scrollTrigger: { trigger: section, start: 'top 75%', once: true },
           }
         )
@@ -77,14 +71,14 @@ const TattooTeaserSection: React.FC<{ images?: SiteImage[] }> = ({ images = [] }
         const words = title.querySelectorAll<HTMLElement>('[data-split-word]')
         gsap.fromTo(
           words,
-          { y: 18, opacity: 0, filter: 'blur(4px)' },
+          { y: 18, filter: 'blur(4px)' },
           {
             y: 0,
-            opacity: 1,
             filter: 'blur(0px)',
             duration: 0.7,
             stagger: 0.06,
             ease: 'power3.out',
+            immediateRender: false,
             scrollTrigger: { trigger: section, start: 'top 75%', once: true },
           }
         )
@@ -93,13 +87,13 @@ const TattooTeaserSection: React.FC<{ images?: SiteImage[] }> = ({ images = [] }
       if (paragraph) {
         gsap.fromTo(
           paragraph,
-          { opacity: 0, y: 12 },
+          { y: 12 },
           {
-            opacity: 1,
             y: 0,
             duration: 0.55,
             delay: 0.45,
             ease: 'power2.out',
+            immediateRender: false,
             scrollTrigger: { trigger: section, start: 'top 75%', once: true },
           }
         )
@@ -108,13 +102,13 @@ const TattooTeaserSection: React.FC<{ images?: SiteImage[] }> = ({ images = [] }
       if (cta) {
         gsap.fromTo(
           cta,
-          { opacity: 0, y: 12 },
+          { y: 12 },
           {
-            opacity: 1,
             y: 0,
             duration: 0.55,
             delay: 0.6,
             ease: 'power2.out',
+            immediateRender: false,
             scrollTrigger: { trigger: section, start: 'top 75%', once: true },
           }
         )

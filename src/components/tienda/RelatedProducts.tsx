@@ -30,8 +30,8 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ currentSlug, category
         onEnter: (batch) =>
           gsap.fromTo(
             batch,
-            { opacity: 0, y: 24 },
-            { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out' }
+            { y: 24 },
+            { y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out' }
           ),
         start: 'top 88%',
       })

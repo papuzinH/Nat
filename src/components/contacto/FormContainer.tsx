@@ -43,16 +43,15 @@ const FormContainer: React.FC = () => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         card,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', delay: 0.2 }
+        { y: 20 },
+        { y: 0, duration: 0.6, ease: 'power2.out', delay: 0.2 }
       )
       const fields = gsap.utils.toArray<HTMLElement>('.contact-field')
       if (fields.length) {
         gsap.fromTo(
           fields,
-          { opacity: 0, y: 10 },
+          { y: 10 },
           {
-            opacity: 1,
             y: 0,
             duration: 0.45,
             stagger: 0.07,

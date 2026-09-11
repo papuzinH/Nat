@@ -1,32 +1,5 @@
 import { gsap, ScrollTrigger, shouldAnimate } from './gsap'
 
-type RevealOpts = {
-  y?: number
-  duration?: number
-  stagger?: number
-  start?: string
-  ease?: string
-}
-
-export function revealOnScroll(selector: string, scope: Element, opts: RevealOpts = {}) {
-  if (!shouldAnimate()) return () => {}
-  const { y = 24, duration = 0.55, stagger = 0.08, start = 'top 88%', ease = 'power2.out' } = opts
-
-  const ctx = gsap.context(() => {
-    ScrollTrigger.batch(selector, {
-      start,
-      onEnter: (batch) =>
-        gsap.fromTo(
-          batch,
-          { opacity: 0, y },
-          { opacity: 1, y: 0, duration, stagger, ease, overwrite: 'auto' }
-        ),
-    })
-  }, scope)
-
-  return () => ctx.revert()
-}
-
 export function splitWords(text: string): string[] {
   return text.split(/(\s+)/).filter(Boolean)
 }
@@ -46,79 +19,28 @@ export function splitReveal(el: HTMLElement, opts: SplitRevealOpts = {}) {
   const targets = el.querySelectorAll<HTMLElement>('[data-split-word]')
   if (targets.length === 0) return () => {}
 
+  const trigger =
+    scrollTrigger === true
+      ? { trigger: el, start: 'top 85%', once: true }
+      : scrollTrigger || undefined
+
+  // Sin opacity y con immediateRender: false: si el trigger nunca dispara, el
+  // texto queda visible en su estado natural en vez de oculto.
   const ctx = gsap.context(() => {
     gsap.fromTo(
       targets,
-      { y: 18, opacity: 0, filter: 'blur(4px)' },
+      { y: 18, filter: 'blur(4px)' },
       {
         y: 0,
-        opacity: 1,
         filter: 'blur(0px)',
         duration,
         stagger,
         ease,
         delay,
-        scrollTrigger:
-          scrollTrigger === true
-            ? { trigger: el, start: 'top 85%', once: true }
-            : scrollTrigger || undefined,
+        ...(trigger ? { scrollTrigger: trigger, immediateRender: false } : {}),
       }
     )
   }, el)
-
-  return () => ctx.revert()
-}
-
-type ClipRevealOpts = {
-  duration?: number
-  ease?: string
-  stagger?: number
-  start?: string
-}
-
-export function clipReveal(selector: string, scope: Element, opts: ClipRevealOpts = {}) {
-  if (!shouldAnimate()) return () => {}
-  const { duration = 0.9, ease = 'power3.out', stagger = 0.12, start = 'top 85%' } = opts
-
-  const ctx = gsap.context(() => {
-    ScrollTrigger.batch(selector, {
-      start,
-      onEnter: (batch) =>
-        gsap.fromTo(
-          batch,
-          { clipPath: 'inset(0% 100% 0% 0%)', opacity: 0.001 },
-          {
-            clipPath: 'inset(0% 0% 0% 0%)',
-            opacity: 1,
-            duration,
-            stagger,
-            ease,
-            overwrite: 'auto',
-          }
-        ),
-    })
-  }, scope)
-
-  return () => ctx.revert()
-}
-
-export function drawSvgPath(path: SVGPathElement, opts: { duration?: number; delay?: number; ease?: string } = {}) {
-  if (!shouldAnimate()) return () => {}
-  const { duration = 0.9, delay = 0, ease = 'power2.inOut' } = opts
-
-  const length = path.getTotalLength()
-  if (!length) return () => {}
-
-  const ctx = gsap.context(() => {
-    gsap.set(path, { strokeDasharray: length, strokeDashoffset: length })
-    gsap.to(path, {
-      strokeDashoffset: 0,
-      duration,
-      delay,
-      ease,
-      scrollTrigger: { trigger: path, start: 'top 90%', once: true },
-    })
-  })
 
   return () => ctx.revert()
 }

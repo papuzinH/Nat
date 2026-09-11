@@ -17,13 +17,13 @@ const CheckoutErrorContent: React.FC = () => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         wrapper,
-        { opacity: 0, y: 16, scale: 0.98 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'power3.out' }
+        { y: 16, scale: 0.98 },
+        { y: 0, scale: 1, duration: 0.5, ease: 'power3.out' }
       )
       gsap.fromTo(
         wrapper.querySelectorAll<HTMLElement>('.error-block'),
-        { opacity: 0, y: 12 },
-        { opacity: 1, y: 0, duration: 0.45, stagger: 0.08, ease: 'power2.out', delay: 0.15 }
+        { y: 12 },
+        { y: 0, duration: 0.45, stagger: 0.08, ease: 'power2.out', delay: 0.15 }
       )
     }, wrapper)
     return () => ctx.revert()

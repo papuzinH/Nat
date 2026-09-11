@@ -69,9 +69,9 @@ const BlogContent: React.FC<BlogContentProps> = ({ posts, categories: dbCategori
     const ctx = gsap.context(() => {
       gsap.fromTo(
         featuredRef.current,
-        { opacity: 0, y: 28 },
+        { y: 28 },
         {
-          opacity: 1, y: 0, duration: 0.7, ease: 'power2.out',
+          y: 0, duration: 0.7, ease: 'power2.out', immediateRender: false,
           scrollTrigger: { trigger: featuredRef.current, start: 'top 82%' },
         }
       )
@@ -84,9 +84,9 @@ const BlogContent: React.FC<BlogContentProps> = ({ posts, categories: dbCategori
     const ctx = gsap.context(() => {
       gsap.fromTo(
         '.blog-card-item',
-        { opacity: 0, y: 20 },
+        { y: 20 },
         {
-          opacity: 1, y: 0, duration: 0.45, stagger: 0.07, ease: 'power2.out',
+          y: 0, duration: 0.45, stagger: 0.07, ease: 'power2.out', immediateRender: false,
           scrollTrigger: { trigger: gridRef.current, start: 'top 86%' },
         }
       )

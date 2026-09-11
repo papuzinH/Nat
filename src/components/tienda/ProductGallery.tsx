@@ -47,8 +47,8 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
     const ctx = gsap.context(() => {
       gsap.fromTo(
         mainRef.current,
-        { scale: 1.03, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.6, ease: 'power2.out' }
+        { scale: 1.03 },
+        { scale: 1, duration: 0.6, ease: 'power2.out' }
       )
     })
     return () => ctx.revert()

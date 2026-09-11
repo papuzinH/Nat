@@ -40,8 +40,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         onEnter: (batch) =>
           gsap.fromTo(
             batch,
-            { opacity: 0, y: 24 },
-            { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out' }
+            { y: 24 },
+            { y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out' }
           ),
         start: 'top 88%',
       })
@@ -57,8 +57,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       if (cards.length === 0) return
       gsap.fromTo(
         Array.from(cards),
-        { opacity: 0, y: 12 },
-        { opacity: 1, y: 0, duration: 0.3, stagger: 0.05, ease: 'power2.out' }
+        { y: 12 },
+        { y: 0, duration: 0.3, stagger: 0.05, ease: 'power2.out' }
       )
     }, gridRef)
     return () => ctx.revert()

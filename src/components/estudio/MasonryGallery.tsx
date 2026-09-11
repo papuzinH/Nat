@@ -19,9 +19,8 @@ const MasonryGallery: React.FC<{ images?: SiteImage[] }> = ({ images = [] }) => 
         onEnter: (batch) =>
           gsap.fromTo(
             batch,
-            { opacity: 0, y: 24, scale: 0.96 },
+            { y: 24, scale: 0.96 },
             {
-              opacity: 1,
               y: 0,
               scale: 1,
               duration: 0.65,

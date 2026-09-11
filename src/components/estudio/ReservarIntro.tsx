@@ -18,8 +18,8 @@ const ReservarIntro: React.FC = () => {
       const items = gsap.utils.toArray<HTMLElement>('.hero-line')
       gsap.fromTo(
         items,
-        { opacity: 0, y: 16 },
-        { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: 'power2.out' }
+        { y: 16 },
+        { y: 0, duration: 0.6, stagger: 0.08, ease: 'power2.out' }
       )
     }, hero)
 

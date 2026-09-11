@@ -87,15 +87,15 @@ const CheckoutContent: React.FC = () => {
       const sections = gsap.utils.toArray<HTMLElement>('.checkout-section')
       const cta = container.querySelector('.checkout-cta')
       const tl = gsap.timeline({ defaults: { ease: 'power2.out' } })
-      if (heading) tl.fromTo(heading, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.55 })
+      if (heading) tl.fromTo(heading, { y: 14 }, { y: 0, duration: 0.55 })
       if (sections.length)
         tl.fromTo(
           sections,
-          { opacity: 0, y: 18 },
-          { opacity: 1, y: 0, duration: 0.5, stagger: 0.1 },
+          { y: 18 },
+          { y: 0, duration: 0.5, stagger: 0.1 },
           '-=0.25'
         )
-      if (cta) tl.fromTo(cta, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.45 }, '-=0.3')
+      if (cta) tl.fromTo(cta, { y: 12 }, { y: 0, duration: 0.45 }, '-=0.3')
     }, container)
     return () => ctx.revert()
   }, [])

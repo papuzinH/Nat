@@ -119,13 +119,13 @@ const EstudioFAQ: React.FC = () => {
       const items = gsap.utils.toArray<HTMLElement>('.faq-item')
       gsap.fromTo(
         items,
-        { opacity: 0, y: 10 },
+        { y: 10 },
         {
-          opacity: 1,
           y: 0,
           duration: 0.5,
           stagger: 0.08,
           ease: 'power2.out',
+          immediateRender: false,
           scrollTrigger: { trigger: wrapper, start: 'top 85%', once: true },
         }
       )

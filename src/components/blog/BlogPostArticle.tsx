@@ -29,8 +29,8 @@ const BlogPostArticle: React.FC<BlogPostArticleProps> = ({ post, bodyHtml, relat
     const ctx = gsap.context(() => {
       gsap.fromTo(
         ['.post-meta', '.post-h1', '.post-lead'],
-        { opacity: 0, y: 14 },
-        { opacity: 1, y: 0, duration: 0.55, stagger: 0.1, ease: 'power2.out', delay: 0.05 }
+        { y: 14 },
+        { y: 0, duration: 0.55, stagger: 0.1, ease: 'power2.out', delay: 0.05 }
       )
     }, heroRef)
     return () => ctx.revert()
@@ -41,9 +41,9 @@ const BlogPostArticle: React.FC<BlogPostArticleProps> = ({ post, bodyHtml, relat
     const ctx = gsap.context(() => {
       gsap.fromTo(
         '.body-block',
-        { opacity: 0, y: 10 },
+        { y: 10 },
         {
-          opacity: 1, y: 0, duration: 0.4, stagger: 0.04, ease: 'power1.out',
+          y: 0, duration: 0.4, stagger: 0.04, ease: 'power1.out', immediateRender: false,
           scrollTrigger: { trigger: bodyRef.current, start: 'top 80%' },
         }
       )
