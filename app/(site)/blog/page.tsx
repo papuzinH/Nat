@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getBlogPosts } from '@/lib/data/blog'
+import { getBlogCategories } from '@/lib/data/categories'
 import { buildMetadata, SITE_URL } from '@/lib/seo'
 import JsonLd from '@/components/shared/JsonLd'
 import BlogContent from '@/components/blog/BlogContent'
@@ -22,11 +23,11 @@ const collectionSchema = {
 }
 
 export default async function BlogPage() {
-  const posts = await getBlogPosts()
+  const [posts, categories] = await Promise.all([getBlogPosts(), getBlogCategories()])
   return (
     <>
       <JsonLd data={collectionSchema} />
-      <BlogContent posts={posts} />
+      <BlogContent posts={posts} categories={categories} />
     </>
   )
 }

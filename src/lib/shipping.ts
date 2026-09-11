@@ -25,6 +25,23 @@ export function isCABA(raw: string): boolean {
   return n >= 1000 && n <= 1499
 }
 
+export interface ShippingZone {
+  id: string
+  name: string
+  price: number
+  active: boolean
+}
+
+// El campo postal_codes sigue existiendo en la colección pero ya no se usa.
+export function rowToShippingZone(z: Record<string, unknown>): ShippingZone {
+  return {
+    id:     z.id as string,
+    name:   z.name as string,
+    price:  z.price as number,
+    active: z.active as boolean,
+  }
+}
+
 /** Forma mínima de una tarifa para resolver el envío (sin acoplar a ShippingZone). */
 interface ZoneLike {
   active: boolean

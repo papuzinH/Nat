@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useShippingZones, type ShippingZone } from '@/hooks/useShippingZones'
+import { useShippingZones } from '@/hooks/useShippingZones'
+import type { ShippingZone } from '@/lib/shipping'
 import { useToast } from '@/context/ToastContext'
 import ConfirmDeleteInline from '@/components/admin/shared/ConfirmDeleteInline'
 

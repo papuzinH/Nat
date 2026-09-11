@@ -1,23 +1,6 @@
 import { useState, useEffect } from 'react'
 import { pb } from '@/lib/pocketbase'
-
-export interface ShippingZone {
-  id: string   // PocketBase usa strings (era number en Supabase)
-  name: string
-  price: number
-  active: boolean
-}
-
-// El campo postal_codes sigue existiendo en la colección pero ya no se usa:
-// el envío es precio único CABA (ver src/lib/shipping.ts).
-function rowToZone(z: Record<string, unknown>): ShippingZone {
-  return {
-    id:     z.id as string,
-    name:   z.name as string,
-    price:  z.price as number,
-    active: z.active as boolean,
-  }
-}
+import { rowToShippingZone, type ShippingZone } from '@/lib/shipping'
 
 export function useShippingZones() {
   const [zones, setZones] = useState<ShippingZone[]>([])
@@ -25,7 +8,7 @@ export function useShippingZones() {
 
   const fetchZones = async () => {
     const data = await pb.collection('shipping_zones').getFullList({ sort: 'name', requestKey: null })
-    setZones(data.map(rowToZone))
+    setZones(data.map(rowToShippingZone))
     setLoading(false)
   }
 
@@ -59,21 +42,4 @@ export function useShippingZones() {
   }
 
   return { zones, loading, addZone, updateZone, deleteZone }
-}
-
-export function usePublicShippingZones() {
-  const [zones, setZones] = useState<ShippingZone[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    pb.collection('shipping_zones')
-      .getFullList({ filter: 'active = true', sort: 'name' })
-      .then((data) => {
-        setZones(data.map(rowToZone))
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
-  }, [])
-
-  return { zones, loading }
 }

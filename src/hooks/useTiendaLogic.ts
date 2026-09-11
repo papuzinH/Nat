@@ -1,16 +1,11 @@
 import { useState, useMemo } from 'react'
 import type { Product, ProductCategoryMeta } from '@/data/products'
-import { useCategories } from '@/hooks/useCategories'
 
-export function useTiendaLogic(products: Product[]) {
-  const { categories: dbCategories, loading: categoriesLoading } = useCategories()
+export function useTiendaLogic(products: Product[], dbCategories: ProductCategoryMeta[]) {
   const [activeCategory, setActiveCategory] = useState('todos')
 
   const categories: ProductCategoryMeta[] = useMemo(
-    () => [
-      { slug: 'todos', label: 'Todos' },
-      ...dbCategories.map(({ slug, label }) => ({ slug, label })),
-    ],
+    () => [{ slug: 'todos', label: 'Todos' }, ...dbCategories],
     [dbCategories]
   )
 
@@ -32,7 +27,6 @@ export function useTiendaLogic(products: Product[]) {
     activeCategory,
     setActiveCategory,
     categories,
-    categoriesLoading,
     countForCategory,
   }
 }

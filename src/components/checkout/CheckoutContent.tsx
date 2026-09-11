@@ -7,7 +7,7 @@ import { useCart } from '@/context/CartContext'
 import { formatARS } from '@/data/products'
 import InputField from '@/components/contacto/InputField'
 import { useCheckoutForm } from '@/hooks/useCheckoutForm'
-import { usePublicShippingZones } from '@/hooks/useShippingZones'
+import { usePublicShippingZones } from '@/hooks/usePublicShippingZones'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import { isCABA, resolveCABAZone } from '@/lib/shipping'
 

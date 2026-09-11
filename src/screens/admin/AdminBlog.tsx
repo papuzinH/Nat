@@ -9,7 +9,7 @@ import { useTableFilter } from '@/hooks/useTableFilter'
 import StatusBadge from '@/components/admin/shared/StatusBadge'
 import ConfirmDeleteInline from '@/components/admin/shared/ConfirmDeleteInline'
 import AdminCategoriesModal from '@/components/admin/shared/AdminCategoriesModal'
-import { useCategories } from '@/hooks/useCategories'
+import { useCategories, BLOG_CATEGORIES_CONFIG } from '@/hooks/useCategories'
 
 interface PostListItem {
   id: string
@@ -43,12 +43,7 @@ const AdminBlog: React.FC = () => {
     updateCategory,
     deleteCategory,
     countByCategory,
-  } = useCategories({
-    categoriesCollection: 'blog_categories',
-    itemsCollection: 'blog_posts',
-    itemsCategoryField: 'category',
-    matchBy: 'label',
-  })
+  } = useCategories(BLOG_CATEGORIES_CONFIG)
 
   useEffect(() => {
     pb.collection('blog_posts')

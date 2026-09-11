@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { pb } from '@/lib/pocketbase'
+import { triggerRevalidate } from '@/lib/revalidate-client'
 
 export interface Category {
   id: string
@@ -17,6 +18,8 @@ export interface CategoriesConfig {
   itemsCategoryField: string
   /** Si los items guardan el `slug` o el `label` de la categoría. */
   matchBy: 'slug' | 'label'
+  /** Tag ISR de las páginas públicas que muestran estas categorías. */
+  revalidateTag: 'products' | 'blog_posts'
 }
 
 /** Config por defecto: productos (preserva el comportamiento previo). */
@@ -25,6 +28,15 @@ export const PRODUCT_CATEGORIES_CONFIG: CategoriesConfig = {
   itemsCollection: 'products',
   itemsCategoryField: 'category',
   matchBy: 'slug',
+  revalidateTag: 'products',
+}
+
+export const BLOG_CATEGORIES_CONFIG: CategoriesConfig = {
+  categoriesCollection: 'blog_categories',
+  itemsCollection: 'blog_posts',
+  itemsCategoryField: 'category',
+  matchBy: 'label',
+  revalidateTag: 'blog_posts',
 }
 
 function sortCategories(cats: Category[]): Category[] {
@@ -81,6 +93,7 @@ export function useCategories(config: CategoriesConfig = PRODUCT_CATEGORIES_CONF
       sort_order: (record.sort_order as number) ?? 0,
     }
     setCategories((prev) => sortCategories([...prev, cat]))
+    triggerRevalidate(config.revalidateTag)
     return cat
   }
 
@@ -96,6 +109,7 @@ export function useCategories(config: CategoriesConfig = PRODUCT_CATEGORIES_CONF
       sort_order: (record.sort_order as number) ?? 0,
     }
     setCategories((prev) => sortCategories(prev.map((c) => (c.id === id ? updated : c))))
+    triggerRevalidate(config.revalidateTag)
     return updated
   }
 
@@ -110,6 +124,7 @@ export function useCategories(config: CategoriesConfig = PRODUCT_CATEGORIES_CONF
 
     await pb.collection(config.categoriesCollection).delete(id)
     setCategories((prev) => prev.filter((c) => c.id !== id))
+    triggerRevalidate(config.revalidateTag)
   }
 
   return { categories, loading, reload: load, createCategory, updateCategory, deleteCategory, countByCategory }

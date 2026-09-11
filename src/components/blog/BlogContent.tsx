@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useMemo, useCallback, useState } from 'react'
 import type { BlogPost } from '@/data/blog-posts'
-import { useCategories } from '@/hooks/useCategories'
+import type { ProductCategoryMeta } from '@/data/products'
 import BlogFeaturedPost from './BlogFeaturedPost'
 import BlogHeroSection from './BlogHeroSection'
 import BlogPostsGrid from './BlogPostsGrid'
@@ -15,6 +15,7 @@ import { gsap, shouldAnimate } from '@/lib/gsap'
 // indexable para SEO.
 interface BlogContentProps {
   posts: BlogPost[]
+  categories: ProductCategoryMeta[]
 }
 
 const slugifyCategory = (value: string) =>
@@ -25,14 +26,8 @@ const slugifyCategory = (value: string) =>
     .trim()
     .replace(/\s+/g, '-')
 
-const BlogContent: React.FC<BlogContentProps> = ({ posts }) => {
+const BlogContent: React.FC<BlogContentProps> = ({ posts, categories: dbCategories }) => {
   const [activeCategory, setActiveCategory] = useState<string>('Todos')
-  const { categories: dbCategories } = useCategories({
-    categoriesCollection: 'blog_categories',
-    itemsCollection: 'blog_posts',
-    itemsCategoryField: 'category',
-    matchBy: 'label',
-  })
   const headerRef = useRef<HTMLElement>(null)
   const featuredRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)

@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import type { Product } from '@/data/products'
+import type { Product, ProductCategoryMeta } from '@/data/products'
 import { useTiendaLogic } from '@/hooks/useTiendaLogic'
 import TiendaHero from './TiendaHero'
 import FilterBar from './FilterBar'
@@ -13,11 +13,12 @@ import TiendaEmptyState from './TiendaEmptyState'
 // inicial ya trae todos los productos activos → indexable para SEO.
 interface TiendaContentProps {
   products: Product[]
+  categories: ProductCategoryMeta[]
 }
 
-const TiendaContent: React.FC<TiendaContentProps> = ({ products }) => {
+const TiendaContent: React.FC<TiendaContentProps> = ({ products, categories: dbCategories }) => {
   const { filteredProducts, activeCategory, setActiveCategory, categories, countForCategory } =
-    useTiendaLogic(products)
+    useTiendaLogic(products, dbCategories)
 
   const handleCategorySelect = (slug: string) => {
     setActiveCategory(slug)

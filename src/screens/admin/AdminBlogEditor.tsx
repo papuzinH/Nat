@@ -8,7 +8,7 @@ import { triggerRevalidate } from '@/lib/revalidate-client'
 import TipTapEditor from '@/components/admin/blog/TipTapEditor'
 import { useToast } from '@/context/ToastContext'
 import { useUnsavedWarning } from '@/hooks/useUnsavedWarning'
-import { useCategories } from '@/hooks/useCategories'
+import { useCategories, BLOG_CATEGORIES_CONFIG } from '@/hooks/useCategories'
 import { SITE_DOMAIN } from '@/lib/seo'
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
@@ -293,12 +293,7 @@ const AdminBlogEditor: React.FC<{ id?: string }> = ({ id }) => {
   const toast = useToast()
   const [state, setState] = useState<BlogEditorState>(emptyState())
   const { confirmExit } = useUnsavedWarning(state.dirty, 'Tenés cambios sin guardar. ¿Salir igual?')
-  const { categories } = useCategories({
-    categoriesCollection: 'blog_categories',
-    itemsCollection: 'blog_posts',
-    itemsCategoryField: 'category',
-    matchBy: 'label',
-  })
+  const { categories } = useCategories(BLOG_CATEGORIES_CONFIG)
   const [readingTimeAuto, setReadingTimeAuto] = useState(true)
   const [mobileTab, setMobileTab] = useState<'contenido' | 'meta'>('contenido')
   const [allPosts, setAllPosts] = useState<PostMeta[]>([])

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
 import { formatARS } from '@/data/products'
 import { gsap, shouldAnimate } from '@/lib/gsap'
-import { usePublicShippingZones } from '@/hooks/useShippingZones'
+import { usePublicShippingZones } from '@/hooks/usePublicShippingZones'
 import { resolveCABAZone, normalizeCP } from '@/lib/shipping'
 import CartItemRow from './CartItemRow'
 

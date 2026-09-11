@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getProducts } from '@/lib/data/products'
+import { getProductCategories } from '@/lib/data/categories'
 import { descriptionToPlainText } from '@/data/products'
 import { buildMetadata, SITE_URL } from '@/lib/seo'
 import JsonLd from '@/components/shared/JsonLd'
@@ -17,7 +18,7 @@ export const metadata: Metadata = buildMetadata({
 })
 
 export default async function TiendaPage() {
-  const products = await getProducts()
+  const [products, categories] = await Promise.all([getProducts(), getProductCategories()])
   const activeProducts = products.filter((p) => p.status === 'active')
 
   const tiendaSchema = {
@@ -43,7 +44,7 @@ export default async function TiendaPage() {
   return (
     <>
       <JsonLd data={tiendaSchema} />
-      <TiendaContent products={products} />
+      <TiendaContent products={products} categories={categories} />
     </>
   )
 }
