@@ -14,7 +14,6 @@ export const metadata: Metadata = buildMetadata({
   description:
     'Comprá obra original de Natalia Heller: prints, cerámicas, acuarelas, stickers y abanicos. A domicilio · retiro en persona.',
   path: '/tienda',
-  image: '/og-tienda.webp',
 })
 
 export default async function TiendaPage() {
