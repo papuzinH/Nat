@@ -178,10 +178,10 @@ const StudioPhotosGallery: React.FC<{ images?: SiteImage[] }> = ({ images = [] }
   return (
     <SectionContainer aria-label="El espacio">
 
-      {/* Slider wrapper — clip-path reveal target, fixed height */}
+      {/* Slider wrapper — clip-path reveal target, height fits the tallest slide */}
       <div
         ref={wrapperRef}
-        className="relative overflow-hidden select-none rounded-card h-56 sm:h-64 md:h-96 w-full"
+        className="relative overflow-hidden select-none rounded-card w-full"
         role="region"
         aria-roledescription="carousel"
         aria-label="Fotos del espacio"
@@ -191,18 +191,18 @@ const StudioPhotosGallery: React.FC<{ images?: SiteImage[] }> = ({ images = [] }
         onPointerUp={handlePointerUp}
       >
         {/* Track */}
-        <div ref={trackRef} className="flex h-full w-full" style={{ willChange: 'transform' }}>
+        <div ref={trackRef} className="flex w-full items-start" style={{ willChange: 'transform' }}>
           {images.map((img, i) => (
             <div
               key={img.id}
-              className="studio-slide flex-shrink-0 h-full px-1"
+              className="studio-slide flex-shrink-0 px-1"
               style={{ width: '100%' }}
               aria-hidden={i !== activeIndex ? true : undefined}
             >
               <button
                 type="button"
                 onClick={() => { setLightboxIndex(i); setLightboxOpen(true) }}
-                className="block w-full h-full rounded-card overflow-hidden group cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-700"
+                className="block w-full rounded-card overflow-hidden group cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-700"
                 aria-label={`Ver foto: ${img.alt}`}
                 style={{ padding: 0, border: 'none', background: 'none' }}
               >
@@ -211,8 +211,7 @@ const StudioPhotosGallery: React.FC<{ images?: SiteImage[] }> = ({ images = [] }
                   alt={img.alt}
                   loading="lazy"
                   draggable={false}
-                  className="w-full h-full object-cover block transition-transform duration-300 group-hover:scale-[1.03]"
-                  style={{ objectPosition: `${img.focalX}% ${img.focalY}%` }}
+                  className="w-full h-auto block transition-transform duration-300 group-hover:scale-[1.03]"
                 />
               </button>
             </div>
