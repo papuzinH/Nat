@@ -1,4 +1,4 @@
-import { gsap, ScrollTrigger, MotionPathPlugin, shouldAnimate } from './gsap'
+import { gsap, ScrollTrigger, shouldAnimate } from './gsap'
 
 type RevealOpts = {
   y?: number
@@ -200,12 +200,28 @@ type FlyToCartArgs = {
   onComplete?: () => void
 }
 
-export function flyToCart({ fromRect, toRect, imageSrc, imageAlt = '', onComplete }: FlyToCartArgs) {
+let motionPathReady: Promise<void> | null = null
+
+// MotionPathPlugin (22 KB) solo lo usa flyToCart: se carga bajo demanda en vez
+// de viajar con GSAP en todas las páginas.
+export function loadMotionPath(): Promise<void> {
+  motionPathReady ??= import('gsap/MotionPathPlugin').then(({ MotionPathPlugin }) => {
+    gsap.registerPlugin(MotionPathPlugin)
+  })
+  return motionPathReady
+}
+
+export function flyToCart(args: FlyToCartArgs) {
   if (!shouldAnimate()) {
-    onComplete?.()
+    args.onComplete?.()
     return
   }
+  loadMotionPath()
+    .then(() => animateFlyToCart(args))
+    .catch(() => args.onComplete?.())
+}
 
+function animateFlyToCart({ fromRect, toRect, imageSrc, imageAlt = '', onComplete }: FlyToCartArgs) {
   const clone = document.createElement('img')
   clone.src = imageSrc
   clone.alt = imageAlt
@@ -246,5 +262,3 @@ export function flyToCart({ fromRect, toRect, imageSrc, imageAlt = '', onComplet
     },
   })
 }
-
-gsap.registerPlugin(MotionPathPlugin)

@@ -1,30 +1,14 @@
-import React, { useRef, useLayoutEffect, useMemo } from 'react'
-import { generateHTML } from '@tiptap/html'
-import StarterKit from '@tiptap/starter-kit'
-import LinkExt from '@tiptap/extension-link'
-import ImageExt from '@tiptap/extension-image'
-import TextAlign from '@tiptap/extension-text-align'
-import Underline from '@tiptap/extension-underline'
-import Highlight from '@tiptap/extension-highlight'
-import Typography from '@tiptap/extension-typography'
+import React, { useRef, useLayoutEffect, useEffect } from 'react'
 import { gsap, shouldAnimate } from '@/lib/gsap'
-import { flyToCart } from '@/lib/animations'
+import { flyToCart, loadMotionPath } from '@/lib/animations'
 import { type Product, getVariantPrice, getFramePrice, formatARS } from '@/data/products'
 import VariantSelector from './VariantSelector'
 import AddonSelector from './AddonSelector'
 
-const DESC_RENDERER_EXTENSIONS = [
-  StarterKit,
-  LinkExt,
-  ImageExt,
-  TextAlign.configure({ types: ['heading', 'paragraph'] }),
-  Underline,
-  Highlight,
-  Typography,
-]
-
 interface ProductInfoProps {
   product: Product
+  // Renderizado en el server: TipTap/ProseMirror no debe entrar al bundle del cliente.
+  descriptionHTML: string
   onAddToCart: () => void
   selectedSize: string | null
   onSizeChange: (size: string) => void
@@ -38,6 +22,7 @@ const WHATSAPP_NUMBER = '5491132722555'
 
 const ProductInfo: React.FC<ProductInfoProps> = ({
   product,
+  descriptionHTML,
   onAddToCart,
   selectedSize,
   onSizeChange,
@@ -51,6 +36,10 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
 
   const variantPrice = getVariantPrice(product, selectedSize)
   const displayPrice = variantPrice + (frameSelected ? getFramePrice(product, selectedSize) : 0)
+
+  useEffect(() => {
+    if (shouldAnimate()) loadMotionPath().catch(() => {})
+  }, [])
 
   useLayoutEffect(() => {
     if (!shouldAnimate() || !priceRef.current) return
@@ -85,12 +74,6 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   const waMessage = encodeURIComponent(
     `Hola Natalia! Me interesa "${product.title}" (${product.catLabel}). ¿Está disponible?`
   )
-
-  const descriptionHTML = useMemo(() => {
-    try {
-      return generateHTML(product.description, DESC_RENDERER_EXTENSIONS)
-    } catch { return '' }
-  }, [product.description])
 
   const detailRows: [string, string][] = [
     ...product.specs.map((s) => [s.label, s.value] as [string, string]),

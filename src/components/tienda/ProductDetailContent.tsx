@@ -15,9 +15,10 @@ import RelatedProducts from './RelatedProducts'
 interface ProductDetailContentProps {
   product: Product
   products: Product[]
+  descriptionHTML: string
 }
 
-const ProductDetailContent: React.FC<ProductDetailContentProps> = ({ product, products }) => {
+const ProductDetailContent: React.FC<ProductDetailContentProps> = ({ product, products, descriptionHTML }) => {
   const [toastVisible, setToastVisible] = useState(false)
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const [frameSelected, setFrameSelected] = useState(false)
@@ -69,6 +70,7 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({ product, pr
             </div>
             <ProductInfo
               product={product}
+              descriptionHTML={descriptionHTML}
               onAddToCart={handleAddToCart}
               selectedSize={effectiveSize}
               onSizeChange={setSelectedSize}

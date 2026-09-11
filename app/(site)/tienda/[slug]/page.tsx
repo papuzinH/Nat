@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { getProducts, getProduct } from '@/lib/data/products'
 import { descriptionToPlainText } from '@/data/products'
 import { buildMetadata, SITE_URL } from '@/lib/seo'
+import { renderTiptapHtml } from '@/lib/tiptap'
 import JsonLd from '@/components/shared/JsonLd'
 import ProductDetailContent from '@/components/tienda/ProductDetailContent'
 
@@ -95,7 +96,11 @@ export default async function ProductDetailPage(
   return (
     <>
       <JsonLd data={combinedSchema} />
-      <ProductDetailContent product={product} products={products} />
+      <ProductDetailContent
+        product={product}
+        products={products}
+        descriptionHTML={renderTiptapHtml(product.description)}
+      />
     </>
   )
 }
