@@ -49,12 +49,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
     >
       {/* Badges de stock y estado */}
       <div className="absolute top-3 left-3 flex flex-col gap-1 z-10 pointer-events-none">
-        {product.stock != null && product.stock > 0 && product.stock <= 3 && (
+        {product.sold && (
+          <span className="font-mono text-[9px] uppercase tracking-[0.1em] px-2 py-1 rounded-sm bg-sage-900 text-cream-50">
+            Vendido
+          </span>
+        )}
+        {!product.sold && product.stock != null && product.stock > 0 && product.stock <= 3 && (
           <span className="font-mono text-[9px] uppercase tracking-[0.1em] px-2 py-1 rounded-sm bg-amber-100 text-amber-800">
             Últimas {product.stock}
           </span>
         )}
-        {product.onDemand && (
+        {!product.sold && product.onDemand && (
           <span className="font-mono text-[9px] uppercase tracking-[0.1em] px-2 py-1 rounded-sm bg-cream-200 text-ink-soft">
             A pedido
           </span>
@@ -91,8 +96,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
           <h3 className="font-display text-[15px] sm:text-xl font-normal text-ink leading-snug group-hover:text-sage-700 transition-colors duration-200 line-clamp-2">
             {product.title}
           </h3>
-          <span className="font-display text-[14px] sm:text-lg text-sage-700 block mt-1.5">
-            {formatARS(product.basePrice)}
+          {/* Vendida: sin precio. La línea se mantiene para que las cards de la fila alineen. */}
+          <span className={`font-display text-[14px] sm:text-lg block mt-1.5 ${product.sold ? 'text-ink-soft italic' : 'text-sage-700'}`}>
+            {product.sold ? 'Vendido' : formatARS(product.basePrice)}
           </span>
           {/* Etiqueta de categoría: oculta en mobile, visible desde sm+ */}
           <div className="hidden sm:block font-mono text-xs uppercase tracking-[0.14em] text-ink-soft mt-[6px]">
@@ -101,7 +107,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
         </div>
       </Link>
 
-      {/* Quick-add overlay — centrado, fondo claro borroso, visible en hover */}
+      {/* Quick-add overlay — centrado, fondo claro borroso, visible en hover. No va en piezas vendidas. */}
+      {!product.sold && (
       <div
         aria-hidden="true"
         className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none bg-cream-50/30 backdrop-blur-[3px]"
@@ -115,6 +122,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
           {product.variants ? 'Ver opciones →' : 'Agregar al carrito'}
         </button>
       </div>
+      )}
 
       <AddedToast
         visible={toastVisible}

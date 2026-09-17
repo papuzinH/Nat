@@ -73,8 +73,11 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   }
 
   const waMessage = encodeURIComponent(
-    `Hola Natalia! Me interesa "${product.title}" (${product.catLabel}). ¿Está disponible?`
+    product.sold
+      ? `Hola Natalia! Vi "${product.title}" (${product.catLabel}) y me gustaría algo parecido.`
+      : `Hola Natalia! Me interesa "${product.title}" (${product.catLabel}). ¿Está disponible?`
   )
+  const waHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${waMessage}`
 
   const detailRows: [string, string][] = [
     ...product.specs.map((s) => [s.label, s.value] as [string, string]),
@@ -100,16 +103,24 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       </h1>
 
       <div className="flex items-baseline gap-3 mt-5">
-        <p
-          ref={priceRef}
-          className="font-display text-[22px] text-sage-900"
-          style={{ lineHeight: 1 }}
-        >
-          {formatARS(displayPrice)}
-        </p>
-        <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-ink-soft bg-cream-200 px-2 py-1 rounded-pill">
-          ARS
-        </span>
+        {product.sold ? (
+          <span className="font-mono text-[11px] uppercase tracking-[0.14em] px-3 py-1.5 rounded-pill bg-sage-900 text-cream-50">
+            Vendido
+          </span>
+        ) : (
+          <>
+            <p
+              ref={priceRef}
+              className="font-display text-[22px] text-sage-900"
+              style={{ lineHeight: 1 }}
+            >
+              {formatARS(displayPrice)}
+            </p>
+            <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-ink-soft bg-cream-200 px-2 py-1 rounded-pill">
+              ARS
+            </span>
+          </>
+        )}
       </div>
 
       <div
@@ -118,23 +129,46 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
         dangerouslySetInnerHTML={{ __html: descriptionHTML }}
       />
 
-      <VariantSelector
-        product={product}
-        selectedVariant={selectedSize}
-        onSelect={onSizeChange}
-      />
+      {!product.sold && (
+        <>
+          <VariantSelector
+            product={product}
+            selectedVariant={selectedSize}
+            onSelect={onSizeChange}
+          />
 
-      <AddonSelector
-        product={product}
-        frameSelected={frameSelected}
-        onToggle={onFrameToggle}
-        selectedSize={selectedSize}
-        selectedFrameColor={selectedFrameColor}
-        onFrameColorChange={onFrameColorChange}
-      />
+          <AddonSelector
+            product={product}
+            frameSelected={frameSelected}
+            onToggle={onFrameToggle}
+            selectedSize={selectedSize}
+            selectedFrameColor={selectedFrameColor}
+            onFrameColorChange={onFrameColorChange}
+          />
+        </>
+      )}
 
       {product.category === CERAMICA_SLUG && <CeramicaNotice className="mt-7" />}
 
+      {product.sold ? (
+        <div className="mt-7">
+          <p className="font-body text-[14px] leading-[1.6] text-ink-soft">
+            Esta pieza ya tiene dueño. Si te gusta, escribime y vemos algo parecido.
+          </p>
+          <a
+            href={waHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 w-full inline-flex items-center justify-center gap-2 border border-sage-700 text-sage-700 hover:bg-sage-700 hover:text-cream-50 font-body font-semibold text-[14px] py-[14px] px-[22px] rounded-pill transition-colors duration-200"
+            style={{ textDecoration: 'none' }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            Consultar por WhatsApp
+          </a>
+        </div>
+      ) : (
       <div className="flex gap-[10px] mt-7">
         <button
           ref={buttonRef}
@@ -145,7 +179,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
           Agregar al carrito
         </button>
         <a
-          href={`https://wa.me/${WHATSAPP_NUMBER}?text=${waMessage}`}
+          href={waHref}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center px-[18px] rounded-pill border border-[var(--line)] text-ink-soft hover:border-sage-500 hover:text-ink transition-all duration-200"
@@ -167,6 +201,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
           </svg>
         </a>
       </div>
+      )}
 
       <div
         className="mt-9 pt-6"

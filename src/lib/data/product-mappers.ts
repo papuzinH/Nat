@@ -102,6 +102,7 @@ export interface ProductRow {
   frame_variants: unknown
   frame_options: unknown
   on_demand: boolean
+  sold?: boolean
   created?: string
   [key: string]: unknown
 }
@@ -132,6 +133,7 @@ export function mapProduct(
     frameVariants:  normalizeFrameVariants(p.frame_variants),
     frameOptions:   normalizeFrameOptions(p.frame_options),
     onDemand:       p.on_demand,
+    sold:           Boolean(p.sold),
     status:      (stock?.status ?? 'active') as ProductStatus,
     // on_demand es la fuente de verdad del stock ilimitado: se lee como null
     // (infinito) sin importar la cantidad numérica guardada en product_stock.

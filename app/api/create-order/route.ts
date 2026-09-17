@@ -88,6 +88,7 @@ async function handleCreateOrder(req: Request) {
     const product = await getProduct(it.slug)
     if (!product) return bad('Producto no encontrado.', 404)
     if (product.status !== 'active') return bad(`"${product.title}" no está disponible.`, 409)
+    if (product.sold) return bad(`"${product.title}" ya fue vendido.`, 409)
 
     const size = it.selectedSize ?? null
     // El talle debe corresponder a una variante real (si el producto tiene variantes).

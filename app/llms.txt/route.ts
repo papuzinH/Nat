@@ -71,8 +71,10 @@ export async function GET() {
     '',
     ...products.map((p) => {
       const desc = plainText(p.description)
-      const meta = [p.catLabel, p.size, formatARS(p.basePrice)].filter(Boolean).join(' · ')
-      return `- [${p.title}](${SITE_URL}/tienda/${p.slug}): ${meta}${ESTADO[p.status] ?? ''}.${desc ? ' ' + desc : ''}`
+      // Una pieza vendida se lista como obra, sin precio.
+      const meta = [p.catLabel, p.size, p.sold ? null : formatARS(p.basePrice)].filter(Boolean).join(' · ')
+      const estado = p.sold ? ' (vendido)' : (ESTADO[p.status] ?? '')
+      return `- [${p.title}](${SITE_URL}/tienda/${p.slug}): ${meta}${estado}.${desc ? ' ' + desc : ''}`
     }),
     '',
     '## Estudio de tatuajes',

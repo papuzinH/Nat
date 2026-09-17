@@ -65,8 +65,9 @@ export default async function ProductDetailPage(
           '@type': 'Offer',
           price: product.basePrice,
           priceCurrency: 'ARS',
-          availability:
-            product.status === 'active'
+          availability: product.sold
+            ? 'https://schema.org/SoldOut'
+            : product.status === 'active'
               ? 'https://schema.org/InStock'
               : 'https://schema.org/OutOfStock',
           seller: { '@type': 'Person', name: 'Natalia Heller' },

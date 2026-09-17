@@ -61,6 +61,7 @@ interface ProductRow {
   frame_variants: FrameVariantRow[]
   frame_options: FrameOptionRow[]
   on_demand: boolean
+  sold: boolean
   sort_order: number
   isNew?: boolean
   dirty: boolean
@@ -523,7 +524,7 @@ function emptyRow(): ProductRow {
     images: [], tags: [], tagsInput: '', variants: [],
     has_frame: false, frame_price: 0,
     frame_variants: [], frame_options: [],
-    on_demand: false, sort_order: 0,
+    on_demand: false, sold: false, sort_order: 0,
     isNew: true, dirty: true, saving: false, confirmDelete: false,
   }
 }
@@ -606,6 +607,7 @@ function rawToRow(p: Record<string, unknown>): ProductRow {
     frame_variants: frameVariants,
     frame_options: frameOptions,
     on_demand: p.on_demand as boolean,
+    sold: Boolean(p.sold),
     sort_order: p.sort_order as number,
     dirty: false, saving: false, confirmDelete: false,
   }
@@ -745,6 +747,7 @@ const AdminProducts: React.FC = () => {
         ? row.frame_options.map(({ label, image }) => ({ label, image }))
         : null,
       on_demand: row.on_demand,
+      sold: row.sold,
       sort_order: row.sort_order,
     }
 
@@ -830,6 +833,7 @@ const AdminProducts: React.FC = () => {
       slug:          `${baseSlug}-${n}`,
       title:         `${baseTitle} (${n})`,
       tagsInput:     row.tags.join(', '),
+      sold:          false,
       isNew:         true,
       dirty:         true,
       saving:        false,
@@ -1274,6 +1278,16 @@ const AdminProducts: React.FC = () => {
                             className="font-body text-[13px] text-ink cursor-pointer flex items-center">
                             Bajo pedido
                             <Tooltip text="Marcá esto si el producto no está físicamente disponible pero se puede encargar." />
+                          </label>
+                        </div>
+                        <div className="flex items-center gap-3 mt-5">
+                          <input type="checkbox" id={`sold-${key}`} checked={row.sold}
+                            onChange={(e) => patch(key, 'sold', e.target.checked)}
+                            className="accent-sage-700 w-4 h-4 cursor-pointer" />
+                          <label htmlFor={`sold-${key}`}
+                            className="font-body text-[13px] text-ink cursor-pointer flex items-center">
+                            Vendido
+                            <Tooltip text="La pieza se sigue mostrando, pero ya tiene dueño: aparece con la etiqueta Vendido, sin precio y no se puede comprar." />
                           </label>
                         </div>
                       </div>

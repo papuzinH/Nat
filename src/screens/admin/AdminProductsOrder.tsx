@@ -40,6 +40,7 @@ interface OrderItem {
   image: string | null
   tall: number
   sortOrder: number
+  sold: boolean
   /** Lo muestra la tienda (status active). */
   shown: boolean
 }
@@ -51,7 +52,7 @@ async function fetchItems(): Promise<OrderItem[]> {
     // Mismo sort que getProducts, así la grilla arranca igual que la tienda.
     pb.collection('products').getFullList({
       sort: 'sort_order',
-      fields: 'id,slug,title,category,images,tall,sort_order',
+      fields: 'id,slug,title,category,images,tall,sort_order,sold',
       requestKey: null,
     }),
     pb.collection('product_stock').getFullList({ fields: 'slug,status', requestKey: null }),
@@ -64,6 +65,7 @@ async function fetchItems(): Promise<OrderItem[]> {
     image: ((p.images as string[] | null) ?? [])[0] ?? null,
     tall: (p.tall as number) || 1.3,
     sortOrder: (p.sort_order as number) ?? 0,
+    sold: Boolean(p.sold),
     // Igual que mapProduct: sin fila de stock, el producto cuenta como activo.
     shown: (status.get(p.slug as string) ?? 'active') === 'active',
   }))
@@ -116,6 +118,11 @@ const SortableCard: React.FC<{ item: OrderItem; position: number }> = ({ item, p
         <span className="absolute top-2 left-2 font-mono text-[10px] px-1.5 py-0.5 rounded-sm bg-cream-50/90 text-ink">
           {position}
         </span>
+        {item.sold && (
+          <span className="absolute top-2 right-2 font-mono text-[9px] uppercase tracking-[0.1em] px-1.5 py-0.5 rounded-sm bg-sage-900 text-cream-50">
+            Vendido
+          </span>
+        )}
       </div>
       <p className="font-body text-[12px] text-ink px-2.5 py-2 truncate">{item.title}</p>
     </div>

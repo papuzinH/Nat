@@ -53,6 +53,8 @@ export interface Product {
   frameVariants: FrameVariant[] | null  // precio e imagen del marco por tamaño
   frameOptions: FrameOption[] | null    // opciones del marco (ej. color) con imagen opcional
   onDemand: boolean
+  /** Se muestra en la tienda pero ya tiene dueño: sin precio y sin compra. */
+  sold: boolean
   status: ProductStatus
   stock?: number | null    // de product_stock (null = ilimitado)
   createdAt?: string | null
