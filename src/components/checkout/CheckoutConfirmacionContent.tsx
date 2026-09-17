@@ -8,6 +8,8 @@ import { gsap, shouldAnimate } from '@/lib/gsap'
 import { NHWreath } from '@/components/shared'
 import BankTransferPanel from './BankTransferPanel'
 
+// El <main> lo pone el layout de (site): acá va un <div> para no anidar landmarks.
+
 interface OrderItem {
   id: string
   product_title: string
@@ -87,26 +89,26 @@ const CheckoutConfirmacionContent: React.FC = () => {
   }, [orderId, uploadToken])
 
   if (loading) return (
-    <main className="min-h-[60vh] flex items-center justify-center">
+    <div className="min-h-[60vh] flex items-center justify-center">
       <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">Cargando…</p>
-    </main>
+    </div>
   )
 
   if (notFound) return (
-    <main className="min-h-[60vh] flex items-center justify-center px-6">
+    <div className="min-h-[60vh] flex items-center justify-center px-6">
       <div className="text-center max-w-sm">
         <p className="font-display text-[22px] text-ink mb-4">Pedido no encontrado</p>
         <Link href="/tienda" className="font-mono text-[11px] uppercase tracking-[0.14em] text-sage-700 hover:text-sage-900 transition-colors">
           Volver a la tienda →
         </Link>
       </div>
-    </main>
+    </div>
   )
 
   const shortId = orderId!.slice(0, 8).toUpperCase()
 
   if (isPending) return (
-    <main className="min-h-[60vh] flex items-center justify-center px-6">
+    <div className="min-h-[60vh] flex items-center justify-center px-6">
       <div className="text-center max-w-sm">
         <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-sage-700 mb-3">Pedido · {shortId}</p>
         <h1 className="font-display text-[32px] font-normal text-ink mb-4">Tu pago está siendo procesado</h1>
@@ -119,11 +121,11 @@ const CheckoutConfirmacionContent: React.FC = () => {
           Seguir comprando →
         </Link>
       </div>
-    </main>
+    </div>
   )
 
   return (
-    <main className="min-h-screen bg-cream-50 px-6 py-12">
+    <div className="min-h-screen bg-cream-50 px-6 py-12">
       <div ref={wrapperRef} className="max-w-[560px] mx-auto">
 
         <div className="confirm-wreath mb-5">
@@ -184,7 +186,7 @@ const CheckoutConfirmacionContent: React.FC = () => {
           Seguir explorando la tienda →
         </Link>
       </div>
-    </main>
+    </div>
   )
 }
 

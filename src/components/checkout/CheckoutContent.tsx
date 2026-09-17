@@ -11,6 +11,8 @@ import { usePublicShippingZones } from '@/hooks/usePublicShippingZones'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import { isCABA, resolveCABAZone } from '@/lib/shipping'
 
+// El <main> lo pone el layout de (site): acá va un <div> para no anidar landmarks.
+
 const STUDIO_ADDRESS = 'Parque Chacabuco, CABA. Nos pondremos en contacto para coordinar una vez confirmada la compra!'
 
 const DELIVERY_DAYS = [
@@ -190,7 +192,7 @@ const CheckoutContent: React.FC = () => {
   }
 
   return (
-    <main className="min-h-screen bg-cream-50">
+    <div className="min-h-screen bg-cream-50">
       <div ref={containerRef} className="max-w-6xl mx-auto px-6 md:px-12 py-12">
         <h1
           className="checkout-heading font-display font-normal text-ink mb-10"
@@ -368,7 +370,7 @@ const CheckoutContent: React.FC = () => {
         </form>
         </div>
       </div>
-    </main>
+    </div>
   )
 }
 

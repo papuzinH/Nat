@@ -10,6 +10,8 @@ import TiendaEmptyState from './TiendaEmptyState'
 import CeramicaNotice, { CERAMICA_SLUG } from './CeramicaNotice'
 import { SectionContainer } from '@/components/shared'
 
+// El <main> lo pone el layout de (site): acá va un <div> para no anidar landmarks.
+
 // Client island de la tienda: recibe los productos ya cargados desde el Server
 // Component (ISR) y maneja el filtrado por categoría en el cliente. El HTML
 // inicial ya trae todos los productos activos → indexable para SEO.
@@ -30,7 +32,7 @@ const TiendaContent: React.FC<TiendaContentProps> = ({ products, categories: dbC
   }
 
   return (
-    <main className="min-h-screen bg-cream-50">
+    <div className="min-h-screen bg-cream-50">
       <TiendaHero productCount={filteredProducts.length} />
 
       <FilterBar
@@ -58,7 +60,7 @@ const TiendaContent: React.FC<TiendaContentProps> = ({ products, categories: dbC
           </div>
         </SectionContainer>
       )}
-    </main>
+    </div>
   )
 }
 

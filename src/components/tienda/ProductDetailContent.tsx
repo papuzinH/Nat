@@ -9,6 +9,8 @@ import ProductInfo from './ProductInfo'
 import AddedToast from './AddedToast'
 import RelatedProducts from './RelatedProducts'
 
+// El <main> lo pone el layout de (site): acá va un <div> para no anidar landmarks.
+
 // Client island del detalle de producto: galería, selección de variante/marco y
 // add-to-cart. La page server provee `product` y `products` (relacionados) ya
 // cargados (ISR) y renderiza el SEO (metadata + JSON-LD Product).
@@ -51,7 +53,7 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({ product, pr
 
   return (
     <>
-      <main className="min-h-screen bg-cream-50">
+      <div className="min-h-screen bg-cream-50">
         <section className="max-w-7xl mx-auto px-6 md:px-12 pt-8 pb-16">
           <div className="grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-10 md:gap-16 items-start">
             <div className="md:sticky md:top-[100px]">
@@ -85,7 +87,7 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({ product, pr
         <div className="max-w-5xl mx-auto px-6 md:px-12 pb-20 md:pb-28">
           <RelatedProducts currentSlug={product.slug} category={product.category} products={products} />
         </div>
-      </main>
+      </div>
 
       <AddedToast
         visible={toastVisible}

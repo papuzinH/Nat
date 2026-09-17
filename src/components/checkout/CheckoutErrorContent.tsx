@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 
+// El <main> lo pone el layout de (site): acá va un <div> para no anidar landmarks.
+
 const CheckoutErrorContent: React.FC = () => {
   const params = useSearchParams()
   const orderId = params.get('order')
@@ -30,7 +32,7 @@ const CheckoutErrorContent: React.FC = () => {
   }, [])
 
   return (
-    <main className="min-h-[60vh] flex items-center justify-center px-6">
+    <div className="min-h-[60vh] flex items-center justify-center px-6">
       <div ref={wrapperRef} className="text-center max-w-sm">
         {shortId && (
           <p className="error-block font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft mb-3">
@@ -58,7 +60,7 @@ const CheckoutErrorContent: React.FC = () => {
           </Link>
         </div>
       </div>
-    </main>
+    </div>
   )
 }
 
