@@ -40,6 +40,9 @@ const TipTapEditor: React.FC<TipTapEditorProps> = ({ value, onChange, placeholde
     ],
     content: value,
     onUpdate: ({ editor }) => onChange(editor.getJSON()),
+    // Obligatorio en Next: TipTap detecta window.next y, sin esto, en dev tira
+    // "SSR has been detected". El editor se crea al montar (el primer render es null).
+    immediatelyRender: false,
   })
 
   const charCount = editor?.storage?.characterCount?.characters?.() ?? 0
