@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import Link from 'next/link'
 import type { JSONContent } from '@tiptap/core'
 import { pb } from '@/lib/pocketbase'
 import { triggerRevalidate } from '@/lib/revalidate-client'
@@ -854,6 +855,14 @@ const AdminProducts: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Link
+            href="/admin/productos/orden"
+            className="font-mono text-[11px] uppercase tracking-[0.1em] px-4 py-2 rounded-pill border transition-all hover:bg-cream-100"
+            style={{ borderColor: 'var(--line)', color: 'var(--ink-soft)' }}
+            title="Acomodar el orden de la tienda arrastrando las fotos"
+          >
+            Ordenar tienda
+          </Link>
           <button
             type="button"
             onClick={() => setShowCatModal(true)}
