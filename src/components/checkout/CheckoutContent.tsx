@@ -32,7 +32,8 @@ const pillInactive =
 
 const CheckoutContent: React.FC = () => {
   const router = useRouter()
-  const { items, subtotal, clearCart } = useCart()
+  const { items, hydrated, subtotal, clearCart } = useCart()
+  const hasItems = items.length > 0
   const { fields, errors, update, updateMany, submit } = useCheckoutForm()
   const [submitting, setSubmitting] = useState(false)
   const [stockError, setStockError] = useState<string | null>(null)
@@ -41,11 +42,13 @@ const CheckoutContent: React.FC = () => {
   const { zones, loading: zonesLoading } = usePublicShippingZones()
 
   // Carrito vacío → volver a la tienda (reemplaza <Navigate> de react-router).
-  // Al confirmar, la navegación se hace con window.location.href, que gana la
-  // carrera contra este efecto (mismo patrón que el flujo de Mercado Pago).
+  // Solo después de hidratar: en una recarga los items arrancan vacíos hasta que
+  // CartProvider lee sessionStorage, y sin esta guarda se echaba a quien sí tenía
+  // carrito. Al confirmar, la navegación se hace con window.location.href, que
+  // gana la carrera contra este efecto (mismo patrón que el flujo de Mercado Pago).
   useEffect(() => {
-    if (items.length === 0) router.replace('/tienda')
-  }, [items.length, router])
+    if (hydrated && items.length === 0) router.replace('/tienda')
+  }, [hydrated, items.length, router])
 
   // Prefill del CP estimado en el carrito (continuidad carrito → checkout).
   useEffect(() => {
@@ -100,9 +103,10 @@ const CheckoutContent: React.FC = () => {
       if (cta) tl.fromTo(cta, { y: 12 }, { y: 0, duration: 0.45 }, '-=0.3')
     }, container)
     return () => ctx.revert()
-  }, [])
+    // Depende de hasItems: en una recarga el formulario aparece recién al hidratar.
+  }, [hasItems])
 
-  if (items.length === 0) return null
+  if (!hasItems) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

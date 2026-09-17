@@ -31,6 +31,8 @@ type CartAction =
 
 interface CartContextValue {
   items: CartItem[]
+  /** true cuando ya se leyó el carrito guardado. Antes, `items` vacío no significa carrito vacío. */
+  hydrated: boolean
   isOpen: boolean
   itemCount: number
   subtotal: number
@@ -112,12 +114,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isOpen: false,
   })
   const hydratedRef = React.useRef(false)
+  const [hydrated, setHydrated] = React.useState(false)
 
-  // Hidratar el carrito persistido una sola vez, ya en el cliente.
+  // Hidratar el carrito persistido una sola vez, ya en el cliente. `hydrated` se
+  // actualiza en el mismo render que los items: los efectos de los hijos (como el
+  // del checkout) corren antes que este, así que necesitan saber si ya se leyó.
   useEffect(() => {
     const stored = loadItems()
     if (stored.length) dispatch({ type: 'HYDRATE', items: stored })
     hydratedRef.current = true
+    setHydrated(true)
   }, [])
 
   useEffect(() => {
@@ -136,6 +142,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const value: CartContextValue = {
     items: state.items,
+    hydrated,
     isOpen: state.isOpen,
     itemCount,
     subtotal,
