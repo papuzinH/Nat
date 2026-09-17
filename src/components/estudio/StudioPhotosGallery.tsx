@@ -223,7 +223,7 @@ const StudioPhotosGallery: React.FC<{ images?: SiteImage[] }> = ({ images = [] }
           ref={arrowPrevRef}
           type="button"
           onClick={() => navigate(-1)}
-          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-cream-50/80 backdrop-blur-sm border border-cream-200 text-ink-soft hover:text-ink transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-700"
+          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center rounded-full bg-cream-50/80 backdrop-blur-sm border border-cream-200 text-ink-soft hover:text-ink transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-700"
           aria-label="Slide anterior"
           style={{ willChange: 'transform' }}
         >
@@ -237,7 +237,7 @@ const StudioPhotosGallery: React.FC<{ images?: SiteImage[] }> = ({ images = [] }
           ref={arrowNextRef}
           type="button"
           onClick={() => navigate(1)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-cream-50/80 backdrop-blur-sm border border-cream-200 text-ink-soft hover:text-ink transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-700"
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center rounded-full bg-cream-50/80 backdrop-blur-sm border border-cream-200 text-ink-soft hover:text-ink transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-700"
           aria-label="Slide siguiente"
           style={{ willChange: 'transform' }}
         >

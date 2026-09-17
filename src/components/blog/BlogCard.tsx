@@ -51,7 +51,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => (
 
       <p className="text-[13px] text-ink-soft leading-[1.6]">{post.subtitle}</p>
 
-      <div className="font-mono text-[10px] text-taupe-700 mt-2.5 tracking-[0.1em] uppercase">
+      <div className="font-mono text-[10px] text-ink-soft mt-2.5 tracking-[0.1em] uppercase">
         {post.date}
       </div>
     </div>

@@ -55,7 +55,9 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({ product, pr
     <>
       <div className="min-h-screen bg-cream-50">
         <section className="max-w-7xl mx-auto px-6 md:px-12 pt-8 pb-16">
-          <div className="grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-10 md:gap-16 items-start">
+          {/* [&>*]:min-w-0: sin esto, en tablet la columna de la foto no baja de su
+              contenido mínimo y empuja la de texto fuera de la pantalla. */}
+          <div className="grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-10 md:gap-16 items-start [&>*]:min-w-0">
             <div className="md:sticky md:top-[100px]">
               <div className="pb-4">
                 <Breadcrumb

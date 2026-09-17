@@ -440,7 +440,7 @@ const HomeHeroSection: React.FC<{ images?: SiteImage[] }> = ({ images = [] }) =>
                   onClick={togglePause}
                   aria-label={isPaused ? 'Reanudar carrusel' : 'Pausar carrusel'}
                   aria-pressed={isPaused}
-                  className="inline-flex items-center justify-center w-7 h-7 rounded-full transition-opacity duration-200 hover:opacity-100 opacity-80"
+                  className="inline-flex items-center justify-center w-11 h-11 rounded-full transition-opacity duration-200 hover:opacity-100 opacity-80"
                   style={{ background: 'rgba(253,252,251,0.9)', color: 'var(--ink-soft)' }}
                 >
                   {isPaused ? (
@@ -460,7 +460,7 @@ const HomeHeroSection: React.FC<{ images?: SiteImage[] }> = ({ images = [] }) =>
               <button
                 onClick={() => handleArrow(-1)}
                 aria-label="Imagen anterior"
-                className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-opacity duration-200 hover:opacity-100 opacity-80"
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full flex items-center justify-center transition-opacity duration-200 hover:opacity-100 opacity-80"
                 style={{ background: 'rgba(253,252,251,0.9)' }}
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -472,7 +472,7 @@ const HomeHeroSection: React.FC<{ images?: SiteImage[] }> = ({ images = [] }) =>
               <button
                 onClick={() => handleArrow(1)}
                 aria-label="Imagen siguiente"
-                className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-opacity duration-200 hover:opacity-100 opacity-80"
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full flex items-center justify-center transition-opacity duration-200 hover:opacity-100 opacity-80"
                 style={{ background: 'rgba(253,252,251,0.9)' }}
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
