@@ -86,7 +86,7 @@ const FeaturedProductsSection: React.FC<{ products: Product[] }> = ({ products: 
       <div className="md:hidden">
         <FeaturedProductsCarousel products={featuredProducts} />
       </div>
-      {/* Desktop: grid de 3 columnas */}
+      {/* Desktop: grid de 4 columnas (fijo desde md para evitar una fila huérfana) */}
       <div className="hidden md:block">
         <ProductGrid
           products={featuredProducts}
@@ -94,7 +94,7 @@ const FeaturedProductsSection: React.FC<{ products: Product[] }> = ({ products: 
           withSection={false}
           gridId="featured-product-grid"
           ariaLabel="Productos destacados"
-          gridClassName="gap-4 md:gap-7"
+          gridClassName="gap-4 md:gap-7 !grid-cols-4"
         />
       </div>
 

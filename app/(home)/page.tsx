@@ -100,7 +100,7 @@ export default async function HomePage() {
       <JsonLd data={homeSchema} />
       <HomeHeroSection images={heroImages} />
       <NHDivider label="Tienda" />
-      <FeaturedProductsSection products={latestActive(products, 3)} />
+      <FeaturedProductsSection products={latestActive(products, 4)} />
       {teaserImages.length > 0 && (
         <>
           <NHDivider label="Arte en la piel" />
