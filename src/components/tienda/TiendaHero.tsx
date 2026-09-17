@@ -10,7 +10,8 @@ interface TiendaHeroProps {
   productCount: number
 }
 
-const TITLE = 'Obras disponibles'
+const TITLE_PRE = 'Obras '
+const TITLE_EM = 'disponibles'
 
 const TiendaHero: React.FC<TiendaHeroProps> = ({ productCount }) => {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -31,12 +32,12 @@ const TiendaHero: React.FC<TiendaHeroProps> = ({ productCount }) => {
         </HeroEyebrow>
         <HeroTitle>
           <span>
-            {splitWords(TITLE).map((token, i) =>
+            {splitWords(TITLE_PRE).map((token, i) =>
               /^\s+$/.test(token) ? (
-                <span key={i}>{token}</span>
+                <span key={`pre-${i}`}>{token}</span>
               ) : (
                 <span
-                  key={i}
+                  key={`pre-${i}`}
                   data-split-word
                   style={{ display: 'inline-block' }}
                 >
@@ -44,6 +45,21 @@ const TiendaHero: React.FC<TiendaHeroProps> = ({ productCount }) => {
                 </span>
               )
             )}
+            <em>
+              {splitWords(TITLE_EM).map((token, i) =>
+                /^\s+$/.test(token) ? (
+                  <span key={`em-${i}`}>{token}</span>
+                ) : (
+                  <span
+                    key={`em-${i}`}
+                    data-split-word
+                    style={{ display: 'inline-block' }}
+                  >
+                    {token}
+                  </span>
+                )
+              )}
+            </em>
           </span>
         </HeroTitle>
         <HeroSubtitle className="hero-subtitle mt-4 max-w-2xl">

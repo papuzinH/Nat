@@ -10,7 +10,8 @@ interface BlogHeroSectionProps {
   sectionRef?: React.RefObject<HTMLElement | null>
 }
 
-const TITLE = 'Guías y reflexiones que quiero compartir.'
+const TITLE_PRE = 'Guías y reflexiones '
+const TITLE_EM = 'que quiero compartir.'
 
 const BlogHeroSection: React.FC<BlogHeroSectionProps> = ({ sectionRef }) => {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -32,12 +33,12 @@ const BlogHeroSection: React.FC<BlogHeroSectionProps> = ({ sectionRef }) => {
         </HeroEyebrow>
         <HeroTitle className="blog-h1 mb-4">
           <span>
-            {splitWords(TITLE).map((token, i) =>
+            {splitWords(TITLE_PRE).map((token, i) =>
               /^\s+$/.test(token) ? (
-                <span key={i}>{token}</span>
+                <span key={`pre-${i}`}>{token}</span>
               ) : (
                 <span
-                  key={i}
+                  key={`pre-${i}`}
                   data-split-word
                   style={{ display: 'inline-block' }}
                 >
@@ -45,6 +46,21 @@ const BlogHeroSection: React.FC<BlogHeroSectionProps> = ({ sectionRef }) => {
                 </span>
               )
             )}
+            <em>
+              {splitWords(TITLE_EM).map((token, i) =>
+                /^\s+$/.test(token) ? (
+                  <span key={`em-${i}`}>{token}</span>
+                ) : (
+                  <span
+                    key={`em-${i}`}
+                    data-split-word
+                    style={{ display: 'inline-block' }}
+                  >
+                    {token}
+                  </span>
+                )
+              )}
+            </em>
           </span>
         </HeroTitle>
         <HeroSubtitle className="hero-subtitle blog-subtitle">
