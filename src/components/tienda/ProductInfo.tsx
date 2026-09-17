@@ -4,6 +4,7 @@ import { flyToCart, loadMotionPath } from '@/lib/animations'
 import { type Product, getVariantPrice, getFramePrice, formatARS } from '@/data/products'
 import VariantSelector from './VariantSelector'
 import AddonSelector from './AddonSelector'
+import CeramicaNotice, { CERAMICA_SLUG } from './CeramicaNotice'
 
 interface ProductInfoProps {
   product: Product
@@ -131,6 +132,8 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
         selectedFrameColor={selectedFrameColor}
         onFrameColorChange={onFrameColorChange}
       />
+
+      {product.category === CERAMICA_SLUG && <CeramicaNotice className="mt-7" />}
 
       <div className="flex gap-[10px] mt-7">
         <button

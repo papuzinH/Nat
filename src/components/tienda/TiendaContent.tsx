@@ -7,6 +7,8 @@ import TiendaHero from './TiendaHero'
 import FilterBar from './FilterBar'
 import ProductGrid from './ProductGrid'
 import TiendaEmptyState from './TiendaEmptyState'
+import CeramicaNotice, { CERAMICA_SLUG } from './CeramicaNotice'
+import { SectionContainer } from '@/components/shared'
 
 // Client island de la tienda: recibe los productos ya cargados desde el Server
 // Component (ISR) y maneja el filtrado por categoría en el cliente. El HTML
@@ -23,7 +25,7 @@ const TiendaContent: React.FC<TiendaContentProps> = ({ products, categories: dbC
   const handleCategorySelect = (slug: string) => {
     setActiveCategory(slug)
     requestAnimationFrame(() => {
-      document.getElementById('product-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      document.getElementById('tienda-resultados')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     })
   }
 
@@ -45,7 +47,16 @@ const TiendaContent: React.FC<TiendaContentProps> = ({ products, categories: dbC
       )}
 
       {filteredProducts.length > 0 && (
-        <ProductGrid products={filteredProducts} activeCategory={activeCategory} />
+        <SectionContainer>
+          {/* Destino del scroll al filtrar: el margen deja el aviso y la grilla
+              debajo del header y de la barra de filtros, que son sticky. */}
+          <div id="tienda-resultados" style={{ scrollMarginTop: 'calc(var(--header-h, 72px) + 96px)' }}>
+            {activeCategory === CERAMICA_SLUG && (
+              <CeramicaNotice className="mb-8 md:mb-10 max-w-3xl" />
+            )}
+            <ProductGrid products={filteredProducts} activeCategory={activeCategory} withSection={false} />
+          </div>
+        </SectionContainer>
       )}
     </main>
   )
