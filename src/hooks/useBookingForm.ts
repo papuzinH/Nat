@@ -204,6 +204,7 @@ export function useBookingForm() {
             maxDimension: 1200,
             quality: 0.8,
             skipUnderBytes: 300_000,
+            format: 'jpeg', // van como adjunto de Brevo, que no acepta WebP
           })
           return {
             name: compressed.name,

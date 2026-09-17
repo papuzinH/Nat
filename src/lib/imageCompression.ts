@@ -11,12 +11,19 @@ interface CompressOptions {
   quality?: number
   /** Si el archivo ya está por debajo de este tamaño y dimensión, se sube sin tocar. */
   skipUnderBytes?: number
+  /**
+   * 'auto': PNG → WebP (conserva el alpha), el resto → JPEG.
+   * 'jpeg': siempre JPEG, aunque la imagen ya sea chica. Para adjuntos de mail:
+   * Brevo rechaza WebP con "Unsupported file format: webp".
+   */
+  format?: 'auto' | 'jpeg'
 }
 
 const DEFAULTS: Required<CompressOptions> = {
   maxDimension: 2400,
   quality: 0.9,
   skipUnderBytes: 800_000, // 800 KB
+  format: 'auto',
 }
 
 // ─── Helpers internos ────────────────────────────────────────────────────────
@@ -121,9 +128,12 @@ export async function compressImage(
 
   const { source, width, height, cleanup } = decoded
   const longest = Math.max(width, height)
+  const isJpeg = file.type === 'image/jpeg' || /\.jpe?g$/i.test(file.name)
+  // Con format 'jpeg' el original solo sirve si ya es JPEG.
+  const originalUsable = opts.format !== 'jpeg' || isJpeg
 
   // Si ya es chica y liviana, no tiene sentido recomprimir.
-  if (longest <= opts.maxDimension && file.size < opts.skipUnderBytes) {
+  if (originalUsable && longest <= opts.maxDimension && file.size < opts.skipUnderBytes) {
     cleanup()
     console.log('[compressImage] skip (ya optimizada):', file.name, `${width}x${height}`, `${(file.size / 1024).toFixed(0)} KB`)
     return file
@@ -142,17 +152,23 @@ export async function compressImage(
     return file
   }
 
+  // PNG puede tener transparencia, así que en modo 'auto' no lo pasamos a JPEG.
+  // Pero PNG ignora el parámetro de calidad de toBlob: re-encodearlo no reducía
+  // nada y los stickers quedaban arriba de 2 MB. WebP conserva el alpha y sí comprime.
+  const isPng = file.type === 'image/png' || /\.png$/i.test(file.name)
+  const toWebp = isPng && opts.format === 'auto'
+  const outputType = toWebp ? 'image/webp' : 'image/jpeg'
+  const outputExt = toWebp ? 'webp' : 'jpg'
+
   ctx.imageSmoothingEnabled = true
   ctx.imageSmoothingQuality = 'high'
+  // JPEG no tiene alpha: sin fondo, lo transparente sale negro.
+  if (!toWebp) {
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(0, 0, targetW, targetH)
+  }
   ctx.drawImage(source, 0, 0, targetW, targetH)
   cleanup()
-
-  // PNG puede tener transparencia, así que no podemos pasarlo a JPEG. Pero PNG
-  // ignora el parámetro de calidad de toBlob: re-encodearlo no reducía nada y los
-  // stickers quedaban arriba de 2 MB. WebP conserva el canal alpha y sí comprime.
-  const isPng = file.type === 'image/png' || /\.png$/i.test(file.name)
-  const outputType = isPng ? 'image/webp' : 'image/jpeg'
-  const outputExt = isPng ? 'webp' : 'jpg'
 
   const blob = await new Promise<Blob | null>((resolve) => {
     canvas.toBlob(resolve, outputType, opts.quality)
@@ -162,8 +178,8 @@ export async function compressImage(
     return file
   }
 
-  // Si la "comprimida" resultó más grande, dejamos el original.
-  if (blob.size >= file.size) {
+  // Si la "comprimida" resultó más grande, dejamos el original (si sirve).
+  if (originalUsable && blob.size >= file.size) {
     console.log('[compressImage] descartada (no redujo):', file.name, `${(file.size / 1024).toFixed(0)} KB → ${(blob.size / 1024).toFixed(0)} KB`)
     return file
   }
