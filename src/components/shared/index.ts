@@ -21,3 +21,4 @@ export { default as NHBranch } from './NHBranch';
 export { default as NHBud } from './NHBud';
 export { default as NHTendril } from './NHTendril';
 export { default as NHWreath } from './NHWreath';
+export { default as NHStar } from './NHStar';

@@ -4,6 +4,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react'
 import { useBookingForm } from '@/hooks/useBookingForm'
 import NHLeafMark from '@/components/shared/NHLeafMark'
 import NHWreath from '@/components/shared/NHWreath'
+import NHStar from '@/components/shared/NHStar'
 import { SectionTitle } from '../shared'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 
@@ -170,7 +171,8 @@ const BookingForm: React.FC = () => {
           style={{ fontSize: '15px', maxWidth: '360px' }}
         >
           Gracias, {firstName}. En los próximos días te voy a estar enviando la respuesta desde
-          agendanattatt@gmail.com. Estate atento/a a la casilla de spam (estrellita)
+          agendanattatt@gmail.com. Estate atento/a a la casilla de spam{' '}
+          <NHStar size={14} color="var(--sage-700, #4a7c59)" className="align-text-top" />
         </p>
         <button
           onClick={reset}
