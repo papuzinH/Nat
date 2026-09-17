@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { type Product, formatARS } from '@/data/products'
+import { type Product, formatARS, PRODUCT_IMAGE_RATIO } from '@/data/products'
 import { useCart } from '@/context/CartContext'
 import ProductImagePlaceholder from './ProductImagePlaceholder'
 import AddedToast from './AddedToast'
@@ -72,7 +72,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
       >
         {/* Media */}
         {product.images.length > 0 ? (
-          <div className="relative w-full" style={{ aspectRatio: `1 / ${product.tall}` }}>
+          <div className="relative w-full" style={{ aspectRatio: `1 / ${PRODUCT_IMAGE_RATIO}` }}>
             <Image
               src={product.images[0]}
               alt={`${product.title} — ${product.catLabel}`}
@@ -84,8 +84,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
           </div>
         ) : (
           <ProductImagePlaceholder
-            tone={product.tone}
-            tall={product.tall}
             catLabel={product.catLabel}
             size={product.size}
           />

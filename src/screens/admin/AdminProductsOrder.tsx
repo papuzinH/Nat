@@ -25,6 +25,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { pb } from '@/lib/pocketbase'
 import { triggerRevalidate } from '@/lib/revalidate-client'
 import { computeSortUpdates, reorderWithinSubset } from '@/lib/product-order'
+import { PRODUCT_IMAGE_BG, PRODUCT_IMAGE_RATIO } from '@/data/products'
 import Tabs from '@/components/admin/shared/Tabs'
 import { useToast } from '@/context/ToastContext'
 import { useCategories } from '@/hooks/useCategories'
@@ -38,7 +39,6 @@ interface OrderItem {
   title: string
   category: string
   image: string | null
-  tall: number
   sortOrder: number
   sold: boolean
   /** Lo muestra la tienda (status active). */
@@ -52,7 +52,7 @@ async function fetchItems(): Promise<OrderItem[]> {
     // Mismo sort que getProducts, así la grilla arranca igual que la tienda.
     pb.collection('products').getFullList({
       sort: 'sort_order',
-      fields: 'id,slug,title,category,images,tall,sort_order,sold',
+      fields: 'id,slug,title,category,images,sort_order,sold',
       requestKey: null,
     }),
     pb.collection('product_stock').getFullList({ fields: 'slug,status', requestKey: null }),
@@ -63,7 +63,6 @@ async function fetchItems(): Promise<OrderItem[]> {
     title: p.title as string,
     category: p.category as string,
     image: ((p.images as string[] | null) ?? [])[0] ?? null,
-    tall: (p.tall as number) || 1.3,
     sortOrder: (p.sort_order as number) ?? 0,
     sold: Boolean(p.sold),
     // Igual que mapProduct: sin fila de stock, el producto cuenta como activo.
@@ -100,7 +99,7 @@ const SortableCard: React.FC<{ item: OrderItem; position: number }> = ({ item, p
         WebkitTouchCallout: 'none',
       }}
     >
-      <div className="relative w-full bg-cream-200" style={{ aspectRatio: `1 / ${item.tall}` }}>
+      <div className="relative w-full" style={{ aspectRatio: `1 / ${PRODUCT_IMAGE_RATIO}`, background: PRODUCT_IMAGE_BG }}>
         {item.image ? (
           <Image
             src={item.image}

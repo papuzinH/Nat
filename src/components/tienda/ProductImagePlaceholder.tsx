@@ -1,23 +1,19 @@
 import React from 'react'
-import { TONE_COLORS, type ProductTone } from '@/data/products'
+import { PRODUCT_IMAGE_BG, PRODUCT_IMAGE_RATIO } from '@/data/products'
 
 interface ProductImagePlaceholderProps {
-  tone: ProductTone
-  tall: number
   catLabel: string
   size?: string
 }
 
 const ProductImagePlaceholder: React.FC<ProductImagePlaceholderProps> = ({
-  tone,
-  tall,
   catLabel,
   size,
 }) => {
   return (
     <div
       className="w-full relative overflow-hidden"
-      style={{ paddingTop: `${tall * 77}%`, background: TONE_COLORS[tone] }}
+      style={{ paddingTop: `${PRODUCT_IMAGE_RATIO * 77}%`, background: PRODUCT_IMAGE_BG }}
       role="img"
       aria-label={`Imagen de ${catLabel}${size ? `, ${size}` : ''}`}
     >

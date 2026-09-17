@@ -6,7 +6,6 @@ import {
   type ProductCategory,
   type ProductSpec,
   type ProductStatus,
-  type ProductTone,
   type ProductVariant,
 } from '@/data/products'
 
@@ -89,8 +88,6 @@ export interface ProductRow {
   cat_label: string
   base_price: number
   size: string
-  tone: string
-  tall: number
   description: unknown
   medium?: string
   edition?: string
@@ -119,8 +116,6 @@ export function mapProduct(
     catLabel:    p.cat_label,
     basePrice:   p.base_price,
     size:        p.size,
-    tone:        p.tone as ProductTone,
-    tall:        p.tall,
     description: normalizeDescription(p.description),
     specs:       buildSpecs(p),
     medium:      p.medium ?? undefined,

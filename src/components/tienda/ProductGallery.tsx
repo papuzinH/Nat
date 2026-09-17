@@ -3,15 +3,15 @@ import Image, { getImageProps } from 'next/image'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
 import { gsap, shouldAnimate } from '@/lib/gsap'
-import { TONE_COLORS, type Product } from '@/data/products'
+import { PRODUCT_IMAGE_BG, PRODUCT_IMAGE_RATIO, type Product } from '@/data/products'
 import ProductImagePlaceholder from './ProductImagePlaceholder'
 
 /**
  * Placeholder de carga: un SVG de un color plano en data URI. Las imágenes vienen
  * de PocketBase, así que Next no puede generar el blur en build; con esto la
- * imagen entra desde el tono del producto en vez de aparecer de golpe.
+ * imagen entra desde el color de fondo en vez de aparecer de golpe.
  */
-const toneBlur = (hex: string) =>
+const colorBlur = (hex: string) =>
   'data:image/svg+xml;charset=utf-8,' +
   encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" width="4" height="5"><rect width="4" height="5" fill="${hex}"/></svg>`
@@ -85,13 +85,12 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
   const showArrows = !frameImage && count > 1
   const isSwitching = !frameImage && activeThumb !== shownThumb
   // El contenedor toma la proporción real de la obra que se está mostrando, así no
-  // hay que elegir entre recortarla (object-cover) o rodearla de aire. `tall` queda
-  // como fallback para el placeholder y para el hook client, que no trae ratios.
+  // hay que elegir entre recortarla (object-cover) o rodearla de aire. La proporción
+  // de las cards queda como fallback para el marco y el placeholder.
   const shownRatio = product.imageRatios?.[shownThumb] ?? null
-  const aspectRatio = frameImage || !shownRatio ? `1 / ${product.tall}` : `${shownRatio}`
-  const thumbRatio = `1 / ${product.tall}`
-  const toneBg = TONE_COLORS[product.tone] ?? '#f5efe6'
-  const blurPlaceholder = toneBlur(toneBg)
+  const aspectRatio = frameImage || !shownRatio ? `1 / ${PRODUCT_IMAGE_RATIO}` : `${shownRatio}`
+  const thumbRatio = `1 / ${PRODUCT_IMAGE_RATIO}`
+  const blurPlaceholder = colorBlur(PRODUCT_IMAGE_BG)
   const mainImageStyle: React.CSSProperties = {
     opacity: isSwitching ? 0.55 : 1,
     transition: isSwitching ? SWITCH_FEEDBACK : 'opacity 150ms ease',
@@ -232,8 +231,6 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
           />
         ) : (
           <ProductImagePlaceholder
-            tone={product.tone}
-            tall={product.tall}
             catLabel={product.catLabel}
             size={product.size}
           />
@@ -305,7 +302,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ product, sticky, frameI
               aria-label={`Ver imagen ${i + 1}`}
               style={{
                 cursor: 'pointer',
-                background: toneBg,
+                background: PRODUCT_IMAGE_BG,
                 border: 'none',
                 padding: 0,
                 aspectRatio: thumbRatio,

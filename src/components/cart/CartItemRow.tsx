@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { gsap, shouldAnimate } from '@/lib/gsap'
 import { formatARS } from '@/data/products'
 import type { CartItem } from '@/context/CartContext'
-import { TONE_COLORS } from '@/data/products'
+import { PRODUCT_IMAGE_BG } from '@/data/products'
 
 interface CartItemRowProps {
   item: CartItem
@@ -65,7 +65,7 @@ const CartItemRow: React.FC<CartItemRowProps> = ({ item, onUpdateQty, onRemove }
     >
       <div
         className="relative flex-shrink-0 rounded-md overflow-hidden"
-        style={{ width: 64, height: 64, background: TONE_COLORS['a'] }}
+        style={{ width: 64, height: 64, background: PRODUCT_IMAGE_BG }}
       >
         {item.image ? (
           <Image

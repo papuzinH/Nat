@@ -2,8 +2,6 @@ import type { JSONContent } from '@tiptap/core'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
-export type ProductTone = 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
-
 export type ProductCategory = string
 
 export type ProductStatus = 'active' | 'coming-soon' | 'out-of-stock'
@@ -36,8 +34,6 @@ export interface Product {
   catLabel: string         // 'Lámina — Giclée', 'Cerámica — Gres esmaltado', etc.
   basePrice: number        // en ARS, precio del tamaño base (A4 o unidad)
   size: string             // descripción de medidas: 'A4 · 21×29,7 cm', '∅ 14 cm', etc.
-  tone: ProductTone
-  tall: number             // aspect ratio tall para placeholder: 1.3 = 1:1.3
   description: JSONContent // contenido rico TipTap (párrafos, listas, formato)
   specs: ProductSpec[]     // características dinámicas: [{label,value}, …]
   images: string[]         // paths a imágenes reales (vacío → placeholder)
@@ -69,18 +65,13 @@ export interface ProductCategoryMeta {
   label: string
 }
 
-// ─── Tokens de color por tono ────────────────────────────────────────────────
-// Nota: el catálogo completo (PRODUCTS) ahora vive en Supabase (nat_ecommerce.products).
-// Usar el hook useProducts() para acceder a productos en tiempo real.
+// ─── Imagen de producto ──────────────────────────────────────────────────────
 
-export const TONE_COLORS: Record<ProductTone, string> = {
-  a: '#ece2d1',
-  b: '#dde2d1',
-  c: '#e5d9c7',
-  d: '#d5ddcf',
-  e: '#e8dfd0',
-  f: '#dfdfd1',
-}
+/** Proporción alto/ancho de la foto en las cards de la tienda (1:1,3, vertical). */
+export const PRODUCT_IMAGE_RATIO = 1.3
+
+/** Fondo mientras carga una foto, o si el producto todavía no tiene. */
+export const PRODUCT_IMAGE_BG = '#ece2d1'
 
 // ─── Categorías ───────────────────────────────────────────────────────────────
 

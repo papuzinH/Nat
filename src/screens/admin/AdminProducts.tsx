@@ -11,7 +11,7 @@ import {
   normalizeDescription,
   EMPTY_DESCRIPTION,
 } from '@/data/products'
-import type { ProductSpec, ProductTone } from '@/data/products'
+import type { ProductSpec } from '@/data/products'
 import TipTapEditor from '@/components/admin/blog/TipTapEditor'
 import Tooltip from '@/components/admin/shared/Tooltip'
 import ConfirmDeleteInline from '@/components/admin/shared/ConfirmDeleteInline'
@@ -48,8 +48,6 @@ interface ProductRow {
   cat_label: string
   base_price: number
   size: string
-  tone: string
-  tall: number
   description: JSONContent
   specs: ProductSpec[]
   images: string[]
@@ -69,17 +67,6 @@ interface ProductRow {
   confirmDelete: boolean
   [key: string]: unknown
 }
-
-// ─── Opciones ─────────────────────────────────────────────────────────────────
-
-const TONE_OPTIONS: { value: ProductTone; label: string }[] = [
-  { value: 'a', label: 'A — crema cálido' },
-  { value: 'b', label: 'B — verde suave' },
-  { value: 'c', label: 'C — arena' },
-  { value: 'd', label: 'D — salvia' },
-  { value: 'e', label: 'E — lino' },
-  { value: 'f', label: 'F — hueso' },
-]
 
 // ─── Upload de imágenes a la colección media de PocketBase ───────────────────
 
@@ -519,7 +506,7 @@ const SpecsEditor: React.FC<{
 function emptyRow(): ProductRow {
   return {
     slug: '', title: '', category: 'laminas', cat_label: '',
-    base_price: 0, size: '', tone: 'a', tall: 1.3,
+    base_price: 0, size: '',
     description: EMPTY_DESCRIPTION, specs: [],
     images: [], tags: [], tagsInput: '', variants: [],
     has_frame: false, frame_price: 0,
@@ -594,8 +581,6 @@ function rawToRow(p: Record<string, unknown>): ProductRow {
     cat_label: p.cat_label as string,
     base_price: p.base_price as number,
     size: p.size as string,
-    tone: p.tone as string,
-    tall: p.tall as number,
     description: normalizeDescription(p.description),
     specs,
     images: (p.images as string[]) ?? [],
@@ -731,8 +716,6 @@ const AdminProducts: React.FC = () => {
       cat_label: row.cat_label,
       base_price: row.base_price,
       size: row.size,
-      tone: row.tone,
-      tall: row.tall,
       description: row.description,
       specs: cleanSpecs,
       images: row.images,
@@ -1250,21 +1233,6 @@ const AdminProducts: React.FC = () => {
                     <div>
                       <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-soft mb-4">Opciones avanzadas</p>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <Field label="Tono placeholder" tooltip="Color del fondo de espera mientras carga la imagen.">
-                          <select value={row.tone} onChange={(e) => patch(key, 'tone', e.target.value)}
-                            className="font-body text-[13px] text-ink bg-cream-50 border rounded-sm px-2 py-1.5 outline-none focus:border-sage-700 transition-colors"
-                            style={{ borderColor: 'var(--line)' }}>
-                            {TONE_OPTIONS.map((t) => (
-                              <option key={t.value} value={t.value}>{t.label}</option>
-                            ))}
-                          </select>
-                        </Field>
-                        <Field label="Proporción imagen" tooltip="1.3 = vertical · 1 = cuadrado · 0.9 = horizontal.">
-                          <input type="number" step="0.05" min={0.5} max={2.5}
-                            value={row.tall}
-                            onChange={(e) => patch(key, 'tall', parseFloat(e.target.value) || 1.3)}
-                            className={inputCls} style={inputStyle} />
-                        </Field>
                         <Field label="Orden en tienda" tooltip="Menor número = aparece primero. Usá múltiplos de 10.">
                           <input type="number" min={0} value={row.sort_order}
                             onChange={(e) => patch(key, 'sort_order', parseInt(e.target.value, 10) || 0)}
