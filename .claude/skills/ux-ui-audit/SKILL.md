@@ -1,197 +1,70 @@
 ---
 name: ux-ui-audit
-description: "UX/UI Audit Agent for validating responsive design, accessibility, contrast, component sizing, and overall user experience quality. Use this skill whenever the user mentions: auditing the UI, checking responsive design, validating mobile layout, reviewing contrast or accessibility, testing breakpoints, checking component sizes, reviewing UX flow, visual QA, or anything related to front-end quality assurance of the application. Also trigger when the user asks to 'review the design', 'check how it looks on mobile', 'validate the UI', or 'audit the frontend'."
+description: "Auditoría UX/UI del sitio de NatArt (Natalia Heller): diseño responsive, accesibilidad WCAG 2.1 AA, contraste, tamaño de áreas táctiles y calidad visual. Usar cuando se pida auditar la interfaz, revisar cómo se ve en celular o tablet, validar breakpoints, revisar contraste o accesibilidad, hacer QA visual del front, 'revisá el diseño', 'mirá cómo se ve en mobile' o 'auditá el frontend'."
 ---
 
-# UX/UI Audit Agent
+# Auditoría UX/UI — NatArt
 
-You are a senior UX/UI engineer specializing in responsive web design, accessibility (WCAG 2.1 AA), and conversion-optimized interfaces for professional/institutional websites.
+Sos ingeniero/a de frontend senior especializado en responsive, accesibilidad (WCAG 2.1 AA) y tiendas online.
 
-## Context
+## Contexto del proyecto
 
-This skill audits the Next.js application for **Steffen Mediaciones**, a law firm website with a public landing page, booking system, and admin dashboard. The design system uses:
+Sitio de **Natalia Heller**: tienda de arte + estudio de tatuajes. Next.js 16 (App Router), React 19, Tailwind 3, backend PocketBase. Detalle en `CLAUDE.md`.
 
-- **Colors**: primary #1B2A4A, secondary #8B7355, accent #C9A96E, background #FAFAF8, foreground #1A1A1A, muted #F5F3EF, border #E5E0D8
-- **Typography**: Playfair Display (headings), Source Sans 3 (body)
-- **Framework**: Next.js 14, TailwindCSS
-- **Breakpoints**: mobile (375px), tablet (768px), desktop (1280px)
+- **Paleta** (tokens en `app/globals.css` y `tailwind.config.js`): cream 50 `#fdfcfb` · 100 `#faf6f0` · 200 `#f5efe6` · 300 `#ede4d5`; taupe 300 `#d4c5b0` · 500 `#b8a898` · 700 `#8a7a6a`; sage 200 `#c8d5b9` · 400 `#9bb89f` · 500 `#7a9e7e` · 700 `#4a7c59` · 900 `#2f4a37`; amber 400 `#dda15e` · 700 `#a35e20`; ink `#2c2c2c`; ink-soft `#5a5350`.
+- **Tipografías** (`next/font`): Fraunces (display), Nunito (cuerpo), JetBrains Mono (etiquetas y datos).
+- **Breakpoints a cubrir**: 390 (celular), **768 · 834 · 1024 (tablet, el menos mirado)**, 1366 (escritorio).
 
-## Audit Process
+## Reglas propias del proyecto (violarlas es un hallazgo)
 
-When triggered, follow this structured audit workflow:
+1. **Ninguna animación puede ocultar contenido.** Nada de `opacity: 0` previo ni `gsap.set` que esconda; los reveals van con `immediateRender: false` y solo desplazamiento o desenfoque. Se mide **sin scrollear**, como lo ve un bot o una captura.
+2. **Áreas táctiles de 44×44 px** como mínimo (WCAG 2.5.5), sobre todo en el header mobile, los puntos de los carruseles y las miniaturas.
+3. **En el detalle de producto nunca `object-cover`**: es una tienda de arte y recortar la obra es peor que dejar aire. En la grilla de `/tienda` sí se recorta, a propósito.
+4. **Un solo `<main>` por página**: lo pone el layout de `(site)` o `(home)`.
+5. El **recorte de la grilla** de `/tienda` y el **punto focal** están descartados por Lauti: no volver a proponerlos.
 
-### Phase 1: Automated Checks
+## Páginas a auditar
 
-Run the dev server and use Chrome browser tools to systematically test every page at all three breakpoints.
+Públicas: `/` · `/tienda` · `/tienda/[slug]` · `/estudio` · `/estudio/reservar` · `/blog` · `/blog/[slug]` · `/contacto` · `/checkout` (con el carrito cargado; con carrito vacío redirige).
+Admin (requiere login, credenciales en `.env.local`): `/admin` · `/admin/productos` · `/admin/productos/orden` · `/admin/stock` · `/admin/ordenes` · `/admin/envios` · `/admin/galerias` · `/admin/blog`.
 
-**Pages to audit (in order):**
+## Cómo correrla
 
-1. `/` (Home/Landing)
-2. `/servicios` (Services)
-3. `/equipo` (Team)
-4. `/contacto` (Contact)
-5. `/turnos` (Booking wizard — test all 3 steps)
-6. `/admin/login` (Admin login)
-7. `/admin/dashboard` (Admin dashboard)
-8. `/admin/citas` (Appointments management)
-9. `/admin/disponibilidad` (Availability management)
-10. `/admin/mensajes` (Messages)
+1. **Servidor**: build de producción propio para no pisar el dev server de Lauti — `npx next build && npx next start -p 3917`. Confirmar el `<title>` antes de medir: suele haber otros proyectos en puertos vecinos.
+2. **Navegador**: en esta PC no hay Chrome. `playwright-core` desde el scratchpad con `chromium.launch({ channel: 'msedge' })`. Detalle en la memoria del proyecto.
+3. **Escrituras**: el admin local escribe en el PocketBase **de producción**. Interceptar con `page.route` y abortar todo lo que no sea GET.
 
-For each page, at each breakpoint (375px, 768px, 1280px):
+## Checklist
 
-1. **Take a screenshot** using Claude in Chrome tools
-2. **Visually inspect** for layout issues
+### A. Layout responsive
+- Sin scroll horizontal (`document.scrollWidth > clientWidth`) en ningún ancho.
+- Ningún elemento que se pase del ancho de la ventana.
+- Las grillas bajan de columnas sin dejar una fila con un solo huérfano.
+- Áreas táctiles ≥ 44 px; espacio suficiente entre ellas.
+- Los modales y el carrito lateral entran en la pantalla y se pueden cerrar.
+- Las tablas del admin scrollean o se apilan.
 
-### Phase 2: Checklist Evaluation
+### B. Tipografía
+- Cuerpo ≥ 16 px en celular, interlineado ≥ 1.5.
+- Los títulos fluidos (`clamp`) no se comen la pantalla en tablet.
+- Nada de texto cortado ni desbordado.
 
-For each page, evaluate against these criteria:
+### C. Contraste (WCAG AA)
+Correr `python .claude/skills/ux-ui-audit/scripts/contrast_check.py`. Mirar además el texto sobre fotos (hero, teaser del estudio) y los estados deshabilitados.
 
-#### A. Responsive Layout
-- No horizontal overflow at any breakpoint
-- Content is readable without horizontal scrolling on mobile
-- Grid layouts collapse properly (4→2→1 columns pattern)
-- Touch targets are at least 44x44px on mobile
-- Adequate padding/margins on mobile (no edge-to-edge text)
-- Sidebar collapses or becomes a drawer on mobile (admin pages)
-- Tables are scrollable or stack on mobile
-- Modal dialogs are properly sized on all breakpoints
+### D. Componentes y flujos
+- Carrusel del hero y de destacados: controles ocultos con un solo slide, puntos táctiles.
+- Galería de producto: flechas visibles, cambio de foto con aviso de carga, miniatura seleccionada con su borde entero.
+- Checkout: errores al lado del campo, envío según CP, dos métodos de pago claros.
+- Reserva de tatuaje: adjuntos, mensaje de éxito.
+- Estados vacíos con texto útil, nunca una página en blanco.
 
-#### B. Typography & Readability
-- Body text is at least 16px on mobile
-- Line height is at least 1.5 for body text
-- Headings scale down appropriately on mobile (no giant H1 on small screens)
-- Text doesn't overflow its container
-- Sufficient letter-spacing on small text
-- Playfair Display used only for headings, Source Sans 3 for body
+### E. Accesibilidad
+- Un `<h1>` por página y jerarquía sin saltos.
+- Imágenes con `alt` con sentido; las decorativas con `alt=""` o `aria-hidden`.
+- Campos con etiqueta asociada; foco visible; el color no es el único indicador.
+- Los links con ícono contienen su texto accesible.
 
-#### C. Color Contrast (WCAG AA)
-- Text on background: minimum 4.5:1 ratio for normal text, 3:1 for large text
-- Critical combinations to check:
-  - #1A1A1A on #FAFAF8 (foreground on background) — should pass
-  - #FAFAF8 on #1B2A4A (white on primary) — should pass
-  - #C9A96E on #FAFAF8 (accent on background) — likely FAILS, check
-  - #8B7355 on #FAFAF8 (secondary on background) — likely FAILS, check
-  - #C9A96E on #1B2A4A (accent on primary) — check
-  - Badge text colors against badge backgrounds
-- Interactive elements have visible focus states
-- Disabled states are distinguishable but not invisible
+## Informe
 
-#### D. Component Quality
-- Buttons have consistent padding, sizing, and hover/active states
-- Form inputs have visible labels, placeholder text, and error states
-- Cards have consistent border-radius and shadow
-- Badges use the correct color scheme per status (PENDING_PAYMENT=yellow, PAYMENT_UPLOADED=orange, CONFIRMED=green, CANCELLED=red, COMPLETED=gray)
-- Loading skeletons appear during data fetches
-- Empty states have helpful messages (no blank pages)
-
-#### E. UX Flow (Booking Wizard)
-- Step indicator clearly shows progress
-- Back/forward navigation preserves form data
-- Date picker is usable on mobile (large enough tap targets)
-- Time slot chips are easily tappable on mobile
-- Form validation shows inline errors near the field
-- Payment step clearly communicates the two options
-- File upload drag-and-drop has a tap-to-upload fallback on mobile
-- Confirmation page is reassuring and complete
-
-#### F. Navigation & Interaction
-- Header is sticky and readable over content (backdrop-blur working)
-- Mobile menu opens/closes smoothly
-- Active navigation state is visible
-- All links are functional (no dead links)
-- CTAs ("Reservar Turno") are prominent and accessible
-- Admin sidebar active state is clear
-- Logout button is accessible
-
-#### G. Accessibility
-- All images have meaningful alt text
-- One H1 per page, proper heading hierarchy
-- Form inputs have associated labels
-- ARIA labels on interactive elements
-- Focus is managed properly in modals
-- Skip-to-content link exists (or should)
-- Color is not the only indicator of state
-
-### Phase 3: Generate Report
-
-After completing the audit, produce a structured report as a Markdown file saved to the project outputs folder. The report should follow this structure:
-
-```markdown
-# UX/UI Audit Report — Steffen Mediaciones
-**Date:** [date]
-**Audited by:** Claude UX/UI Audit Agent
-**Breakpoints tested:** 375px, 768px, 1280px
-
-## Executive Summary
-[2-3 sentences on overall quality and critical findings]
-
-## Critical Issues (must fix before launch)
-[Issues that break functionality or severely impact UX]
-
-## High Priority (should fix before launch)
-[Issues that degrade the experience noticeably]
-
-## Medium Priority (fix after launch)
-[Polish items and minor inconsistencies]
-
-## Low Priority (nice to have)
-[Enhancements and suggestions]
-
-## Page-by-Page Findings
-### Home (/)
-#### Mobile (375px)
-[findings + screenshot reference]
-#### Tablet (768px)
-[findings]
-#### Desktop (1280px)
-[findings]
-[... repeat for each page]
-
-## Contrast Audit Results
-[Table of color combinations tested with pass/fail]
-
-## Accessibility Checklist
-[Checklist with pass/fail/partial for each criterion]
-```
-
-### Phase 4: Programmatic Validations
-
-Where possible, run automated checks:
-
-```bash
-# Check for horizontal overflow issues in CSS
-grep -r "overflow-x" src/ --include="*.tsx" --include="*.css"
-
-# Check for hardcoded pixel values that might break responsive
-grep -rn "w-\[.*px\]" src/components/ --include="*.tsx" | head -20
-
-# Check for missing alt attributes
-grep -rn "<img" src/ --include="*.tsx" | grep -v "alt="
-
-# Check for proper heading hierarchy
-grep -rn "<h[1-6]" src/ --include="*.tsx" | sort
-
-# Verify touch target sizes (look for small clickable elements)
-grep -rn "p-1\b\|p-0\b\|px-1\b\|py-1\b" src/components/ --include="*.tsx"
-```
-
-## Key Principles
-
-- **Mobile-first**: The most important breakpoint is 375px. Most users of a law firm website in Argentina will be on mobile.
-- **Professional aesthetic**: The design must feel institutional, trustworthy, and premium. No playful elements.
-- **Conversion-focused**: Every page should naturally guide users toward booking an appointment.
-- **Accessibility is not optional**: WCAG 2.1 AA compliance is the minimum standard.
-- **Performance matters**: Large images, unoptimized fonts, or heavy animations degrade the mobile experience.
-
-## Common Issues to Watch For
-
-These are problems frequently found in Next.js + TailwindCSS projects:
-
-1. **Accordion/modal content overflowing on mobile** — check max-height and overflow properties
-2. **Calendar component too small on mobile** — cells need to be at least 44px for touch
-3. **Table layouts breaking on mobile** — admin tables need horizontal scroll or card layout
-4. **Form inputs too close together on mobile** — need adequate vertical spacing
-5. **Sticky header covering content** — check scroll-margin-top or padding-top on anchored sections
-6. **Font sizes not scaling** — avoid fixed pixel sizes, use Tailwind's responsive text utilities
-7. **Z-index conflicts** — modal, sidebar, and header z-indices should be properly layered
-8. **Focus trapping in modals** — tab key should cycle within the modal when open
+Guardar en `docs/superpowers/reports/YYYY-MM-DD-ux-audit.md`: resumen, hallazgos por severidad (críticos, altos, medios, bajos), tabla de contraste, y página por página con el ancho donde aparece cada cosa. Cada hallazgo con **evidencia medida** (número, selector o captura), nunca "se ve raro".

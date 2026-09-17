@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
 """
-WCAG Contrast Ratio Calculator for Steffen Mediaciones design system.
-Checks all critical color combinations against WCAG AA standards.
+Contraste WCAG de la paleta de NatArt.
+Revisa las combinaciones que el sitio usa de verdad. Correr desde la raíz:
+    python .claude/skills/ux-ui-audit/scripts/contrast_check.py
 """
 
 import sys
 
 
 def hex_to_rgb(hex_color: str) -> tuple[int, int, int]:
-    """Convert hex color to RGB tuple."""
     hex_color = hex_color.lstrip('#')
-    return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+    return tuple(int(hex_color[i:i + 2], 16) for i in (0, 2, 4))
 
 
 def relative_luminance(r: int, g: int, b: int) -> float:
-    """Calculate relative luminance per WCAG 2.1."""
     def linearize(c: int) -> float:
         s = c / 255.0
         return s / 12.92 if s <= 0.03928 else ((s + 0.055) / 1.055) ** 2.4
@@ -23,109 +22,87 @@ def relative_luminance(r: int, g: int, b: int) -> float:
 
 
 def contrast_ratio(color1: str, color2: str) -> float:
-    """Calculate contrast ratio between two hex colors."""
     l1 = relative_luminance(*hex_to_rgb(color1))
     l2 = relative_luminance(*hex_to_rgb(color2))
-    lighter = max(l1, l2)
-    darker = min(l1, l2)
-    return (lighter + 0.05) / (darker + 0.05)
+    return (max(l1, l2) + 0.05) / (min(l1, l2) + 0.05)
 
 
-# Design system colors
+# Tokens de app/globals.css y tailwind.config.js
 COLORS = {
-    "primary": "#1B2A4A",
-    "secondary": "#8B7355",
-    "accent": "#C9A96E",
-    "background": "#FAFAF8",
-    "foreground": "#1A1A1A",
-    "muted": "#F5F3EF",
-    "border": "#E5E0D8",
-    "white": "#FFFFFF",
-    "black": "#000000",
-    # Badge colors (approximate)
-    "badge-yellow-bg": "#FEF3C7",
-    "badge-yellow-text": "#92400E",
-    "badge-orange-bg": "#FFEDD5",
-    "badge-orange-text": "#9A3412",
-    "badge-green-bg": "#DCFCE7",
-    "badge-green-text": "#166534",
-    "badge-red-bg": "#FEE2E2",
-    "badge-red-text": "#991B1B",
-    "badge-gray-bg": "#F3F4F6",
-    "badge-gray-text": "#374151",
+    "cream-50": "#fdfcfb",
+    "cream-100": "#faf6f0",
+    "cream-200": "#f5efe6",
+    "cream-300": "#ede4d5",
+    "taupe-300": "#d4c5b0",
+    "taupe-500": "#b8a898",
+    "taupe-700": "#8a7a6a",
+    "sage-200": "#c8d5b9",
+    "sage-400": "#9bb89f",
+    "sage-500": "#7a9e7e",
+    "sage-700": "#4a7c59",
+    "sage-900": "#2f4a37",
+    "amber-400": "#dda15e",
+    "amber-700": "#a35e20",
+    "ink": "#2c2c2c",
+    "ink-soft": "#5a5350",
 }
 
-# Critical combinations to check
+# (texto, fondo, dónde se usa, mínimo). 4.5 para texto normal, 3.0 para texto grande.
 CHECKS = [
-    # Normal text combinations
-    ("foreground", "background", "Normal text on background", 4.5),
-    ("foreground", "muted", "Normal text on muted background", 4.5),
-    ("white", "primary", "White text on primary (header/footer)", 4.5),
-    ("accent", "background", "Accent text on background", 4.5),
-    ("accent", "primary", "Accent on primary (CTAs in header)", 3.0),
-    ("secondary", "background", "Secondary text on background", 4.5),
-    ("secondary", "muted", "Secondary text on muted background", 4.5),
-    ("primary", "background", "Primary text on background", 4.5),
-    ("primary", "muted", "Primary text on muted", 4.5),
-    # Large text (headings) - 3:1 ratio required
-    ("primary", "background", "Primary heading on background (large)", 3.0),
-    ("accent", "background", "Accent heading on background (large)", 3.0),
-    # Badge combinations
-    ("badge-yellow-text", "badge-yellow-bg", "PENDING_PAYMENT badge", 4.5),
-    ("badge-orange-text", "badge-orange-bg", "PAYMENT_UPLOADED badge", 4.5),
-    ("badge-green-text", "badge-green-bg", "CONFIRMED badge", 4.5),
-    ("badge-red-text", "badge-red-bg", "CANCELLED badge", 4.5),
-    ("badge-gray-text", "badge-gray-bg", "COMPLETED badge", 4.5),
-    # Interactive elements
-    ("white", "accent", "White text on accent button", 4.5),
-    ("primary", "accent", "Primary text on accent button", 4.5),
-    ("foreground", "border", "Text on border-colored element", 4.5),
+    ("ink", "cream-50", "Texto principal sobre el fondo del sitio", 4.5),
+    ("ink", "cream-100", "Texto sobre secciones crema", 4.5),
+    ("ink", "cream-200", "Texto sobre tarjetas y chips", 4.5),
+    ("ink-soft", "cream-50", "Texto secundario (descripciones, ayudas)", 4.5),
+    ("ink-soft", "cream-100", "Texto secundario sobre crema (avisos, toolbar admin)", 4.5),
+    ("ink-soft", "cream-200", "Etiquetas mono sobre chips (ARS, categorías)", 4.5),
+    ("sage-700", "cream-50", "Precio y links verdes", 4.5),
+    ("sage-700", "cream-100", "Links verdes sobre crema (eyebrow, aviso cerámica)", 4.5),
+    ("sage-900", "cream-50", "Precio del detalle de producto", 4.5),
+    ("amber-700", "cream-100", "Eyebrow del hero (corregido el 2026-09-07)", 4.5),
+    ("cream-50", "sage-700", "Texto del botón principal (Agregar al carrito)", 4.5),
+    ("cream-50", "sage-900", "Badge Vendido y pills activos del filtro", 4.5),
+    # taupe-700 NO sirve para texto: da 4,04:1 sobre cream-50 y no llega a AA.
+    # Se sacó de BlogCard el 2026-09-17; para texto atenuado va ink-soft.
+    # Texto grande (títulos, ≥ 24px o ≥ 18.66px en negrita)
+    ("sage-700", "cream-50", "Título en cursiva verde (grande)", 3.0),
+    ("ink-soft", "cream-100", "Subtítulos de hero (grande)", 3.0),
+    # Elementos no textuales que SÍ comunican estado: mínimo 3:1 (WCAG 1.4.11).
+    # El punto activo del carrusel es el que marca la posición; el inactivo
+    # (taupe-500) y los motivos botánicos (sage-500) son decorativos y quedan fuera.
+    ("sage-700", "cream-50", "Punto activo del carrusel y borde de foco", 3.0),
 ]
 
 
-def main():
-    print("=" * 70)
-    print("WCAG AA Contrast Audit — Steffen Mediaciones")
-    print("=" * 70)
+def main() -> int:
+    print("=" * 72)
+    print("Contraste WCAG AA — NatArt")
+    print("=" * 72)
     print()
 
-    passed = 0
-    failed = 0
-    warnings = []
+    fallan = []
+    pasan = 0
 
-    for fg_name, bg_name, description, min_ratio in CHECKS:
-        fg = COLORS[fg_name]
-        bg = COLORS[bg_name]
+    for fg_name, bg_name, descripcion, minimo in CHECKS:
+        fg, bg = COLORS[fg_name], COLORS[bg_name]
         ratio = contrast_ratio(fg, bg)
-        status = "PASS" if ratio >= min_ratio else "FAIL"
-
-        if status == "FAIL":
-            failed += 1
-            indicator = "FAIL"
+        ok = ratio >= minimo
+        if ok:
+            pasan += 1
         else:
-            passed += 1
-            indicator = "PASS"
-
-        line = f"  [{indicator}] {ratio:5.2f}:1 (min {min_ratio}:1) — {description}"
-        if status == "FAIL":
-            line += f"  ({fg_name} {fg} on {bg_name} {bg})"
-            warnings.append((description, ratio, min_ratio, fg, bg))
-
-        print(line)
+            fallan.append((descripcion, ratio, minimo, fg_name, fg, bg_name, bg))
+        print(f"  [{'OK  ' if ok else 'FALLA'}] {ratio:5.2f}:1 (mín {minimo}:1) — {descripcion}")
 
     print()
-    print("-" * 70)
-    print(f"Results: {passed} passed, {failed} failed out of {passed + failed} checks")
-    print()
+    print("-" * 72)
+    print(f"Resultado: {pasan} pasan, {len(fallan)} fallan de {pasan + len(fallan)}")
 
-    if warnings:
-        print("ISSUES TO FIX:")
-        for desc, ratio, min_ratio, fg, bg in warnings:
-            print(f"  - {desc}: {ratio:.2f}:1 (needs {min_ratio}:1)")
-            print(f"    Foreground: {fg} | Background: {bg}")
-            print()
+    if fallan:
+        print("\nPARA CORREGIR:")
+        for desc, ratio, minimo, fgn, fg, bgn, bg in fallan:
+            print(f"  - {desc}: {ratio:.2f}:1, necesita {minimo}:1")
+            print(f"    texto {fgn} {fg} sobre {bgn} {bg}")
 
-    return 1 if failed > 0 else 0
+    return 1 if fallan else 0
 
 
 if __name__ == "__main__":
