@@ -10,7 +10,10 @@ import ToastViewport from '@/components/admin/shared/ToastViewport'
 import BotanicalMotion from '@/components/shared/BotanicalMotion'
 import { SITE_URL } from '@/lib/seo'
 
-const GTM_ID = 'GTM-WXL45DSC'
+// Google Analytics 4 directo, sin Tag Manager: el contenedor GTM bajaba 325 KB
+// (112 KB transferidos) y no tenía NINGUNA etiqueta configurada — el sitio pagaba
+// el peso y no medía nada (verificado el 2026-09-17). El ID es público.
+const GA_ID = 'G-3EW4EJND04'
 
 // Fuentes vía next/font/google — self-hosted, sin render-blocking ni FOUT.
 // Exponen CSS variables consumidas por tailwind.config.js (display/body/mono).
@@ -70,24 +73,23 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={`${fraunces.variable} ${nunito.variable} ${jetbrainsMono.variable}`}
     >
       <body>
-        {/* Google Tag Manager — carga diferida tras interactividad */}
-        {/* lazyOnload y no afterInteractive: GTM baja 117 KiB de los que la
-            pagina usa ~40, y compite por el main thread justo mientras se
-            pinta el hero. Cargarlo despues del load saca ese trabajo de la
-            ventana que Google mide. Contrapartida: se pierden los eventos de
-            un rebote muy rapido; si hace falta precision, volver a afterInteractive. */}
-        <Script id="gtm-script" strategy="lazyOnload">
-          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${GTM_ID}');`}
+        {/* GA4 con lazyOnload, igual que hacía GTM: gtag.js son 145 KB
+            transferidos que competirían por el hilo principal justo mientras se
+            pinta el hero. Cargarlo después del load saca ese trabajo de la
+            ventana que Google mide. Contrapartida: se pierden los eventos de un
+            rebote muy rápido; si hace falta precisión, pasar a afterInteractive. */}
+        <Script
+          id="ga4-src"
+          strategy="lazyOnload"
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+        />
+        {/* El atajo gtag se define apenas hidrata (150 bytes): si se definiera
+            también en diferido, un evento disparado antes de que baje gtag.js se
+            perdería en silencio. Los eventos quedan encolados en dataLayer y se
+            mandan cuando el script llega. */}
+        <Script id="ga4-init" strategy="afterInteractive">
+          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`}
         </Script>
-        <noscript>
-          <iframe
-            src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
-            height="0"
-            width="0"
-            style={{ display: 'none', visibility: 'hidden' }}
-            title="Google Tag Manager"
-          />
-        </noscript>
 
         <CartProvider>
           <ToastProvider>

@@ -88,17 +88,10 @@ export const useContactForm = ({ designId, designTitle }: UseContactFormProps = 
         throw new Error(`send-contact-email ${res.status}`);
       }
 
-      const w = window as Window & { dataLayer?: Record<string, unknown>[] }
-      if (w.dataLayer) {
-        w.dataLayer.push({
-          event: 'form_submitted_success',
-          design_id: designId || undefined,
-          design_title: designTitle || undefined,
-          conversion_value: 50,
-          currency: 'USD',
-          lead_type: designId ? 'tattoo_inquiry' : 'general_contact',
-        });
-      }
+      const w = window as Window & { gtag?: (...args: unknown[]) => void }
+      w.gtag?.('event', 'contacto_enviado', {
+        tipo: designId ? 'consulta_por_obra' : 'consulta_general',
+      });
 
       setSent(true);
     } catch (error) {
