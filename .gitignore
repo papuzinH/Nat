@@ -37,3 +37,5 @@ tsconfig.tsbuildinfo
 *.sw?
 .vercel
 .env*
+
+.playwright-mcp/
