@@ -48,5 +48,8 @@
       "Bash(vercel env *)",
       "PowerShell(rtk *)"
     ]
+  },
+  "enabledPlugins": {
+    "figma@claude-plugins-official": true
   }
 }
